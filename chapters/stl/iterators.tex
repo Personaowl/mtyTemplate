@@ -1,0 +1,20 @@
+% Source: ACM_Templates.pdf pp. 109-110.
+% Reference: https://en.cppreference.com/w/cpp/iterator/reverse_iterator.html
+\subsection{迭代器、区间与逆序遍历}
+\label{stl:iterators}
+\subsubsection*{原理}
+迭代器表示容器中的位置，\InlineCode{*it} 读取当前位置。\InlineCode{begin()} 指向首元素，\InlineCode{end()} 指向末元素之后；空容器两者相等。标准算法处理 $[first,last)$，不包含 \InlineCode{last}，因此能用相同方式表示空区间。
+
+\InlineCode{rbegin()}、\InlineCode{rend()} 给出反向区间，反向迭代器的 \InlineCode{++it} 向原序列较前的位置移动。数组、字符串及动态数组支持迭代器加减；有序集合和映射只能逐步移动，不能用 \InlineCode{it+k} 或两迭代器相减求排名。
+\subsubsection*{使用教程}
+范围循环的 \InlineCode{auto x} 是副本，\InlineCode{auto &x} 可修改原元素，\InlineCode{const auto &x} 适合只读且避免复制。反向遍历时仍用递增；如需下标倒序，先将 \InlineCode{size()} 转为有符号类型，避免空容器无符号减一。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<int> a={2,4,6};
+for(auto &x:a) x+=1;
+vector<int> b;
+for(auto it=a.rbegin();it!=a.rend();++it) b.push_back(*it);
+for(int i=(int)a.size()-1;i>=0;i--) b.push_back(a[i]);
+auto it=find(a.begin(),a.end(),5);
+if(it!=a.end()) *it=7;
+\end{lstlisting}
+\InlineCode{end()/rend()} 均不能解引用，\InlineCode{begin()} 也不能直接递减；\InlineCode{prev(end())} 仅在非空时合法。增删元素可能使旧迭代器失效，不能一边修改容器一边无条件沿旧迭代器继续走。反向迭代器的 \InlineCode{base()} 指向其元素之后，不是当前元素本身。

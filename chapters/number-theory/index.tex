@@ -1,5 +1,5 @@
 \chapter{数论}
-\ChapterIntro{本章涵盖基础数论、组合计数、矩阵、线性代数与博弈。定理保留适用条件和推导思路，纯原理内容直接查阅公式；代码条目给出接口调用。模板默认接在标准头文件与命名空间声明之后，显式使用 64 位整数存储主要数值，兼容常用的整数宏。}
+\ChapterIntro{本章涵盖基础数论、组合计数、多项式、矩阵、线性代数与博弈。定理保留适用条件和推导思路，纯原理内容直接查阅公式；代码条目给出接口调用。模板默认接在标准头文件与命名空间声明之后，显式使用 64 位整数存储主要数值，兼容常用的整数宏。}
 \begin{AlgorithmGroups}
 \section{模运算与同余方程}
 \input{chapters/number-theory/qpow}
@@ -8,15 +8,21 @@
 \input{chapters/number-theory/excrt}
 \section{素数、数论函数与求和}
 \input{chapters/number-theory/sieve}
+\input{chapters/number-theory/prime_test}
 \input{chapters/number-theory/euler}
 \input{chapters/number-theory/legendre}
 \input{chapters/number-theory/division_blocks}
+\input{chapters/number-theory/mobius}
 \section{组合计数}
 \input{chapters/number-theory/comb}
 \input{chapters/number-theory/lucas}
 \input{chapters/number-theory/counting}
 \input{chapters/number-theory/inclusion}
 \input{chapters/number-theory/cantor}
+\section{插值与多项式}
+\input{chapters/number-theory/lagrange}
+\input{chapters/number-theory/fft}
+\input{chapters/number-theory/ntt}
 \section{矩阵与线性代数}
 \input{chapters/number-theory/matrix}
 \input{chapters/number-theory/gauss}

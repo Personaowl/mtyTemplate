@@ -43,13 +43,13 @@ $ax\equiv c\pmod m$ 等价于 $ax+my=c$。令 $d=\gcd(a,m)$：若 $d\nmid c$ 无
 在 $[0,m-1]$ 内恰有 $d$ 个不同解，相邻解相差 $m/d$。
 
 \subsubsection*{使用教程}
-\InlineCode{exgcd(a,b,x,y)} 返回 $d$，通过引用写回满足 $ax+by=d$ 的系数。求一般方程时先判断整除，再放大特解。
+\InlineCode{exgcd(a,b,x,y)} 的前两项是系数，返回正的 $d=\gcd(a,b)$，并通过引用写回满足 $ax+by=d$ 的 \InlineCode{x,y}；无需预处理。求 $ax+by=c$ 时，先判断 $d\mid c$，再放大特解。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 long long a=18,b=30,c=12,x,y;
 long long d=exgcd(a,b,x,y);
 if(c%d==0){
-    __int128 xp=(__int128)x*(c/d);
-    __int128 yp=(__int128)y*(c/d);
+	__int128 xp=(__int128)x*(c/d);
+	__int128 yp=(__int128)y*(c/d);
 }
 \end{lstlisting}
 

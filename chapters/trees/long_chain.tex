@@ -16,7 +16,7 @@
 
 长链也常用于按相对深度存储的子树 DP：优先继承长儿子的状态，轻儿子再合并；具体总复杂度取决于状态和合并方式，本节不把所有深度 DP 都笼统视为线性。
 \subsubsection*{使用教程}
-\InlineCode{build(root)} 内部完成倍增与长链构建。\InlineCode{son,len,top} 是长儿子、向下长度和链顶，\InlineCode{jump(u,k)} 查询祖先；\InlineCode{tr} 保存对应的 TreeLCA，可继续查询 LCA。这里只提供剖分和祖先查询，不包含区间维护。
+\InlineCode{init(n)} 后用 \InlineCode{add(u,v)} 加无向边，每边一次；\InlineCode{build(root)} 完成倍增与长链构建，省略根取 1，重跑保留边并重置结果。\InlineCode{jump(u,k)} 返回 $u$ 的第 $k$ 级祖先，$k=0$ 返回自身，负数或越过根返回 0；\InlineCode{tr.lca(u,v)} 可继续查询 LCA。\InlineCode{son,len,top} 分别为长儿子、向下长度和链顶，不含区间维护。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 LongChain g;
 g.init(5);

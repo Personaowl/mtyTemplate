@@ -1,0 +1,31 @@
+% Source: Independent closed-left Sutherland-Hodgman clipping; KACTL PolygonCut.h cross-check (its retained side differs).
+\subsection{凸多边形裁剪与交集}
+\label{geo:polygon-cut}
+\AlgorithmInfo
+    {用闭半平面裁剪凸多边形，或求两个凸多边形交集。}
+    {单次裁剪 $O(n)$；两个凸多边形逐边裁剪 $O(m(n+m))$ 上界，空间 $O(n+m)$。}
+    {依赖实数点、直线、实数多边形；裁剪对象须为凸集边界。}
+\subsubsection*{原理}
+
+沿原多边形逐边扫描，保留位于有向直线左侧或边界上的端点；若边两端一内一外，就加入与边界的交点。用两端有向距离 x、y 插值得 $a+(b-a)x/(x-y)$。
+
+先将容差内的有向距离归零，再按归零后的符号判断内外和插值，避免“两端实际都在同侧，但因 EPS 分类不同”导致交点被外推到线段之外。结果只去掉相邻重复点和重复首尾，允许退化成点或线段。
+
+两个凸多边形求交，将第二个多边形改成逆时针，依次按其每条边保留左侧即可。普通凹多边形与半平面相交可能得到多个分离区域，本接口的单个顶点环不能表达这种结果。
+
+\subsubsection*{使用教程}
+\InlineCode{clean_polygon(p)} 只去相邻近重点及末尾重复首点，保留顺序；它不会全局去重、去掉中间共线点或把输入变成凸包。实数点的近重合可能有几何意义，按题目尺度决定是否清理。
+
+\InlineCode{cut_polygon(p,l)} 用有向直线 l 的\textbf{闭左半平面}裁剪凸多边形 p；交换 Line 的构造端点即可保留另一侧。p 可顺／逆时针，允许空集、单点、线段，输出同样可能为空、点、线段或多边形。要保留零面积可行集时，应查看是否为空，不能只检查面积是否大于 0。
+
+\InlineCode{convex_intersection(p,q)} 将 p 逐次按 q 的边裁剪；p 为凸区域，q 必须是非退化凸多边形，至少三点、按边界顺序且无重复首点，函数内部会将顺时针 q 翻转。结果可退化；它不处理一般非凸多边形交。三个函数不修改调用者原数组，也无需额外初始化；下面先清理输入，再分别演示一次裁剪和两凸多边形求交。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<Point> p={{0,0},{4,0},{4,3},{0,3}};
+p=clean_polygon(p);
+auto left=cut_polygon(p,Line(Point{2,-1},Point{2,4}));
+vector<Point> q={{1,1},{5,1},{5,4},{1,4}};
+auto common=convex_intersection(p,q);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/polygon_cut.cpp}

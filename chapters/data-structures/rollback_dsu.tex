@@ -1,0 +1,28 @@
+% Source: ACM_Templates.pdf pp. 40-66. daily-problems/3-24/U531226; https://cp-algorithms.com/data_structures/deleting_in_log_n.html
+\subsection{可撤销并查集}
+\label{ds:rollback-dsu}
+\AlgorithmInfo
+    {撤销最近的成功合并，或回到保存的历史状态。}
+    {初始化 $O(n)$；查找、合并 $O(\log n)$；单次撤销 $O(1)$；当前记录空间 $O(n)$。}
+    {编号 $1\ldots n$；只按大小合并，不做路径压缩。}
+\subsubsection*{原理}
+路径压缩会改动大量父亲，不利于撤销。这里只按大小合并，使树高为 $O(\log n)$，每次成功合并记录两个根 $(x,y)$，令 $y$ 接到 $x$。按相反顺序撤销时，$y$ 的大小已恢复为合并前状态，将其断开并从 $sz_x$ 中减去即可。可配合时间线段树处理离线动态连通性。
+
+\subsubsection*{使用教程}
+基础接口 \InlineCode{init/find/merge/check/size} 与普通并查集相同。\InlineCode{time()} 返回成功合并记录数；先保存 \InlineCode{t}，执行若干合并，再用 \InlineCode{rollback(t)} 回到该状态。\InlineCode{revert()} 只撤销最近一次成功合并，调用时记录须非空。\InlineCode{init} 同时清空历史。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+RollbackDSU dsu;
+dsu.init(5);
+dsu.merge(1,2);
+int t=dsu.time();
+dsu.merge(2,3);
+dsu.merge(1,3);
+dsu.rollback(t);
+bool ok=dsu.check(1,3);
+dsu.revert();
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/rollback_dsu.cpp}
+\subsubsection*{需要注意}
+失败的合并不入栈，不能按合并调用次数来撤销。快照只表示当前历史的前缀；撤销并改走另一分支后，不能用已失效的快照恢复被丢弃的状态。

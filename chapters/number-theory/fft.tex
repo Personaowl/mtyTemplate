@@ -1,0 +1,34 @@
+% Source: ACM_Templates.pdf, pp.115-117. Algorithm body preserved; original demonstration main is kept as usage rather than duplicated. Theory cross-check: https://cp-algorithms.com/algebra/fft.html.
+\subsection{FFT：整数多项式卷积}
+\label{math:fft}
+\AlgorithmInfo
+    {通过复数点值乘法计算整系数多项式乘积。}
+    {补零长度 L 后 $O(L\log L)$ 时间，$O(L)$ 工作空间及固定翻转表。}
+    {数组 0 下标；$2\le L\le2^{20}$，L 为不小于 n+m-1 的最小二次幂。}
+\subsubsection*{原理}
+将 $A(x)=\sum a_ix^i$ 与 $B(x)=\sum b_ix^i$ 相乘，系数满足
+\[
+ c_k=\sum_{i+j=k}a_i b_j.
+\]
+直接求和是二次复杂度；换成足够多的点值后，同一横坐标的值可逐点相乘，再插值恢复系数。DFT 选取 L 次单位根 $\omega_L$，计算 $\widehat a_k=\sum_j a_j\omega_L^{jk}$。按幂次奇偶拆开，有
+\[
+ A(x)=A_0(x^2)+xA_1(x^2).
+\]
+利用 $\omega_L^2=\omega_{L/2}$ 与相差半圈的符号关系，每层只做线性次蝶形合并，层数为 $\log L$。逆变换把旋转方向取反，再除以 L。L 至少为 n+m-1，避免高次项按 L 循环折回。
+
+这里使用 double 实现复数运算，卷积实部四舍五入为整数。精度受长度、系数大小和消减影响，输出能装入整数也不意味着浮点误差一定小于 0.5；对严格模意义题优先使用下一节 NTT。
+\subsubsection*{使用教程}
+系数按常数项到最高次排列，\InlineCode{FFT::multiply(A,B)} 返回长度 n+m-1 的系数数组，不修改输入。必须非空，补零长度不超过固定表；两者都只有常数项时\textbf{直接相乘，不调用变换}，否则长度为 1 会使翻转表出现负位移。空多项式由调用处返回空数组。
+
+整数类型跟随本文件中的 int；普通模式下输出须装入 int，整数宏模式下为 long long，但 double 仍只有自身的有效位数，不能因此随意放大系数。直接调用底层变换时，先按二次幂长度补零，调用 \InlineCode{FFT::GetReverse(L,logL)}，再以 dir=1 正变换、dir=-1 逆变换；此实现逆变换\textbf{只归一化实部}，适用于本节整数卷积，不能直接把完整复数向量当作标准逆 DFT 结果。重复乘法会重建翻转表，无需外部清空。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<int> A={1,2,3},B={4,5},C;
+if(A.empty()||B.empty()) C={};
+else if(A.size()==1&&B.size()==1) C={A[0]*B[0]};
+else C=FFT::multiply(A,B);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/number-theory/fft.cpp}
+\subsubsection*{需要注意}
+取整前系数应在返回整数类型范围内；常数乘法也需满足此范围。长度、系数精度与输出范围分别检查，MAX\_SIZE 是容量，不是精度保证。

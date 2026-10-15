@@ -1,0 +1,47 @@
+% Reference: https://cp-algorithms.com/graph/euler_path.html
+% Review and validation: docs/validation.md.
+\subsection{欧拉路径与欧拉回路}
+\label{algo:euler-walk}
+\AlgorithmInfo
+    {构造恰好经过每条边一次的行走；起终点相同称欧拉回路。}
+    {时间、空间 $O(n+m)$；递归 Hierholzer，最坏递归深度 $O(m)$。}
+    {顶点 $1\ldots n$，$n\geq1$；支持有向／无向图、重边、自环；边编号从 0 开始。}
+
+\subsubsection*{存在条件}
+只考虑至少关联一条边的顶点，孤立点不影响能否走完全部边。
+\begin{itemize}
+    \item 无向图：这些点连通，且奇度点为 $0$ 或 $2$ 个。零个时有回路；两个时从任意一个奇度点出发，到另一个结束。自环贡献两次度数。
+    \item 有向图：忽略方向后这些点连通，且所有点入度等于出度，或恰有一个点出度比入度大 $1$、另一个点入度比出度大 $1$，其余点平衡。后一种情况必须从前者出发，到后者结束。
+\end{itemize}
+有向开放路径不要求原图强连通。实现先检查度数和起点，最后检查实际使用的边数是否为 $m$，从而同时排除分离的有边连通块。
+
+\subsubsection*{Hierholzer 构造}
+从合法起点沿未使用边递归行走，走不动时把当前点加入答案，回溯时记录进入该递归的边。最后反转点序列与边序列，相当于把途中找到的回路逐个拼接，得到欧拉路径。
+
+无向边的两个邻接项共用同一编号，用 \InlineCode{used[id]} 保证只走一次；不能仅靠端点或父节点判断，重边需要分别经过。每个顶点保存邻接扫描位置 \InlineCode{cur}，避免反复从表头查找。
+
+\subsubsection*{使用教程}
+\InlineCode{init(n,false)} 建无向图，\InlineCode{init(n,true)} 建有向图；\InlineCode{add(u,v)} 按该模式加一条边并返回编号，无向边也\textbf{只调用一次}。\InlineCode{build()} 自动选择起点，\InlineCode{build(s)} 强制从 $s$ 出发，返回是否存在；指定不合法起点也返回假。
+
+成功后 \InlineCode{path} 为 $m+1$ 个顶点，\InlineCode{eid} 为 $m$ 个原边编号，均从下标 0 读取，\InlineCode{eid[i]} 对应 \InlineCode{path[i]} 到 \InlineCode{path[i+1]}。失败时两个结果清空；重复构造保留原图，不消耗边。无边时约定返回只含起点的路径，自动起点为 1。不保证字典序最小。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+EulerWalk g;
+g.init(4);
+int id=g.add(1,2);
+g.add(2,3);g.add(3,1);g.add(1,4);
+if(g.build()){
+	auto vertices=g.path,edges=g.eid;
+	bool circuit=g.path.front()==g.path.back();
+}
+EulerWalk dg;
+dg.init(3,true);
+dg.add(1,2);dg.add(2,1);dg.add(1,3);
+bool ok=dg.build(1);
+\end{lstlisting}
+
+\subsubsection*{递归深度}
+这里递归深度按\textbf{边数}估计，即使顶点很少，很多重边或自环也会产生深递归；大边数题需确认评测栈空间。
+
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/graphs/euler_walk.cpp}

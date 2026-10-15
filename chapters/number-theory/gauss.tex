@@ -16,7 +16,7 @@
 \subsubsection*{实数消元的使用教程}
 \InlineCode{gauss(a,ans,eps)} 接收从 $0$ 开始的 $n\times(m+1)$ 增广矩阵，要求 $n\geq1$，末列为常数；矩阵按值传入，原数据保留。返回 $0$ 表示无解，$1$ 表示唯一解，$2$ 表示多解；有解时 \InlineCode{ans} 存一组特解，按未知数顺序从 $0$ 开始。
 
-每次选取剩余行中绝对值最大的主元，以减轻数值误差；绝对值不超过 \InlineCode{eps} 时视为零。
+\InlineCode{eps} 为判零阈值，省略时取 $10^{-9}$；无解时清空 \InlineCode{ans}。函数内部完成消元，无需初始化；每次选绝对值最大的主元以减轻误差。
 
 时间复杂度为 $O(nm\min(n,m))$，额外空间为 $O(nm)$。固定绝对误差阈值适合量级适中的竞赛数据，数值量级跨度大或病态系统需另作缩放与误差分析。
 \begin{lstlisting}[style=mtycpp,numbers=none]
@@ -35,7 +35,7 @@ int status=gauss(a,ans);
 判定方式与上面相同，但有自由变量时解的数量是\textbf{有限的} $2^{m-r}$，不是无穷多。秩应按实际选中的主元计数，不能简单依赖消元后对角线上的 $1$。
 
 \subsubsection*{异或模板的使用教程}
-\InlineCode{xor_gauss(a,ans,rank)} 的矩阵与返回状态约定同上，元素必须为 $0$ 或 $1$；通过引用返回秩。若只需方案数，有解时根据自由变量数 $m-\InlineCode{rank}$ 计算 $2^{m-r}$，按题意决定取模或大整数。
+\InlineCode{xor_gauss(a,ans,rank)} 的矩阵与返回状态约定同上，元素必须为 $0$ 或 $1$；\InlineCode{ans} 写回一组特解，\InlineCode{rank} 通过引用写回系数矩阵的秩，输入矩阵不变。若只需方案数，有解时根据自由变量数 $m-\InlineCode{rank}$ 计算 $2^{m-r}$，按题意决定取模或大整数。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 vector<vector<int>> a={{1,1,0},{0,1,1}};
 vector<int> ans;

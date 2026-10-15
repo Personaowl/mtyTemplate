@@ -1,0 +1,8 @@
+% Source: Contest workflow independently written; GNU Bash/coreutils or Microsoft CMD documentation.
+\subsection{Ubuntu 编译与指定输入输出}
+\label{other:run}
+\subsubsection*{使用教程}
+在题目目录准备好 in.txt，运行 \InlineCode{bash run.sh a.cpp}，唯一参数是要编译的源码文件名（含 .cpp）。脚本使用 C++17、O2 编译为 main，成功后从 in.txt 读入，标准输出写入 out.txt；每次运行覆盖 out.txt。源码路径有空格时加引号。\InlineCode{&&} 保证编译失败时不会运行之前的程序。
+\needspace{7\baselineskip}
+\subsubsection*{脚本代码}
+\lstinputlisting[style=mtycpp,language=bash]{contest/run.sh}

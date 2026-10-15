@@ -19,7 +19,9 @@
 \]
 汇总后的 $d_x$ 表示边 $(fa_x,x)$ 的贡献，因为两端在该边下方子树内恰有一个时才会留下净值。两种差分分别维护，不能混用。$u=v$ 时，点差分修改一个点，边差分不修改任何边。
 \subsubsection*{使用教程}
-\InlineCode{init(n)}、\InlineCode{add(u,v)}、\InlineCode{build(root)} 后，分别用 \InlineCode{add_point} 和 \InlineCode{add_edge} 登记路径修改。\InlineCode{collect()} 返回两份从 1 开始的结果数组：点贡献，以及按较深端点存放的边贡献；根对应的边结果不用。汇总使用副本，重复调用不会重复累加；\InlineCode{clear()} 清除修改并保留树和倍增。
+先 \InlineCode{init(n)}，用 \InlineCode{add(u,v)} 加无向边（每边一次），再 \InlineCode{build(root)} 预处理，省略根取 1。
+
+\InlineCode{add_point(u,v,w)} 给路径含两端的每个点加 $w$，\InlineCode{add_edge(u,v,w)} 给路径每条边加 $w$。\InlineCode{collect()} 返回两份从 1 开始的数组：点贡献，以及按较深端点存放的边贡献，根对应的边结果不用。汇总使用副本，重复调用不会重复累加；\InlineCode{clear()} 清除修改并保留树和倍增。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 TreeDifference g;
 g.init(4);

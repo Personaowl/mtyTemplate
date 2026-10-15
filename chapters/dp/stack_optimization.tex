@@ -1,0 +1,34 @@
+% Source: Independent grouped-candidate derivation and implementation.
+\subsection{单调栈优化：分段最大值之和}
+\label{dp:stack-optimization}
+\AlgorithmInfo
+    {恰好 K 段划分，最小化每段最大值的总和。}
+    {时间 $O(Kn)$，空间 $O(n)$。}
+    {1 下标数组，$0\le K\le n$；所有有限段代价、DP 值严格在 $(-INF,INF)$ 内。}
+\subsubsection*{原理}
+
+把前 i 个元素分为恰好 t 个非空段，使各段最大值之和最小。直接转移为
+\[
+ f_{t,i}=\min_{t-1\le j<i}\bigl(f_{t-1,j}+\max(a_{j+1},\ldots,a_i)\bigr).
+\]
+初始只有 $f_{0,0}=0$，其他状态不可达；每一层只从上一层读取，保证恰好 t 段。固定一层 t，扫描 i。所有决策 j 按“最后一段当前最大值”分成连续的组；新 $a_i$ 会把最大值不大于它的栈尾组统一抬到 $a_i$，这些组可合并，只需保留组内最小的上一层 f 值。
+
+栈内组的 maxn 从底到顶严格递减：较早的断点拥有更长末段，最大值不会更小。每次先加入新断点 j=i-1，其旧层代价为 $f_{t-1,i-1}$，再合并被 $a_i$ 覆盖的旧组。节点的三个字段分别是
+\[
+ maxn=\text{该组末段最大值},\quad
+ best=\min_{j\text{ 在该组}} f_{t-1,j},\quad
+ pref=\min_{\text{栈底至当前组}}(best+maxn).
+\]
+弹栈时合并 best，新节点的候选为 $best+a_i$，再与剩余栈顶的 pref 取最小；栈顶 pref 即当前答案。每组每层只入栈、出栈一次，从而降为每层 $O(n)$。
+
+\subsubsection*{使用教程}
+\InlineCode{partition_maxima(a,K)} 返回最小代价；无法划分（如非空数组分 0 段）时返回 \InlineCode{4e18}。函数内每层从上一层重建状态，负数和重复值均可使用。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<long long> a={0,6,1,5,2};
+long long ans=partition_maxima(a,2);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/stack_optimization.cpp}
+\subsubsection*{需要注意}
+这里优化的是特定“段最大值 + 上一层代价”的结构。仅有单调栈求最近更大位置并不能自动优化任意区间 DP，必须维护每组旧层最优值和组间前缀最优值。

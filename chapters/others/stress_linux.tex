@@ -1,0 +1,12 @@
+% Source: Contest workflow independently written; GNU Bash/coreutils or Microsoft CMD documentation.
+\subsection{Linux 对拍脚本}
+\label{other:stress-linux}
+\subsubsection*{使用教程}
+将脚本、gen.cpp、brute.cpp、main.cpp 放在同一题目目录。gen 为数据生成器，brute 为小规模参考解，main 为待测程序；脚本自动用 C++17 编译三份代码。运行 \InlineCode{bash stress.sh 1000 3}，表示最多 1000 轮、每个程序每轮限时 3 秒；省略参数即使用这两个默认值。依赖 Ubuntu 的 Bash、g++、timeout 与 diff。
+
+每轮编号作为种子传给生成器。数据保存在 stress.in，参考输出在 stress.ans，待测输出在 stress.out；stress.seed 记录编号，三个 err 文件保存对应 stderr。\textbf{首次不一致立即停止}，stress.diff 保留差异；已通过一轮并不证明正确性。退出码 0 为所测轮次通过，1 为输出不同，编译失败或生成／参考／待测运行失败为 2。
+
+这里按文本逐行严格比较，空白差异也会报告，浮点误差、多解和 Special Judge 题需要另写判定器。程序崩溃或超时先按运行问题排查，不能与输出不同混为一类；失败后先保存输入再重跑，下一轮会覆盖这些文件。
+\needspace{7\baselineskip}
+\subsubsection*{脚本代码}
+\lstinputlisting[style=mtycpp,language=bash]{contest/stress.sh}

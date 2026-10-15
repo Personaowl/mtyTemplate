@@ -17,7 +17,7 @@
 即可把访问次数向后缀汇总。每个模式串读取终止节点的计数，重复模式串也能分别得到相同结果，无需递归建立 fail 树。
 
 \subsubsection*{使用教程}
-按“插入全部模式串、\InlineCode{build()}、\InlineCode{query(s)}”的顺序调用。\InlineCode{insert} 返回该次插入的模式编号，\InlineCode{query} 返回各模式的出现次数，使用该编号读取答案；第 0 项不用。
+构造后即可用 \InlineCode{insert(s)} 插入模式串，返回从 1 开始的模式编号；全部插完再 \InlineCode{build()}。\InlineCode{query(text)} 返回计数数组，\InlineCode{ans[id]} 是该模式的出现次数，第 0 项不用。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 AC ac;
 int a=ac.insert("a");

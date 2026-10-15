@@ -1,0 +1,26 @@
+% Reference: https://cp-algorithms.com/data_structures/stack_queue_modification.html
+% Practice: https://www.luogu.com.cn/problem/P1886
+\subsection{单调队列：滑动窗口最值}
+\label{ds:monotonic-queue}
+\AlgorithmInfo
+    {求所有长度为 k 的连续窗口的最小值与最大值。}
+    {时间 $O(n)$；队列额外空间 $O(k)$，连同结果数组共 $O(n)$。}
+    {数组按 1 下标传入，$1\le k\le n$；窗口为闭区间。}
+\subsubsection*{原理}
+队列里保存下标，队首为当前最优候选。求最小值时，队内对应值从队首到队尾严格递增：新元素入队前，弹掉队尾所有不小于它的元素。这些元素更早离开窗口，值又不更优，因此不再有用。求最大值时反向比较即可。
+
+扫描到位置 $i$，当前窗口是 $[i-k+1,i]$，所以先从队首删除下标不大于 $i-k$ 的过期元素，再维护单调性并加入 $i$。只有 $i\ge k$ 时窗口才完整。每个下标至多入队一次、出队一次，总时间为 $O(n)$。
+\subsubsection*{使用教程}
+\InlineCode{window_minmax(a,k)} 返回一对数组 \InlineCode{minn,maxn}。两者都按 1 下标保存，第 $j$ 项对应窗口 $[j,j+k-1]$；有效下标为 $1\ldots n-k+1$。函数局部维护队列，每次调用独立。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<long long> a={0,4,2,2,5,1};
+int k=3;
+auto [minn,maxn]=window_minmax(a,k);
+long long lo=minn[2],hi=maxn[2];
+\end{lstlisting}
+若题目只求一种最值，保留对应队列和结果数组即可。\href{https://www.luogu.com.cn/problem/P1886}{P1886：滑动窗口}可直接应用这一过程。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/monotonic_queue.cpp}
+\subsubsection*{需要注意}
+本实现遇到相等值保留更晚的下标，它更晚过期；若题目要求最左侧最优位置，求最小时把队尾比较改为严格大于，求最大时改为严格小于，并保留队首下标作为答案。单调队列适合窗口左端点只向右移动的过程，DP 中使用时也要先明确候选进入和过期的时机。

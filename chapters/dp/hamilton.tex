@@ -1,0 +1,27 @@
+% Source: Classical subset-path recurrence.
+\subsection{状压 DP：Hamilton 路径}
+\label{dp:hamilton}
+\AlgorithmInfo
+    {求经过所有顶点恰好一次、起终点指定的最短路径。}
+    {时间 $O(n^2 2^n)$，空间 $O(n2^n)$。}
+    {$1\le n\le18$，点号和矩阵均为 $0\ldots n-1$；无边为 INF，有限路径和严格在 $(-INF,INF)$ 内。}
+\subsubsection*{原理}
+
+令 $f_{S,u}$ 为从指定起点出发，恰好访问集合 $S$，并停在 $u$ 的最短路径。其余状态初值为 INF，只有 $f_{\{start\},start}=0$，向尚未访问的顶点扩展：
+\[
+ f_{S\cup\{v\},v}=\min(f_{S\cup\{v\},v},f_{S,u}+w_{u,v}),\quad v\notin S.
+\]
+只扩展可达状态与真实存在的边。每次加入一个原来为 0 的二进制位，新 mask 的整数值必然更大，因此按集合整数从小到大枚举即可。最后读取全集、指定终点的状态。它要求每点恰好访问一次，不是普通最短路。
+
+\subsubsection*{使用教程}
+\InlineCode{hamilton_path(w,start,target)} 返回最短路径和；不存在时返回 \InlineCode{4e18}。图可有向，边权可负；只要每个点最多访问一次，转移不会形成环。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+const long long INF=4e18;
+vector<vector<long long>> w={{0,2,7},{INF,0,3},{1,INF,0}};
+long long ans=hamilton_path(w,0,2);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/hamilton.cpp}
+\subsubsection*{需要注意}
+若求回到起点的巡回路线，需对全集终点枚举并补回起点的边，不能直接把 target 改成 start。该二维状态占用较大内存，n=18 时仅数值数组约 36 MiB，另有容器开销。

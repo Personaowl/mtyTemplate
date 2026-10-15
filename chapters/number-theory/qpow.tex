@@ -17,7 +17,7 @@
 循环中依次维护 $a,a^2,a^4,\ldots$，当前指数最低位为 $1$ 时乘入答案，再平方底数、右移指数。每轮指数减半，因此只需对数次乘法。
 
 \subsubsection*{使用教程}
-\InlineCode{qpow(a,b,m)} 直接调用，无需初始化，返回 $[0,m-1]$ 内的余数，支持负底数。
+\InlineCode{qpow(a,b,m)} 的参数依次为底数、非负指数、模数，直接返回 $a^b\bmod m$ 在 $[0,m-1]$ 内的余数。无需初始化，支持负底数。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 long long ans=qpow(3,13,1000000007);
 \end{lstlisting}

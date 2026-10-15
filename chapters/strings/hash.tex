@@ -16,7 +16,7 @@
 减去前面的贡献后，相同子串无论位于哪里都会得到相同结果。模板使用两组底数、模数，把两个结果一起比较以降低碰撞概率。
 
 \subsubsection*{使用教程}
-先调用 \InlineCode{init(s)}，再用 \InlineCode{query(l,r)} 获取区间哈希，或用 \InlineCode{same(l1,r1,l2,r2)} 比较两个子串是否相同。
+\InlineCode{init(s)} 建立前缀；\InlineCode{query(l,r)} 返回闭区间的双哈希数对，\InlineCode{same(l1,r1,l2,r2)} 返回同一字符串内两个子串是否等长且哈希相同。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 StringHash ha;
 ha.init("ababa");

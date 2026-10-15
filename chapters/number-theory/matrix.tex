@@ -18,7 +18,7 @@
 构造时逐列写出新状态依赖哪些旧状态，能减少行、列向量约定混用的错误。常数项可通过附加一个恒为 $1$ 的状态处理。
 
 \subsubsection*{普通模矩阵的使用教程}
-\InlineCode{Mat(n,mod)} 创建从 $1$ 开始的 $n$ 阶零矩阵，第三个参数为真时创建单位矩阵。通过 \InlineCode{a[i][j]} 赋值，\InlineCode{pow(k)} 返回非负整数次幂，不修改原对象。参与相乘的维数和模数必须相同，元素预先归一化到 $[0,mod-1]$，且 $1\leq mod\leq2\times10^9$。
+\InlineCode{Mat(n,mod)} 创建从 $1$ 开始的 $n$ 阶零矩阵，第三个参数为真时创建单位矩阵。通过 \InlineCode{obj.a[i][j]} 赋值；\InlineCode{A*B} 返回矩阵乘积，\InlineCode{A.pow(k)} 返回非负整数次幂，均不修改原矩阵，$k=0$ 返回单位矩阵。参与相乘的维数和模数必须相同，元素预先归一化到 $[0,mod-1]$，且 $1\leq mod\leq2\times10^9$。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Mat m(2,1000000007);
 m.a[1][1]=1,m.a[1][2]=1,m.a[2][1]=1;
@@ -47,7 +47,7 @@ auto r=m.pow(10);
 在 max-plus 模型中，$M_{ij}$ 是一步从 $i$ 到 $j$ 的最大收益，不可达为 $-\infty$。$M^k$ 表示\textbf{恰好}走 $k$ 步的最大收益；若要求至多 $k$ 步，必须另行建模。单位矩阵对角线为 $0$，其余为 $-\infty$。
 
 \subsubsection*{max-plus 模板的使用教程}
-\InlineCode{MaxMat(n)} 创建所有转移都不可达的矩阵，第二个参数为真时创建单位矩阵。普通赋值、乘法、幂接口与上面的 \InlineCode{Mat} 一致。\InlineCode{INF=-4e18} 是不可达哨兵，代码在相加前跳过它；所有真实路径收益需严格位于 $(-4\times10^{18},4\times10^{18})$，避免与哨兵冲突并保证中间加法安全。
+\InlineCode{MaxMat(n)} 创建所有转移都不可达的矩阵，第二个参数为真时创建单位矩阵。用 \InlineCode{obj.a[i][j]} 设置一步转移，\InlineCode{A*B} 连接两段转移，\InlineCode{A.pow(k)} 返回恰走 $k$ 步的矩阵；运算不修改原对象，$k=0$ 返回单位矩阵，参与相乘的阶数须一致。\InlineCode{INF=-4e18} 是不可达哨兵，代码在相加前跳过它；所有真实路径收益需严格位于 $(-4\times10^{18},4\times10^{18})$，避免与哨兵冲突并保证中间加法安全。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 MaxMat m(2);
 m.a[1][1]=0,m.a[1][2]=5,m.a[2][2]=2;

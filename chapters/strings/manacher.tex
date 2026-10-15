@@ -13,7 +13,7 @@
 \InlineCode{p[i]} 是含中心的半径，因此原串对应的回文长度为 $p_i-1$；以该中心产生的非空回文数为 $\lfloor p_i/2\rfloor$。原串区间 $[l,r]$ 对应变换串中心 $l+r-1$，比较半径与 $r-l+2$ 即可判断是否回文。
 
 \subsubsection*{使用教程}
-调用 \InlineCode{init(s)} 后，读取 \InlineCode{len} 和 \InlineCode{pos} 得到最长回文长度及起点。\InlineCode{check(l,r)} 判断区间是否为回文，\InlineCode{count()} 统计非空回文子串的出现次数。
+\InlineCode{init(s)} 预处理后，\InlineCode{len,pos} 为最长回文的长度和从 1 开始的起点。\InlineCode{check(l,r)} 返回闭区间是否为回文；\InlineCode{count()} 返回非空回文子串的出现次数，重复位置分别计数。换字符串重新 \InlineCode{init}，查询不改变预处理结果。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 string s="cabbad";
 Manacher ma;

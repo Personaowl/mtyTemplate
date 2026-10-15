@@ -1,0 +1,18 @@
+% Source: User reference pp. 98-102; framework: https://github.com/tianyicui/pack (V2.lyx).
+\subsection{混合背包与依赖物品}
+\label{dp:mixed-knapsack}
+\subsubsection*{原理}
+
+当不同物品的可取次数不同，仍可使用同一条容量轴：至多一次用倒序，无限次用正序，有限次先拆分或用单调队列。每件物品处理完后，数组必须完整表示“只考虑已处理物品”的状态，不能在途中改变精确费用的含义。
+
+若选择附件必须选择主件，可以枚举“主件与合法附件组合”，把每种组合视为同一组中的一个选项，再做分组背包。若依赖关系形成树，则先对子树求合法费用／价值表，再合并；单位费用、按选点数限制的实现见第~\ref{dp:tree-knapsack}~节。一般有向依赖图不能直接当作树处理。
+
+\subsubsection*{使用教程}
+各函数直接修改同一份 f，按物品可取次数选择更新方式即可。下面的不超过容量初始化允许不选；若要求恰好占满，改成只有 f[0]=0、其余为负无穷。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<long long> f(16,0);
+zero_one(f,4,7);
+complete_knapsack(f,3,4);
+bounded_knapsack(f,2,3,5);
+long long ans=f[15];
+\end{lstlisting}

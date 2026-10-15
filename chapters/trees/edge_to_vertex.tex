@@ -11,7 +11,7 @@
     [dfn_u+1,\ dfn_u+sz_u-1].
 \]
 若题目还包含子树根的父边，就从 $dfn_u$ 开始；整体根的占位值仍需单独理解。
-\subsubsection*{使用示例}
+\subsubsection*{使用教程}
 先复制 HLD。输入边权可与无权邻接结构分开保存，构建后再确定较深端点；换根后必须重新映射。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 HLD g;

@@ -1,0 +1,27 @@
+% Source: Independent derivation; cross-checked with KACTL geometry.
+\subsection{点在线段上与线段相交}
+\label{geo:segment}
+\AlgorithmInfo
+    {精确判断闭线段相交，区分单点交与重叠。}
+    {$O(1)$。}
+    {依赖整数点；允许端点重复和零长度线段。}
+\subsubsection*{原理}
+
+点 p 在线段 ab 上，当且仅当三点共线，且 $(p-a)\cdot(p-b)\le0$，后者表示投影位于两端之间。
+
+两条线段先做包围盒排斥，再检查各自两个端点是否位于另一条直线的异侧或线上。叉积只取符号后相乘，避免对两个大叉积直接相乘。若四个方向均为 0，改成字典序区间求交：交集无点、一个点或一段分别处理。这也覆盖线段退化成点的情形。
+
+\subsubsection*{使用教程}
+\InlineCode{on_segment(p,a,b)} 的\textbf{第一个参数是待测点}，后两个是闭线段端点；返回是否包含，端点也算，a=b 时按点判断。
+
+\InlineCode{segment_relation(a,b,c,d)} 比较闭线段 ab 与 cd：返回 0 为无交，1 为唯一公共点，2 为一段正长度重合。相交、端点接触与退化点落在线段上都可能返回 1；它只分类，不返回交点坐标。两函数均直接调用，无预处理，不改变输入。
+
+若要构造交点，非平行且非退化时可转成实数直线求交；共线单点交直接取公共端点，重合则另取公共端点区间。一般交点可能为有理数，不能随意取整或存回 IPoint。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+IPoint a{0,0},b{4,0},c{2,0},d{6,0};
+bool on=on_segment(c,a,b);
+int relation=segment_relation(a,b,c,d);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/segment.cpp}

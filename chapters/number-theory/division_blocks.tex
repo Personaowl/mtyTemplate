@@ -25,7 +25,7 @@
 每段减去 $v(l+r)(r-l+1)/2$。当 $i>k$ 时商为零，无需再扣除；初始 $nk$ 已经包含这些项。中间乘积先转成 128 位，不能乘完后才转换。
 
 \subsubsection*{使用教程}
-\InlineCode{remainder_sum(n,k)} 返回上述余数和，调用者按需要输出或进一步取模。其他求和只需复用分块区间并替换段贡献。
+\InlineCode{remainder_sum(n,k)} 直接返回 $\sum_{i=1}^{n}(k\bmod i)$ 的 128 位整数值，无需初始化；输出可用第~\ref{stl:int128}~节的 \InlineCode{str128}，或按需进一步取模，不要直接缩窄到 64 位。其他求和复用分块区间并替换段贡献。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 __int128 ans=remainder_sum(100,37);
 \end{lstlisting}

@@ -19,7 +19,7 @@ SPFA 将刚被改善的顶点放入队列，只扫描可能继续改善其他距
 从单个源点开始，只能发现该源点可达的负环。若要检查全图，相当于增加超级源点，向每个点连零权边；实现直接把所有点的初始距离设为零并全部入队，仍按原图 $n$ 个顶点判定。
 
 \subsubsection*{使用教程}
-\InlineCode{run(s)} 的 $s\geq1$ 时求单源最短路；\InlineCode{run()} 或传 $0$ 时做全图检测。返回真才可读取 \InlineCode{dis}；返回假表示对应范围内存在负环，距离数组会清空。无向负边会形成可反复往返的负权闭走，应按最短路负环处理。
+\InlineCode{init(n)} 后用 \InlineCode{add(u,v,w)} 加有向边，无向边加两次。\InlineCode{run(s)} 从 $s\ge1$ 求单源最短路；省略参数或传 0 时检测全图负环。返回真后读 \InlineCode{dis[v]}，\InlineCode{INF} 表示不可达；返回假时距离数组清空。重跑会重置距离并保留边，无向负边会构成负权闭走。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 SPFA g;
 g.init(3);

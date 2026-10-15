@@ -36,7 +36,7 @@ $\varphi(n)$ 表示 $1\leq x\leq n$ 中与 $n$ 互质的整数个数，约定 $\
 读取大指数时同时维护 $b\bmod\varphi(m)$，以及截断值 $\min(b,\varphi(m))$，后者只用于判断是否达到阈值。不能仅凭余数判断原指数大小，也不能对所有小指数都加周期。
 
 \subsubsection*{使用教程}
-先复制快速幂。\InlineCode{phi(n)} 处理单个正整数；\InlineCode{pow_decimal(a,b,m)} 接收原始指数串，可带前导零，无需先转成整数。
+先复制快速幂。\InlineCode{phi(n)} 返回正整数 $n$ 的欧拉函数；\InlineCode{pow_decimal(a,b,m)} 返回 $a^b\bmod m$，其中 $b$ 是非负十进制指数串，可带前导零。两者直接调用，无需初始化或手动降幂。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 long long t=phi(36);
 long long ans=pow_decimal(6,"100000000000000000000",1000);

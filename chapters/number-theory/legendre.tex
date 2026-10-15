@@ -19,7 +19,7 @@ $1,2,\ldots,n$ 中每个 $p$ 的倍数至少贡献一个 $p$，每个 $p^2$ 的�
 若要求最大 $t$ 使合数 $m^t\mid n!$，先分解 $m=\prod p_i^{\alpha_i}$，再取 $\min_i\lfloor v_{p_i}(n!)/\alpha_i\rfloor$；不能把合数直接当作 $p$ 代入。
 
 \subsubsection*{使用教程}
-\InlineCode{vp_fact(n,p)} 直接返回指数，无需预处理。
+\InlineCode{vp_fact(n,p)} 中 $n$ 为阶乘参数、$p$ 为素数，返回 $p$ 在 $n!$ 中的指数，类型为 \InlineCode{long long}；无需预处理，$n=0$ 时返回 0。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 long long e=vp_fact(100,2);
 \end{lstlisting}

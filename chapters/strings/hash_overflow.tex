@@ -14,7 +14,9 @@
 \]
 \InlineCode{uint64_t} 的加、减、乘运算会自动保留结果的低 64 位，等价于模 $2^{64}$；减法回绕也能得到正确余数。因此不需要写 \texttt{\%mod} 或在减法后补模数，代码更简短。
 \subsubsection*{使用教程}
-\InlineCode{Hash64} 的接口与单哈希一致。先初始化字符串，再查询哈希或比较两个子串；保存结果时用 \InlineCode{auto} 或 \InlineCode{uint64_t}。
+\InlineCode{init(s)} 建立前缀，\InlineCode{query(l,r)} 返回闭区间的 64 位哈希值，用 \InlineCode{auto} 或 \InlineCode{uint64_t} 保存。
+
+\InlineCode{same(l1,r1,l2,r2)} 比较同一字符串内两段，返回是否等长且哈希相同。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Hash64 ha;
 ha.init("ababa");

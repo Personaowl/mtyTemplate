@@ -27,7 +27,7 @@
 因为 $p\bmod i<i$，可按 $i$ 递增计算。这里得到的是整数的逆元，阶乘逆元则满足 $(i!)^{-1}=((i-1)!)^{-1}\operatorname{inv}[i]$。
 
 \subsubsection*{使用教程}
-先复制第~\ref{algo:exgcd}~节的扩欧。\InlineCode{inv_mod(a,m)} 无逆元时返回 $-1$；\InlineCode{inverse_table(n,p)} 返回从 $1$ 到 $n$ 的逆元，第 $0$ 项不用。费马求法直接调用第~\ref{algo:qpow}~节的快速幂。以下实现的模数上限为 $2\times10^9$。
+先复制第~\ref{algo:exgcd}~节扩欧。\InlineCode{inv_mod(a,m)} 返回 $a$ 模 $m$ 的逆元，不存在时为 $-1$；\InlineCode{inverse_table(n,p)} 返回长度 $n+1$ 的数组，第 $i$ 项为 $i$ 模素数 $p$ 的逆元，第 0 项不用。两者无需外部初始化；费马求法调用快速幂，以下实现的模数上限为 $2\times10^9$。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 long long x=inv_mod(3,10);
 long long y=qpow(3,1000000007-2,1000000007);

@@ -1,0 +1,43 @@
+% Source: Upper-hull intersection inequality derived independently.
+\subsection{单调直线凸包：线性斜率优化}
+\label{dp:monotone-cht}
+\AlgorithmInfo
+    {斜率与查询横坐标都不减时，维护直线最大值；附平方转移示例。}
+    {共 n 条线、q 次查询，总时间 $O(n+q)$，空间 $O(n)$。}
+    {斜率非减、查询 x 非减；$|k|,|m|,|x|\le10^{18}$；非空才查询。}
+\subsubsection*{原理}
+
+按斜率从小到大维护上凸壳。三条斜率严格递增的直线 a,b,c，如果 a/b 的交点不小于 b/c 的交点，b 没有成为最优直线的区间，应删去。用交叉相乘比较，无需计算浮点交点；相同斜率只保留较大截距。
+
+例如 a、b、c 的交点依次为 5 与 2，b 需要 x≥5 才能胜过 a，却要 x≤2 才能胜过 c，不可能同时满足，所以 b 可删。
+
+查询横坐标不减时，若第二条线在当前 x 的值不小于第一条，则第一条在以后也不会更优，可以弹出队首。每条线最多进出一次，插入和查询合计线性。
+
+\subsubsection*{使用教程}
+向 \InlineCode{MonotoneCHT} 对象调用 \InlineCode{add_line(k,m)} 加入直线，\InlineCode{query(x)} 返回 128 位最大值，\InlineCode{init()} 清空。
+
+\InlineCode{quadratic_dp(a,C)} 实现上一节平方转移，输入非负、1 下标；返回 f[0..n]。示例接口还要求前缀和不超过 $10^8$，所有 $|f_i+S_i^2|\le10^{18}$，保证直线参数与判冗乘积符合范围。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+MonotoneCHT hull;
+hull.add_line(-2,5);
+hull.add_line(1,0);
+__int128 y=hull.query(3);
+auto f=quadratic_dp(vector<long long>{0,2,0,3,1},4);
+long long ans=f.back();
+\end{lstlisting}
+
+\subsubsection*{求最小值：复用上凸壳}
+对原直线 $y=kx+m$ 调用 add\_line(-k,-m)，最小值为 -query(x)。本模板仍要求\textbf{传入的斜率不减、查询 x 不减}，所以原直线斜率应当不增。下面原斜率为 3、1、-2，转换后为 -3、-1、2，符合条件；查询横坐标仍按递增顺序。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+MonotoneCHT lower;
+vector<pair<long long,long long>> lines={{3,2},{1,-4},{-2,5}};
+for(auto [k,m]:lines) lower.add_line(-k,-m);
+__int128 y1=-lower.query(-1);
+__int128 y2=-lower.query(4);
+\end{lstlisting}
+若原斜率与 x 都递增，而目标是最小值，不能只照上面取负后继续用此队列；可改用下一节动态凸包，无须强行调整 DP 的时间顺序。本模板会永久删去不再有用的线，所以只能查询已插入直线，不能撤销操作或任意删线。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/monotone_cht.cpp}
+\subsubsection*{需要注意}
+不要把非单调查询交给会弹队首的模板。交叉乘法即使用 128 位也有范围限制，本节对参数绝对值的约束不能直接删除。输出 128 位值可用第~\ref{stl:int128}~节的 str128。

@@ -1,0 +1,28 @@
+% Source: Independent derivation and implementation.
+\subsection{二维前缀和}
+\label{other:prefix-2d}
+\AlgorithmInfo
+    {静态矩阵中多次查询子矩形元素和。}
+    {建表 $O(nm)$，查询 $O(1)$，空间 $O(nm)$。}
+    {行列均从 1 开始，输入带第 0 行／列占位；所有元素绝对值之和 $\le4\times10^{18}$。}
+\subsubsection*{原理}
+令 $s_{i,j}=\sum_{x=1}^i\sum_{y=1}^j a_{x,y}$，第 0 行和第 0 列均为 0。按行列递增计算
+\[
+ s_{i,j}=a_{i,j}+s_{i-1,j}+s_{i,j-1}-s_{i-1,j-1}.
+\]
+上方与左方相加会重复左上区域，故减一次。闭矩形 $[x_1,x_2]\times[y_1,y_2]$ 的和为
+\[
+ s_{x_2,y_2}-s_{x_1-1,y_2}-s_{x_2,y_1-1}+s_{x_1-1,y_1-1}.
+\]
+\subsubsection*{使用教程}
+\InlineCode{Prefix2D::build(a)} 建表并覆盖原状态，a 必须为规则矩形且至少含占位行／列。
+
+\InlineCode{query(x1,y1,x2,y2)} 查询合法非空闭矩形，先行后列。更新 a 后应重新 build，不能直接继续使用旧表；查询中的中间加减提升到 128 位，结果仍是 long long。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<vector<long long>> a={{0,0,0,0},{0,1,2,3},{0,4,5,6}};
+Prefix2D pre;pre.build(a);
+long long sum=pre.query(1,2,2,3);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/others/prefix_2d.cpp}

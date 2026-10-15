@@ -1,0 +1,41 @@
+% Source: user supplied P3384 modular addition solution, with four operation types.
+% Problem: https://www.luogu.com.cn/problem/P3384
+\subsection{树剖加线段树：取模路径与子树维护}
+\label{ds:hld-segment}
+\AlgorithmInfo
+    {维护点权的路径加、路径和、子树加、子树和，全部按模数 P 计算。}
+    {预处理 $O(n)$；路径操作 $O(\log^2 n)$；子树操作 $O(\log n)$；空间 $O(n)$。}
+    {非空连通树、1 下标，指定根；$1\le P\le2^{63}-1$；依赖树章 HLD。}
+\subsubsection*{原理}
+先用两次递归 DFS 完成重链剖分，把点权 $a_u$ 放到线段树初值的 $dfn_u$ 位置。每棵子树对应连续区间 $[dfn_u,dfn_u+sz_u-1]$，可直接交给线段树维护。
+
+处理路径 $x\to y$ 时，若链顶不同，就选择链顶更深的一侧，处理该链顶到当前点的整段，再跳到链顶父亲；最后在同一条链上处理剩余区间。按子树大小选重儿子，保证路径只拆出 $O(\log n)$ 段。本节是加法与求和，不需要处理段的读取方向。
+
+线段树保留 \InlineCode{Node/tr/w}、\InlineCode{eval/pushup/pushdown} 写法，\InlineCode{tag} 为尚未下传的统一增量。长度为 $len$ 的区间加 $z$ 后，区间和加 $len\cdot z$，标记加 $z$，均取模。乘法与合并先用 128 位中间值，避免普通 \InlineCode{int} 下溢出。
+
+\subsubsection*{使用教程}
+先复制第~\ref{tree:hld}~节的 \InlineCode{HLD}，再复制本节源码。\InlineCode{ModSegTree(n,P)} 创建取模加法线段树，填 \InlineCode{w} 后调用 \InlineCode{build(1,1,n)}；\InlineCode{modify(1,l,r,z)} 为区间加，\InlineCode{query(1,l,r).sum} 为区间和。模数固定后不要直接改动。
+
+\InlineCode{path_modify(g,seg,x,y,z)} 给路径加 $z$；\InlineCode{path_query(g,seg,x,y)} 返回路径和。子树直接使用 $dfn,sz$ 对应的区间。下面是同一棵小树的四类操作调用：
+\begin{lstlisting}[style=mtycpp,numbers=none]
+int n=5;
+HLD g;
+g.init(n);
+g.add(1,2),g.add(1,3),g.add(2,4),g.add(2,5);
+g.build(1);
+vector<long long> a={0,1,2,3,4,5};
+ModSegTree seg(n,1000);
+for(int u=1;u<=n;u++) seg.w[g.dfn[u]]=a[u];
+seg.build(1,1,n);
+path_modify(g,seg,4,3,2);
+long long ans=path_query(g,seg,5,3);
+int x=2;
+seg.modify(1,g.dfn[x],g.dfn[x]+g.sz[x]-1,3);
+long long sum=seg.query(1,g.dfn[x],g.dfn[x]+g.sz[x]-1).sum;
+\end{lstlisting}
+源码末尾的 \InlineCode{solve_hld()} 已包含\href{https://www.luogu.com.cn/problem/P3384}{P3384} 的读入和四类操作分支；在你的常用主函数中调用即可。\InlineCode{HLD::build} 复用树章两次递归 DFS，\InlineCode{path_modify/path_query} 保留直接跳链的写法。更换点数、模数或重建树时重新创建并建树；线段树修改后不会同步修改初值数组 \InlineCode{w}。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/hld_segment.cpp}
+\subsubsection*{需要注意}
+本节维护点权，同链最后一段包含 LCA。改为边权时，把边权放在较深端点，并仅在最后同链区间排除 LCA；子树内部边也要排除子树根位置，具体对应关系见第~\ref{tree:edge-to-vertex}~节。查询期间可能下传懒标记，但不会改变实际点权。

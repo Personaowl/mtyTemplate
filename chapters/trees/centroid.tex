@@ -12,7 +12,7 @@
 \]
 重心等价于 $balance_u\le n/2$。若有大于一半的连通块，向它移动会改善最坏大小；不存在这样的块时已经平衡。树至少有一个重心，至多两个，两个重心一定相邻；这里是等点权计数，不是带点权重心。
 \subsubsection*{使用教程}
-\InlineCode{build(root)} 后，\InlineCode{centroid} 为全部重心，\InlineCode{balance[u]} 为删除 $u$ 后的最大块大小，\InlineCode{sz[u]} 为当前根下的子树大小。选根不改变重心集合。
+\InlineCode{init(n)} 后用 \InlineCode{add(u,v)} 加无向边，每边一次；\InlineCode{build(root)} 计算结果，省略根取 1。\InlineCode{centroid} 是全部重心，\InlineCode{balance[u]} 为删 $u$ 后的最大块大小，\InlineCode{sz[u]} 为当前根下的子树大小。重跑保留边、重置结果；选根不改变重心集合。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 TreeCentroid g;
 g.init(4);

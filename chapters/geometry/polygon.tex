@@ -1,0 +1,43 @@
+% Source: https://cp-algorithms.com/geometry/area-of-simple-polygon.html; Independent winding and area implementation; https://cp-algorithms.com/geometry/picks-theorem.html; KACTL InsidePolygon.
+\subsection{鞋带定理、点包含与 Pick 定理}
+\label{geo:polygon}
+\AlgorithmInfo
+    {整数简单多边形的有向面积、点位置和格点数。}
+    {每次 $O(n)$，额外空间 $O(1)$。}
+    {依赖整数点、线段；顶点按边界顺序，末尾不重复首点。}
+\subsubsection*{原理}
+
+\textbf{鞋带定理。} 设简单多边形按边界顺序给出顶点 $p_i=(x_i,y_i)$（$0\le i<n$），循环约定 $p_n=p_0$。有向两倍面积与实际面积为
+\[
+ S_2=\sum_{i=0}^{n-1}(x_i y_{i+1}-y_i x_{i+1})
+     =\sum_{i=0}^{n-1}p_i\times p_{i+1},\qquad
+ S=\frac{|S_2|}{2}.
+\]
+把坐标写成两列并在末尾接回首行，沿两个方向交叉相乘后求差，形状如鞋带，故得名。每项叉积是原点与一条边构成的三角形的有向两倍面积；有向部分在内部拼合、在外部抵消，所以原点不必在多边形内，凹多边形也成立。逆时针 $S_2>0$，顺时针 $S_2<0$，平移顶点不改变总和。自交边界算得的是代数面积，不能直接当作区域并集面积。
+
+整数实现直接按循环边套公式，每次乘法先提升至 128 位，再用 128 位累加。将所有点减去首点后也可得到等价的有向三角形求和；下一节实数面积用这一形式减少大乘积相消造成的误差。
+
+点包含先判边界，再做绕数统计。边向上穿过 q 的水平线且 q 在边左侧时加 1，向下穿过且 q 在右侧时减 1；采用一端含、一端不含的高度条件，避免射线经过顶点时重复计数。绕数为 0 在外，否则在内，顺逆时针均可。
+
+对于无孔、非自交且面积非零的整点多边形，边界格点数 $B=\sum\gcd(|\Delta x|,|\Delta y|)$。每条边按去掉一个端点来计数，因此顶点不重复。由 Pick 定理 $S=I+B/2-1$，可得 $I=(|S_2|-B+2)/2$。
+
+\subsubsection*{使用教程}
+将顶点按沿边界行走的顺序放入 \InlineCode{vector<IPoint>}，不在末尾重复首点。\InlineCode{polygon_area2(p)} 返回有符号两倍面积，顺时针为负，逆时针为正，空集／单点／线段为 0。取绝对值后才是实际两倍面积；整点多边形可能有半整数面积，不能先做整数除以 2 丢掉小数。精确输出可用整数部分 $|S_2|/2$ 与余数判断是否补 .5；128 位数的输出复用 STL 章接口。
+
+\InlineCode{point_in_polygon(p,q)} 返回 -1 在外、0 在边界、1 严格在内；顺逆时针均可，凹多边形也适用。需要“包含边界”用 \InlineCode{where>=0}，严格内部用 \InlineCode{where==1}，\textbf{不能直接转 bool}，因为 -1 也为真。空集判外，单点／线段只可能判边界或外部。
+
+\InlineCode{lattice_points(p)} 返回 \InlineCode{pair<__int128,__int128>}，依次为严格内部格点数和边界格点数；仅对无孔、非自交、非零面积的整点多边形调用。三个接口都不预处理、不修改顶点，各次调用独立；点集若没有边界顺序，不能直接套面积公式。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<IPoint> p={{0,0},{4,0},{4,3},{0,3}};
+__int128 a2=polygon_area2(p);
+if(a2<0) a2=-a2;
+ld area=(ld)a2/2; // 需实数面积时再转换；精确值仍保留 a2
+int where=point_in_polygon(p,IPoint{2,1});
+bool covered=where>=0,strict=where==1;
+auto [inside,boundary]=lattice_points(p);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/polygon.cpp}
+\subsubsection*{需要注意}
+有孔区域需分边界方向并调整 Euler 特征，不能直接套无孔 Pick 公式。点集不是多边形顶点顺序，不能随意排序后当作原多边形。

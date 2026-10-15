@@ -13,7 +13,7 @@
 选择最短增广路后，源点到各点的残量最短层数不会下降。同一条有向残量边再次成为饱和的瓶颈边，期间必须被反向增广，其起点层数至少增加 2；每条边至多发生 $O(n)$ 次，所以总增广次数为 $O(nm)$，每次 BFS 为 $O(m)$，得到 $O(nm^2)$ 的一般界。
 
 \subsubsection*{使用教程}
-\InlineCode{init(n)} 后用 \InlineCode{add(u,v,c)} 加原始有向容量边，返回正向边编号。\InlineCode{flow(s,t)} 求本次可增加的最大流，第三个参数可指定上限；\InlineCode{reachable(s)} 得到正残量可达点集。残量修改、重复调用和最小割的条件与第~\ref{math:flow-basics}~节一致。
+\InlineCode{init(n)} 后用 \InlineCode{add(u,v,c)} 加从 $u$ 到 $v$、容量为 $c$ 的边，返回正向边编号。\InlineCode{flow(s,t,limit)} 从源 $s$ 向汇 $t$ 最多再增广 \InlineCode{limit}，返回本次新增流量，省略上限取 \InlineCode{INF}；同源汇重跑会继续当前残量。\InlineCode{reachable(s)} 返回正残量可达标记。要重算原网络须重新初始化并加边，最小割条件见第~\ref{math:flow-basics}~节。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 EK g;
 g.init(4);

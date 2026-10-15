@@ -10,7 +10,7 @@
 \subsubsection*{原理}
 维护源点到各点的当前最短距离，每次从堆中取出距离最小的候选。由于边权非负，尚未处理的路径不可能再绕过一个更远的点来改善它，因此可以沿其出边松弛。松弛即比较 $dis_v$ 与 $dis_u+w(u,v)$。
 
-同一顶点可多次入堆；取出的距离不等于当前 $dis$ 时，该候选已经过期，直接丢弃。每条边最多产生一次成功松弛对应的堆插入，保守按堆大小 $O(m)$ 给出复杂度；简单图中常写作 $O((n+m)\log n)$。含负边时该贪心依据失效，改用下一节的算法。
+同一顶点可多次入堆；取出的距离不等于当前 $dis$ 时，该候选已经过期，直接丢弃。每条边最多产生一次成功松弛对应的堆插入，保守按堆大小 $O(m)$ 给出复杂度；简单图中常写作 $O((n+m)\log n)$。含负边时改用第~\ref{algo:spfa}~节的方法。
 
 \subsubsection*{使用教程}
 \InlineCode{init(n)} 清空图，\InlineCode{add(u,v,w)} 加一条有向边，无向边需加两次。\InlineCode{run(s)} 后读取 \InlineCode{dis[t]}，等于 \InlineCode{INF} 表示不可达。换源点可重新运行，无需重新加边。
@@ -41,4 +41,6 @@ q.push({0,1});
 q.push({4,2});
 auto [d,u]=q.top();q.pop();
 \end{lstlisting}
-这里两次入堆只是简单数据示例；替换进模板后仍从 \InlineCode{q.push({0,s})} 开始。默认 \InlineCode{priority_queue} 是大根堆，因此比较函数写成 \InlineCode{d>a.d}，让距离较小的节点优先弹出。末尾的 \InlineCode{const} 表示比较不修改当前节点；相同距离无需按点号继续比较，也不影响正确性。
+替换进模板后仍从 \InlineCode{q.push({0,s})} 开始。默认堆取最大者，反向比较 \InlineCode{d>a.d} 使小距离先弹出；末尾的 \InlineCode{const} 表示不修改当前节点。同距离无需按点号继续比较。
+
+这种反向小于若同时用于默认集合或排序，顺序也会反转；同一类型需要多种比较规则时，参见第~\ref{stl:operators}~节的独立比较器。

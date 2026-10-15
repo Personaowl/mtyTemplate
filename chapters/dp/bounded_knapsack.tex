@@ -1,0 +1,30 @@
+% Source: User reference pp. 98-102; framework: https://github.com/tianyicui/pack (V2.lyx).
+\subsection{多重背包：二进制拆分}
+\label{dp:bounded-knapsack}
+\AlgorithmInfo
+    {在已有背包状态上加入一类有限数量物品。}
+    {单类时间 $O(V\log(c+1))$，额外空间 $O(1)$，复用背包数组。}
+    {依赖基础背包的 zero\_one；$w\ge1,c\ge0$；价值范围同基础背包。}
+\subsubsection*{原理}
+
+每类物品最多取 $c$ 件，直接枚举数量的正确转移为
+\[
+ f^{new}_j=\max_{0\le t\le c,\ tw\le j}(f^{old}_{j-tw}+tv).
+\]
+必须从同一旧层读取，不能把“取 1 件、取 2 件、取 3 件”分别当作独立物品，否则可能同时选中它们而超过数量限制。
+
+把数量拆成 $1,2,4,\ldots$ 和最后的余量，各块合计恰为 $c$，可以组合出 $0\ldots c$ 的任意件数。每一块作为一件 0/1 物品，费用和价值都乘该块件数。先把 $c$ 截断到 $\lfloor V/w\rfloor$，无须处理容量不可能容纳的数量。
+
+\subsubsection*{使用教程}
+先按第~\ref{dp:knapsack}~节初始化 f，\InlineCode{bounded_knapsack(f,w,v,c)} 原地加入一类物品：每件费用 w、价值 v，最多 c 件。内部调用 zero\_one，复制时需同时带上基础背包源码；也可与完全背包混用。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+const long long INF=4e18;
+vector<long long> f(13,-INF);f[0]=0;
+bounded_knapsack(f,3,5,4);
+long long ans=f[12];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/bounded_knapsack.cpp}
+\subsubsection*{需要注意}
+二进制块的同一总件数可能有多种表示，最大值不受影响；\textbf{计数题不能直接按这些块统计方案数}。每类 $O(V)$ 的单调队列写法见第~\ref{dp:queue-optimization}~节。

@@ -1,0 +1,30 @@
+% Source: Independent oriented tetrahedral sum; KACTL PolyhedronVolume.h cross-check.
+\subsection{四面体与封闭多面体体积}
+\label{geo:volume}
+\AlgorithmInfo
+    {求四面体体积及由定向三角面给出的多面体有向体积。}
+    {四面体 $O(1)$；多面体 $O(F)$ 时间、$O(1)$ 额外空间。}
+    {依赖三维点；表面须闭合、无自交，所有面法向一致朝外。}
+\subsubsection*{原理}
+
+四面体体积为 $|(b-a)\cdot((c-a)\times(d-a))|/6$。闭多面体可与任意参考点 o 构成一批有向四面体，累加
+\[
+ V=\frac16\sum_{(a,b,c)\text{ 为面}}(a-o)\cdot((b-o)\times(c-o)).
+\]
+内部公共部分按有向体积抵消。实现选择一个已有顶点作参考，减少大坐标误差，并用补偿求和。凸性不是必需条件，但每个面必须按从外侧看逆时针的方向列出；非三角面应先按其边界方向正确三角剖分。
+
+\subsubsection*{使用教程}
+\InlineCode{tetrahedron_volume(a,b,c,d)} 直接接收四个三维点，返回非负四面体体积；四点顺序不影响绝对体积，共面时理论值为 0，浮点结果须结合尺度判断。
+
+\InlineCode{polyhedron_signed_volume(faces)} 接收三角面数组，每面为 \InlineCode{array<Point3,3>}，要求整个表面\textbf{闭合且定向一致}。从实体外侧看，每面的顶点应逆时针，使叉积法向量朝外；全部朝外得到正体积，全部反向得到负体积。确认闭合与方向后，取绝对值才是实体体积；若部分面反了，取绝对值也修不好。
+
+函数不自动建三维凸包或校正面朝向，空面集返回 0；合法的凹多面体也可按闭合表面求和。下面用四个面描述同一个四面体，同时演示直接四点法；两函数均不改变输入，无预处理。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Point3 a{0,0,0},b{1,0,0},c{0,1,0},d{0,0,1};
+ld v=tetrahedron_volume(a,b,c,d);
+vector<array<Point3,3>> faces={{a,c,b},{a,b,d},{a,d,c},{b,c,d}};
+ld closed=polyhedron_signed_volume(faces);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/volume.cpp}

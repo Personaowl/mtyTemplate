@@ -1,2 +1,38 @@
 \chapter{动态规划}
-% Add \input{chapters/dp/your-entry} after writing the first entry.
+\ChapterIntro{以状态定义、转移推导和计算顺序为主，代码直接展示数组、循环与递归，不要求为 DP 额外封装；数组通常从 1 开始，集合掩码与计数维度按各节说明从 0 开始。最值 DP 的不可达状态不参与算术，概率与期望保留浮点意义。优化条目先推导直接转移，再说明额外条件；共享数据结构通过交叉引用复用。}
+\begin{AlgorithmGroups}
+\section{建模与基础}
+\input{chapters/dp/basics}
+\section{背包 DP}
+\input{chapters/dp/knapsack}
+\input{chapters/dp/bounded_knapsack}
+\input{chapters/dp/mixed_knapsack}
+\input{chapters/dp/group_knapsack}
+\input{chapters/dp/two_cost_knapsack}
+\input{chapters/dp/knapsack_count}
+\input{chapters/dp/knapsack_trace}
+\input{chapters/dp/generalized_knapsack}
+\section{区间 DP}
+\input{chapters/dp/interval_merge}
+\input{chapters/dp/interval_ends}
+\section{状态压缩 DP}
+\input{chapters/dp/subset_dp}
+\input{chapters/dp/hamilton}
+\input{chapters/dp/profile_dp}
+\section{数位 DP}
+\input{chapters/dp/digit_dp}
+\section{树形 DP}
+\input{chapters/dp/tree_knapsack}
+\input{chapters/dp/reroot_dp}
+\section{概率与期望 DP}
+\input{chapters/dp/probability_dp}
+\input{chapters/dp/expectation_dp}
+\section{DP 优化}
+\input{chapters/dp/optimization_basics}
+\input{chapters/dp/queue_optimization}
+\input{chapters/dp/stack_optimization}
+\input{chapters/dp/slope_basics}
+\input{chapters/dp/monotone_cht}
+\input{chapters/dp/line_container}
+\input{chapters/dp/divide_conquer}
+\end{AlgorithmGroups}

@@ -1,0 +1,34 @@
+% Reference: https://oi-wiki.org/string/trie/ (binary Trie and greedy XOR).
+% Review and validation: docs/validation.md.
+\subsection{01 Trie：最大与最小异或}
+\label{algo:binary-trie}
+\AlgorithmInfo
+    {维护可重复整数的集合，插入、删除，并查询与给定数异或的最大值或最小值。}
+    {单次操作 $O(B)$，\InlineCode{size} 为 $O(1)$；累计空间 $O(UB)$。}
+    {$1\leq B\leq64$，插入、删除和查询的数均在 $[0,2^B)$；$U$ 为曾插入的不同数的数量。}
+
+\subsubsection*{原理}
+将每个数从高位到低位拆成 $B$ 个二进制位，每条边表示 $0$ 或 $1$，根到叶的一条路径表示一个数。节点的 \InlineCode{cnt} 记录经过该节点、当前仍在集合中的数的个数，重复插入也分别计数。
+
+求最大异或时，高位比所有更低位的总和都重要，所以优先走与查询数当前位相反的分支；该分支没有存活元素时才走相同分支。求最小异或则反过来，优先走相同分支。每次只走一条根到叶路径，故为 $O(B)$。删除前先确认完整数字存在，再沿路径减计数，避免误删共同前缀。
+
+\subsubsection*{使用教程}
+\InlineCode{init(B)} 清空并设置位数；也可直接构造 \InlineCode{BinaryTrie tr(B)}，默认 $B=63$，覆盖非负有符号 64 位整数。\InlineCode{insert(x)} 插入一个，\InlineCode{erase(x)} 删除一个并返回是否成功，\InlineCode{count(x)} 返回重数，\InlineCode{size()} 返回含重复元素的总数。
+
+\InlineCode{query(x)} 查询最大异或，\InlineCode{query(x,false)} 查询最小异或，均返回状态 \InlineCode{ok} 与异或值 \InlineCode{value}。\textbf{value 是异或结果}，若需对应的集合元素则用 \InlineCode{x^value}。空集合返回假，异或结果为零仍是合法答案。建树时没有默认插入零；题目需要零时自行插入。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+BinaryTrie tr(31);
+tr.insert(5);tr.insert(2);tr.insert(5);
+int num=tr.count(5),sz=tr.size();
+bool removed=tr.erase(5);
+auto [ok,val]=tr.query(7);
+if(ok){uint64_t chosen=7ULL^val;}
+auto [has,minn]=tr.query(7,false);
+\end{lstlisting}
+
+\subsubsection*{位宽与空间}
+完整无符号 64 位数据用 $B=64$，数据与答案保持 \InlineCode{uint64_t}，置位使用 \InlineCode{1ULL<<i}；不要使用有符号的 \InlineCode{1<<i}，也不右移或左移 64 位。节点编号使用 32 位，节点总数须小于 $2^{31}$，实际先受内存限制；重数须能存入 \InlineCode{int}。删除不回收节点，空间按\textbf{历史插入}计，不能按当前集合大小估算。
+
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/binary_trie.cpp}

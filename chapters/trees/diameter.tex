@@ -9,7 +9,7 @@
 直径是树上最长简单路径。从任意点出发找到最远点 $A$，再从 $A$ 找最远点 $B$，$A$ 到 $B$ 就是一条直径。树上路径唯一，DFS 累加边权即可，不需要 Dijkstra。
 
 \subsubsection*{使用教程}
-\InlineCode{init(n)}、\InlineCode{add(u,v,w)} 加无向边，\InlineCode{build()} 后读取 \InlineCode{diameter}、\InlineCode{a,b}、\InlineCode{path}。\InlineCode{path} 按 $A\to B$ 排列，\InlineCode{da,db} 分别为到两端点的距离。重复构建会重新计算，\InlineCode{center} 的含义见第~\ref{tree:center}~节。
+\InlineCode{init(n)} 指定点数并开始建图，\InlineCode{add(u,v,w)} 加无向边（每边一次，省略权值取 1），\InlineCode{build()} 后读取 \InlineCode{diameter}、\InlineCode{a,b}、\InlineCode{path}。\InlineCode{path} 按 $A\to B$ 排列，\InlineCode{da,db} 分别为到两端点的距离。重复构建会重新计算，\InlineCode{center} 的含义见第~\ref{tree:center}~节。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 TreeMetrics g;
 g.init(4);

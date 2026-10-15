@@ -1,0 +1,26 @@
+% Source: ACM_Templates.pdf pp. 40-66. pp. 45-46; https://cp-algorithms.com/data_structures/segment_tree.html
+\subsection{动态开点线段树：区间赋值与区间和}
+\label{ds:seg-dynamic}
+\AlgorithmInfo
+    {值域很大、初始全零时，仅为访问到的区间分配节点。}
+    {单次操作 $O(\log C)$；$q$ 次修改至多 $O(q\log C)$ 节点，$C=R-L+1$。}
+    {整数闭区间 $[L,R]$，$1\le C\le2\times10^9$；坐标、长度运算和区间和不溢出。}
+\subsubsection*{原理}
+节点 0 表示一棵没有分配、值全为零的子树。修改时才建立节点；整段赋值后记录覆盖标记，后续进入儿子时先创建左右儿子并下传。查询不分配节点：若当前有整段覆盖标记，直接按重叠长度计算答案，否则沿已有儿子递归。
+
+动态数组扩容可能使引用失效，递归返回子节点编号后再写回 \InlineCode{tr[u]}，不把 \InlineCode{tr[u].ls/rs} 的引用跨扩容递归传递。
+
+\subsubsection*{使用教程}
+\InlineCode{init(L,R)} 清零并指定值域；\InlineCode{modify(l,r,val)} 将整段赋为 $val$；\InlineCode{query(l,r)} 返回区间和，查询区间须包含在值域中。\InlineCode{root} 是当前树根编号，\InlineCode{tr.size()-1} 是已分配节点数；重复初始化会清空树。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+DynamicSegTree seg;
+seg.init(1,1000000000);
+seg.modify(100,200,3);
+seg.modify(150,170,0);
+long long ans=seg.query(120,180);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/seg_dynamic.cpp}
+\subsubsection*{需要注意}
+覆盖标记用布尔值区分，0、负数都可赋值；本节是赋值，不是区间加。节点数仍受实际修改量影响，按内存限制估计 $q\log C$。

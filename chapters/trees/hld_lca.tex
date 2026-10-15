@@ -12,10 +12,10 @@
 
 两点进入同一条链后，深度较小的点就是 LCA。注意比较的是\textbf{链顶深度}，不能只比较当前点深度；同链时直接返回较浅点，也不必继续上跳。
 
-倍增法与树剖的 LCA 查询都是 $O(\log n)$：倍增法适合还需要第 $k$ 级祖先等跳跃操作的场景，树剖预处理和空间均为 $O(n)$，适合同时需要路径区间的场景。大量静态 LCA 查询也可使用第~\ref{tree:rmq-lca}~节的欧拉序 RMQ，将查询降至 $O(1)$。
+倍增法适合同时跳祖先，树剖适合同时拆路径区间，两者 LCA 查询均为 $O(\log n)$。大量静态查询可用第~\ref{tree:rmq-lca}~节欧拉序 RMQ，单次 $O(1)$。
 
 \subsubsection*{使用教程}
-复制第~\ref{tree:hld}~节的 \InlineCode{HLD}，依次调用 \InlineCode{init(n)}、\InlineCode{add(u,v)} 和 \InlineCode{build(root)}，随后用 \InlineCode{lca(u,v)} 查询。预处理不依赖线段树，查询支持两点相同或一方为另一方祖先。
+复制第~\ref{tree:hld}~节的 \InlineCode{HLD}，依次调用 \InlineCode{init(n)}、\InlineCode{add(u,v)} 和 \InlineCode{build(root)}，其中每条无向边加一次、根默认 1；随后 \InlineCode{lca(u,v)} 返回最近公共祖先。预处理不依赖线段树，查询支持两点相同或一方为另一方祖先。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 HLD g;
 g.init(5);

@@ -1,0 +1,21 @@
+% Reference: https://en.cppreference.com/w/cpp/container.html
+\subsection{stack、queue 与 deque}
+\label{stl:queue}
+\subsubsection*{原理}
+\InlineCode{stack} 后进先出，\InlineCode{queue} 先进先出，均默认用双端队列管理元素。\InlineCode{deque} 可在两端增删，也支持 $O(1)$ 下标访问，但存储不保证连续；中间插入、删除通常为 $O(n)$。
+\subsubsection*{使用教程}
+栈用 \InlineCode{push/top/pop}，队列用 \InlineCode{push/front/pop}；读取与弹出前先判 \InlineCode{empty()}。\InlineCode{pop()} 不返回弹出元素，先读取再弹出。\InlineCode{deque} 对应 \InlineCode{push_front/push_back}、\InlineCode{pop_front/pop_back}，两端操作为 $O(1)$。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+stack<int> st;
+st.push(3),st.push(5);
+if(!st.empty()){int x=st.top();st.pop();}
+queue<int> q;
+q.push(1),q.push(2);
+if(!q.empty()){int u=q.front();q.pop();}
+deque<int> d;
+d.push_back(4),d.push_front(2);
+int x=d[0];
+d.pop_back();
+q=queue<int>();
+\end{lstlisting}
+栈、队列和优先队列不提供普通遍历或 \InlineCode{clear()}，可赋为空对象重置。双端队列可维护单调队列；插删后不要依赖先前保存的迭代器。

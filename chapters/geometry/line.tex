@@ -1,0 +1,35 @@
+% Source: Independent derivation; cross-checked with KACTL geometry.
+\subsection{直线求交、投影、反射与距离}
+\label{geo:line}
+\AlgorithmInfo
+    {构造实数交点，求点到直线／线段的距离。}
+    {$O(1)$。}
+    {依赖实数点；Line 两构造点必须不同，方向内部归一化。}
+\subsubsection*{原理}
+
+直线记为 $p+tv$，v 为单位方向。两直线求交时，令 $d=v_1\times v_2$；非平行时
+\[
+ t=\frac{(p_2-p_1)\times v_2}{d}.
+\]
+平行时再检查 p2 到第一条线的有向距离，区分重合与平行分离。
+
+投影为 $p_0+v((q-p_0)\cdot v)$，反射点是投影的两倍减原点。点到直线距离为 $|v\times(q-p_0)|$。点到线段时投影参数限制在 [0,1]；端点相同则直接求点间距离，不做除法。
+
+\subsubsection*{使用教程}
+\InlineCode{Line(a,b)} 接收两个\textbf{不同}的实数点，表示经过 a、沿 a 到 b 方向的无限直线；成员 p 是线上点，v 是单位方向。\InlineCode{l.side(q)} 返回有符号距离，左正右负，0 在直线上；交换构造端点会交换保留侧，但不影响距离和投影。构造后不要单独将 v 改成非单位向量。
+
+\InlineCode{line_intersection(a,b)} 返回结构体：kind=0 为平行异线，1 为唯一交点，2 为重合；\textbf{仅当 kind=1 时读取 p}。它求的是无限直线交点，不保证落在原先的端点线段内；近乎平行时也要关注交点误差。
+
+\InlineCode{projection(q,l)} 返回垂足，\InlineCode{reflection(q,l)} 返回对称点，\InlineCode{point_line_distance(q,l)} 返回到无限直线的非负距离。\InlineCode{point_segment_distance(q,a,b)} 则返回到闭线段的距离，会限制垂足范围，并允许 a=b。均无需额外初始化，不修改传入对象。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Line a(Point{0,0},Point{2,2}),b(Point{0,2},Point{2,0});
+auto hit=line_intersection(a,b);
+if(hit.kind==1){Point intersection=hit.p;}
+Point p=projection(Point{2,0},a),q=reflection(Point{2,0},a);
+ld side=a.side(Point{2,0});
+ld dl=point_line_distance(Point{3,1},a);
+ld ds=point_segment_distance(Point{3,1},Point{0,0},Point{2,0});
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/line.cpp}

@@ -1,0 +1,26 @@
+% Source: User reference pp. 103-104, digit recursion and adjacent-digit model.
+\subsection{数位 DP：相邻数位差至少为 2}
+\label{dp:digit-dp}
+\AlgorithmInfo
+    {统计正整数中任意相邻十进制数位差至少为 2 的数量。}
+    {每个上界时间 $O(D\cdot11\cdot10)$，空间 $O(D\cdot11)$，D≤19。}
+    {$0\le l\le r\le2^{63}-1$；不计 0，内部计数用 long long。}
+\subsubsection*{原理}
+
+把上界按十进制数位展开，从高位到低位递归。状态包含当前位置 $pos$、前一有效数位 $pre$、是否仍贴着上界 $limit$。用 $pre=10$ 表示尚未开始，前导零不参与相邻差判断；开始之后，0 是普通数位。
+
+每层枚举当前数位 $d=0\ldots up$：贴上界时 up 是上界当前位，否则为 9；下一层只有在原来贴边且 d=up 时仍贴边。尚未开始又选 0，就继续保持 pre=10；否则要求 pre=10 或两位差至少为 2。
+
+当 $limit$ 为假，剩余可选数字只取决于位置与前一位，可以记忆化；贴上界的状态不写入缓存。到末尾时，只有已经开始的数字计为一个方案，因而不计整数 0。区间答案用 $count(r)-count(l-1)$。
+
+\subsubsection*{使用教程}
+\InlineCode{count_windy(x)} 返回 [1,x] 中的合法数数量，x≤0 时为 0；\InlineCode{windy_range(l,r)} 返回闭区间计数。每次调用独立创建缓存；改题时主要改“尝试数位 d”的合法性判断，并核对状态是否还足够。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+long long prefix=count_windy(1000);
+long long ans=windy_range(100,2000);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/digit_dp.cpp}
+\subsubsection*{需要注意}
+把 pre=0 当作未开始会误处理数位 0；不要缓存依赖当前上界的 limit 状态。更改合法性条件时，也要同步更改记忆化所需维度及是否计入 0。

@@ -1,0 +1,56 @@
+% Source: https://scale.iti.kit.edu/_media/teaching/2023ws/slides_flows.pdf, Applications: Closure.
+% Independent reduction, finite-capacity bound, implementation and tests; docs/validation.md.
+\subsection{最大权闭合子图}
+\label{algo:max-closure}
+\AlgorithmInfo
+    {有向依赖关系下选择点集，使所选点权和最大，并恢复一组最优选点。}
+    {设 $V=n+2$、$E\le n+m$；一般 Dinic 时间 $O(V^2E)$，空间 $O(V+E)$。}
+    {依赖第~\ref{algo:dinic}~节 Dinic；点号从 1 开始，点权为有符号 64 位，正权和 $P<4\times10^{18}$。}
+
+\subsubsection*{闭合的含义与建图}
+闭合点集 C 要求：对每条有向边 $u\to v$，只要 $u\in C$，就必须有 $v\in C$。它表达“选 u 必须选 v”，\textbf{不要求点集连通}。允许空集，因此最优值至少为 0；依赖关系可以有环，环内点会一起选或一起不选，无须先缩点才能求解。
+
+将源侧理解为选中、汇侧理解为不选，设全部正点权之和为 $P$，建立网络：
+\begin{itemize}
+    \item $w_u>0$：连 $S\to u$，容量 $w_u$，不选 u 时损失这份收益。
+    \item $w_u<0$：连 $u\to T$，容量 $-w_u$，选 u 时支付这份成本。
+    \item $w_u=0$：不连收益边，但仍保留它的依赖边。
+    \item 每条依赖 $u\to v$：连同方向的大容量边，禁止选 u 却不选 v。
+\end{itemize}
+依赖边的方向必须按题意确定。例如选项目必须购买设备，就从\textbf{项目连向设备}，项目点记正收益，设备点记负成本；多个项目共用同一设备点，设备成本只支付一次。
+
+\subsubsection*{为什么答案是正权和减最小割}
+先按未截断的收益容量推导。对一个不切依赖边的割，源侧原顶点构成闭合点集 C，割容量恰为
+\[
+ \operatorname{cut}(C)=\sum_{\substack{w_u>0\\u\notin C}}w_u+
+ \sum_{\substack{w_u<0\\u\in C}}(-w_u)
+ =P-\sum_{u\in C}w_u.
+\]
+因而最小化割等价于最大化选点权和：
+\[
+ \boxed{\operatorname{answer}=P-\operatorname{maxflow}(S,T).}
+\]
+跑满最大流后，在残量图中从 S 沿正残量边可达的原顶点就是一组最优 C。最小割不会切断依赖边，所以恢复出的点集也满足全部依赖；有限大容量的取法如下。
+
+\subsubsection*{大容量与整数范围}
+空集对应容量为 P 的可行割，因此\textbf{只需将依赖容量设为 $P+1$}，就能保证它不会出现在最小割中；不需要把所有容量累加来估计无穷。P 严格小于 Dinic 的默认上限，实际最大流又不超过 P，所以本次一定跑满，之后才可恢复最小割。
+
+负权绝对值若超过 $P+1$，也可将对应容量截到 $P+1$：任何切断它的割都比空集更差，不会影响最优解。代码先提升到 128 位再对负权取负，因此也能处理 \InlineCode{LLONG_MIN}。正权和必须满足范围，不能在累计溢出后再截断。
+
+\subsubsection*{使用教程}
+\InlineCode{max_weight_closure(w,edges)} 接收 1 下标点权数组和依赖边列表，返回 weight（最大点权和）与 chosen（升序选点编号）。每次调用独立建图，不修改输入；没有收益时可以返回空集，多解时只恢复其中一组，不额外最大化选点数。
+
+示例中 1、2 为项目，3、4 为设备；项目 1 需要设备 3，项目 2 同时需要设备 3、4。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<long long> w={0,8,6,-5,-4};
+vector<pair<int,int>> edges={{1,3},{2,3},{2,4}};
+auto res=max_weight_closure(w,edges);
+long long ans=res.weight;
+vector<int> chosen=res.chosen;
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/graphs/max_closure.cpp}
+
+\subsubsection*{需要注意}
+“至少选一个”、指定必选／禁选点、固定选点数等是额外约束，不能直接套本节允许空集的容量上界与模型。最大权闭合子图也不同于最大权连通子图，后者的连通要求不会由依赖边自动满足。

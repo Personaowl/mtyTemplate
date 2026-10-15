@@ -1,0 +1,27 @@
+% Source: ACM_Templates.pdf pp. 40-66. pp. 51-53; https://cp-algorithms.com/data_structures/segment_tree.html
+\subsection{可持久化数组：历史版本单点修改}
+\label{ds:persistent-array}
+\AlgorithmInfo
+    {从任意历史版本分支修改，并查询各版本单点值。}
+    {建树 $O(n)$；修改、查询 $O(\log(n+1))$；复制版本均摊 $O(1)$；$q$ 次修改、$v$ 个版本共 $O(n+q\log(n+1)+v)$ 空间。}
+    {非空数组、1 下标；版本编号从 0 开始。}
+\subsubsection*{原理}
+一次单点修改只影响根到该叶子的路径。复制这条路径上的节点，未修改的子树继续共享，便能在不改变历史节点的前提下生成新根。根编号区分不同版本，旧版本仍可继续分支。
+
+这里的下标轴是数组位置；它与下一节按数值排名建立的频次树用途不同。
+
+\subsubsection*{使用教程}
+\InlineCode{init(a)} 建立版本 0；\InlineCode{modify(ver,p,val)} 从版本 $ver$ 将位置 $p$ 赋为 $val$，追加新版本并返回版本编号。\InlineCode{copy(ver)} 追加一个共享同一根的版本并返回新编号；\InlineCode{query(ver,p)} 返回指定版本单点值，不自动创建版本。重复初始化会清空全部版本。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+PersistentArray seg;
+seg.init(vector<long long>{0,4,1,7});
+int v1=seg.modify(0,2,9);
+int v2=seg.modify(0,1,-3);
+int v3=seg.copy(v1);
+long long x=seg.query(v2,2),y=seg.query(v3,1);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/persistent_array.cpp}
+\subsubsection*{需要注意}
+不要直接修改共享节点。若题目规定每条操作都产生一个版本，查询操作后也应自行调用 \InlineCode{copy(ver)}，而不是假设查询会增加版本号。

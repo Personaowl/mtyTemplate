@@ -1,0 +1,26 @@
+% Source: ACM_Templates.pdf pp. 40-66. daily-problems/1-16/qoj2693L.cpp; https://cp-algorithms.com/data_structures/fenwick.html
+\subsection{树状数组：单点加与区间和}
+\label{ds:bit}
+\AlgorithmInfo
+    {维护前缀和、区间和；非负频次下按排名查找。}
+    {初始化 $O(n)$；修改、求和、排名查找 $O(\log n)$；空间 $O(n)$。}
+    {下标 $1\ldots n$；值与累加结果须在有符号 64 位范围内。}
+\subsubsection*{原理}
+\InlineCode{tree[i]} 保存以 $i$ 结尾、长度为 $\operatorname{lowbit}(i)=i\mathbin{\&}(-i)$ 的一段和。单点加沿 $i\gets i+\operatorname{lowbit}(i)$ 更新覆盖它的节点；前缀查询沿 $i\gets i-\operatorname{lowbit}(i)$ 拆成不交段。区间和是两个前缀之差。
+
+若每个位置的频次都非负，前缀和单调，可以从高位到低位试探跳过前缀，用 $O(\log n)$ 找到第 $k$ 个元素的位置。
+
+\subsubsection*{使用教程}
+\InlineCode{init(n)} 清零；\InlineCode{add(x,d)} 给位置 $x$ 加 $d$；\InlineCode{query(x)} 返回 $[1,x]$ 的和，允许 $x=0$；\InlineCode{sum(l,r)} 返回闭区间和。\InlineCode{kth(k)} 返回最小的满足前缀和至少为 $k$ 的下标，须保证所有频次非负且 $1\le k\le query(n)$。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+BIT bit;
+bit.init(5);
+bit.add(2,3),bit.add(4,2);
+long long pre=bit.query(3),sum=bit.sum(2,4);
+int p=bit.kth(4);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/bit.cpp}
+\subsubsection*{需要注意}
+\InlineCode{add(0,d)} 会使循环无法前进，更新下标必须从 1 开始。允许负增量；只有更新后每个位置的当前频次仍非负时，才能使用 \InlineCode{kth}。

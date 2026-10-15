@@ -8,17 +8,21 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def compile_examples(temp, name, sources, chapters):
+def compile_examples(temp, name, sources, chapters, preamble=()):
     compiler = shutil.which('g++')
     if not compiler:
         raise RuntimeError('g++ is required in PATH')
     source = ['#include<bits/stdc++.h>', '#ifdef MTY_INT64',
               '#define int long long', '#endif', 'using namespace std;']
+    source += list(preamble)
     source += [f'#include "{path}"' for path in sources]
     calls = []
     for path in chapters:
         tex = (ROOT / path).read_text(encoding='utf-8')
-        for match in re.finditer(r'\\begin\{lstlisting\}(?:\[[^\]]*\])?\s*\n(.*?)\\end\{lstlisting\}', tex, flags=re.S):
+        examples = list(re.finditer(r'\\begin\{lstlisting\}(?:\[[^\]]*\])?\s*\n(.*?)\\end\{lstlisting\}', tex, flags=re.S))
+        if r'\CodeFile{' in tex and not examples:
+            raise RuntimeError(f'Source entry has no documented call: {path}')
+        for match in examples:
             line = tex.count('\n', 0, match.start(1)) + 1
             calls.append('{\n' + f'#line {line} "{path}"\n' + match.group(1) + '\n}')
     if not calls:

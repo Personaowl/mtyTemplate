@@ -59,13 +59,13 @@ SG game;
 game.init(7);
 vector<int> step={1,3,4};
 for(int x=1;x<=7;x++){
-    for(auto d:step) if(x>=d) game.add(x,x-d);
+	for(auto d:step) if(x>=d) game.add(x,x-d);
 }
 if(game.build()){
-    vector<int> a={2,5,7};
-    int res=0;
-    for(auto x:a) res^=game.sg[x];
-    bool win=res!=0;
+	vector<int> a={2,5,7};
+	int res=0;
+	for(auto x:a) res^=game.sg[x];
+	bool win=res!=0;
 }
 \end{lstlisting}
 多堆异或要求各堆的规则彼此独立、每步只改变其中一堆。若一次行动会将一堆分成多个独立子游戏，则该行动的后继值应为各部分 SG 的异或，不能把每个部分分别当作一条普通出边。

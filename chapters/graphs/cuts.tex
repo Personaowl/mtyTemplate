@@ -21,8 +21,10 @@
 
 标记所有桥后，忽略桥重新遍历，得到模板采用的边双分量：任意一条非桥边的两个端点在同一分量。把每个分量缩成点，桥形成森林。割点可同时属于多个点双分量，本接口的 \InlineCode{bel} 不是点双归属，不能混用。
 
+需要输出点双分量时使用第~\ref{algo:point-bcc}~节的独立模板。
+
 \subsubsection*{使用教程}
-\InlineCode{add(u,v)} 内部添加双向邻接项，返回边编号。\InlineCode{build()} 后，\InlineCode{cut[u]} 判断割点、\InlineCode{bridge[id]} 判断桥，\InlineCode{bel[u]} 为去桥后的分量，\InlineCode{cnt} 为分量数，均覆盖所有连通块。
+\InlineCode{init(n)} 开始建图，\InlineCode{add(u,v)} 加无向边且返回从 0 开始的边编号。\InlineCode{build()} 后读 \InlineCode{cut[u]} 判断割点、\InlineCode{bridge[id]} 判断桥；\InlineCode{bel[u]} 为去桥后的分量编号，范围 $1\ldots cnt$。重跑会重置结果、保留边，并覆盖全部连通块。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Cuts g;
 g.init(4);

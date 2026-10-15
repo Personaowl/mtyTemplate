@@ -1,0 +1,29 @@
+% Source: User reference pp. 98-102; framework: https://github.com/tianyicui/pack (V2.lyx).
+\subsection{二维费用背包}
+\label{dp:two-cost-knapsack}
+\AlgorithmInfo
+    {两种容量约束下的 0/1 背包。}
+    {n 件物品时间 $O(nVU)$，空间 $O(VU)$。}
+    {$V,U\ge0$，单件两维费用非负；所有选择价值和在背包范围内。}
+\subsubsection*{原理}
+
+同一件物品同时消耗两种资源，状态 $f_{j,k}$ 表示两维容量限制下的最大价值。0/1 物品的转移为
+\[
+ f_{j,k}\gets\max(f_{j,k},f_{j-w_1,k-w_2}+v).
+\]
+转移在二维物品层中应读取上一层，压掉物品维后两维容量都倒序枚举，确保当前物品只加入一次。若某一维费用为 0，另一维的倒序仍保证这一点；两维费用均为 0 时，每个状态也只更新一次。不超过两维容量时全部初始化为 0；恰好同时占满两维时仅 $f_{0,0}=0$，其他不可达。
+
+\subsubsection*{使用教程}
+直接建立 (V+1)×(U+1) 的 f，\InlineCode{two_cost_knapsack(f,w1,w2,v)} 原地加入一件。示例要求恰好消耗两维容量；若只要求不超过两维上限，将初值全部改为 0。答案读 f[V][U]，负无穷表示不可达。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+int V=6,U=5;
+const long long INF=4e18;
+vector<vector<long long>> f(V+1,vector<long long>(U+1,-INF));
+f[0][0]=0;
+two_cost_knapsack(f,2,1,4);
+two_cost_knapsack(f,4,4,8);
+long long ans=f[V][U];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/two_cost_knapsack.cpp}

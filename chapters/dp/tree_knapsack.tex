@@ -1,0 +1,31 @@
+% Source: User reference pp. 104-105; corrected complexity scope and dependency transition.
+\subsection{树形背包：选点数量与依赖}
+\label{dp:tree-knapsack}
+\AlgorithmInfo
+    {在有根树中，最多考虑 K 个点，求各精确选点数的最优价值。}
+    {单位点费用下时间 $O(nK)$（K≥1），空间 $O(nK)$；K=0 只返回空方案。}
+    {非空树，$0\le K\le n$；点号从 1 开始，价值和严格在 $(-INF,INF)$ 内。}
+\subsubsection*{原理}
+
+树上每个点费用为 1，选择某点必须选择它的全部祖先。定义 $f_{u,j}$ 为子树 $u$ 内恰好选 $j$ 点的最大价值，$j>0$ 时必须含 $u$。初始化 $f_{u,0}=0,f_{u,1}=w_u$，逐个合并孩子：
+\[
+ g_{i+j}=\max(g_{i+j},f_{u,i}+f_{v,j}),\quad i\ge1,\ j\ge0.
+\]
+这里的 $f_{u,i}$ 只包含已经处理过的孩子，$f_{v,j}$ 则是当前孩子完整子树的结果，因此要先递归孩子再合并。父侧的 i 不取 0，防止跳过父亲却选孩子；j=0 表示完全不选该孩子的子树。每合并一个孩子就创建新数组 g，除 $g_0=0$ 外初值不可达，合并完成后替换父侧数组，保证同一孩子只使用一次。
+
+合并上界限制为子树点数和 K，复杂度可达 $O(nK)$：小子树之间的枚举由点对所属的首次合并分摊；遇到规模超过 K 的部分后，截断每张表为 K，每个新并入部分的代价由其点数乘 K 控制。这一结论依赖\textbf{单位点费用与按点数截断}。一般任意费用的树背包不能直接沿用此证明，常见直接合并上界仍为 $O(nV^2)$。
+
+\subsubsection*{使用教程}
+\InlineCode{tree_knapsack(e,w,K,root)} 传入双向邻接表、点价值和选点数上限，根默认 1；返回根的 f[0..K]，第 j 项表示恰好选 j 点，非空选择必须包含根。内部递归创建状态，多次调用独立；若求至多 K 点，应对返回数组取最大值。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<vector<int>> e={{},{2,3},{1,4,5},{1},{2},{2}};
+vector<long long> w={0,3,2,-1,5,4};
+auto f=tree_knapsack(e,w,3,1);
+long long exact=f[3];
+long long at_most=*max_element(f.begin(),f.end());
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/tree_knapsack.cpp}
+\subsubsection*{需要注意}
+若允许在多棵依赖树间任选，常用虚根连接各根，再妥善处理虚根费用；本实现真实根也占一个名额，不能不加调整就把它当作费用 0 的虚根。

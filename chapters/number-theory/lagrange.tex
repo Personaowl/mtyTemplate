@@ -1,0 +1,41 @@
+% Source: ACM_Templates.pdf, pp.114-115; https://cp-algorithms.com/algebra/polynomial.html. Formula independently reorganized.
+\subsection{拉格朗日插值}
+\label{math:lagrange}
+\AlgorithmInfo
+    {由点值确定次数小于 n 的多项式，求另一个横坐标处的值。}
+    {一般点 $O(n^2+n\log p)$；连续点 $O(n+\log p)$；空间 $O(n)$。}
+    {模数 p 为素数，$2\le p\le2\times10^9$，$1\le n\le p$；数组 0 下标。}
+\subsubsection*{原理}
+给出 n 个横坐标两两不同的点 $(x_i,y_i)$，存在唯一的次数小于 n 的多项式 P 满足 $P(x_i)=y_i$。构造基函数
+\[
+ L_i(x)=\prod_{j\ne i}\frac{x-x_j}{x_i-x_j},\qquad
+ P(x)=\sum_{i=0}^{n-1}y_iL_i(x).
+\]
+$L_i(x_i)=1$，在其他给定点处为 0，因此逐项相加就满足所有点值。若存在两个这样的多项式，它们之差次数小于 n 却有 n 个根，只能是零多项式，故唯一。在模素数 p 下同样成立，但\textbf{横坐标必须模 p 后仍两两不同}，否则分母没有逆元。一般实现分别累计分子和分母，每项只求一次逆元，而不是每乘一个因子就快速幂。
+
+若 $x_i=i$，有
+\[
+ \prod_{j\ne i}(i-j)=(-1)^{n-1-i}i!(n-1-i)!.
+\]
+定义 $pre_i=\prod_{j<i}(x-j)$、$suf_i=\prod_{j\ge i}(x-j)$，则
+\[
+ P(x)=\sum_{i=0}^{n-1}y_i\,pre_i\,suf_{i+1}
+       \frac{(-1)^{n-1-i}}{i!(n-1-i)!}\pmod p.
+\]
+前后缀各线性扫描一遍，阶乘逆元只需一次快速幂后倒推，总计 $O(n+\log p)$。相比把公共积提出再逐项除 $(x-i)$，此式避免逐项求逆，也避免采样点处分子分母同时为 0；实现对 $x\bmod p$ 命中采样点时直接返回对应值。
+
+连续整数的幂和 $S_k(t)=\sum_{j=1}^t j^k$ 在 $k+2\le p$ 时可按次数至多 $k+1$ 的多项式处理，先求 $0,1,\ldots,k+1$ 的点值，再插值；使用前必须先证明目标本身具有该次数界，不能仅凭有限样本外推任意函数。
+\subsubsection*{使用教程}
+先复制快速幂。\InlineCode{lagrange(xs,ys,x,p)} 接收等长的横／纵坐标数组，返回插值多项式在 x 处模 p 的值；允许负数和较大整数，内部先归一化。\InlineCode{lagrange_consecutive(y,x,p)} 专门用于 $y[i]=P(i)$，无需 xs；若采样点从 c 开始，应将查询改为 x-c，并先保证减法不溢出。两函数每次独立计算，不返回多项式系数，不修改输入；当需大量查询时可再按题目缓存预处理。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+long long p=998244353;
+vector<long long> xs={0,2,5},ys={1,5,26};
+long long a=lagrange(xs,ys,7,p);
+vector<long long> y={1,2,5};
+long long b=lagrange_consecutive(y,7,p);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/number-theory/lagrange.cpp}
+\subsubsection*{需要注意}
+插值结果是模 p 的多项式值，不是实数插值，也不自动还原整数真值；合数模数不能直接使用费马逆元。相同余数的横坐标即使原整数不同也不合法。

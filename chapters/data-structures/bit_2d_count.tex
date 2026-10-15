@@ -1,0 +1,33 @@
+% Problem: https://www.luogu.com.cn/problem/P2163
+\subsection{树状数组应用：P2163 二维数点}
+\label{ds:bit-2d-count}
+\AlgorithmInfo
+    {离线统计每个闭矩形中的点数，重复坐标按点的个数计算。}
+    {时间 $O((n+m)\log(n+m+1))$；空间 $O(n+m)$。}
+    {依赖 BIT；点与询问坐标均在 $[0,10^7]$，允许 $n=0$；矩形左下角不超过右上角。}
+\subsubsection*{原理}
+\href{https://www.luogu.com.cn/problem/P2163}{洛谷 P2163：园丁的烦恼}给出平面上的点和矩形询问。定义二维前缀计数
+\[
+ F(x,y)=\#\{(p_x,p_y):p_x\le x,\ p_y\le y\}.
+\]
+闭矩形 $[a,c]\times[b,d]$ 的答案通过容斥得到
+\[
+ F(c,d)-F(a-1,d)-F(c,b-1)+F(a-1,b-1).
+\]
+把一个矩形拆成四个带正负号的前缀事件，按横坐标递增扫描。在处理事件 $(x,y)$ 前，将所有横坐标不大于 $x$ 的点加入树状数组；树状数组维护这些点的纵坐标频次，查询纵坐标不大于 $y$ 的数量即可。
+
+只离散化点的纵坐标。对阈值 $y$ 使用 \InlineCode{upper_bound}，得到不大于它的坐标个数，再查询这个长度的前缀。这样询问边界即使没有出现在点集中，也能直接处理。
+\subsubsection*{使用教程}
+\InlineCode{count_points(p,ask)} 接收 0 下标的点集，以及矩形 \InlineCode{array<int,4>{a,b,c,d}}；返回值按询问原顺序排列。函数内部排序副本，不修改调用方数据；点集为空或询问为空也可调用。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<pair<int,int>> p={{0,0},{2,3},{2,3},{5,1}};
+vector<array<int,4>> ask={{0,0,2,3},{2,3,2,3},{3,0,6,2}};
+auto ans=count_points(p,ask);
+long long cnt=ans[0];
+\end{lstlisting}
+复制 \InlineCode{BIT} 和本节源码，在常用主函数中调用 \InlineCode{solve_p2163()}，即可按题目格式读入点与矩形并输出答案。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/bit_2d_count.cpp}
+\subsubsection*{需要注意}
+事件处理前加入的条件是 $p_x\le x$，相同横坐标的点必须计入边界。$a=0$ 或 $b=0$ 时会产生阈值 $-1$，对应前缀自然为空；不要把它钳成 0。重复点逐个加入，不能对整个点集去重。本实现的边界减 1 依赖上述坐标范围，推广到整数极值时应另作处理。

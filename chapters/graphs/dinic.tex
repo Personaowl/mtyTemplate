@@ -15,7 +15,7 @@
 递归函数 \InlineCode{send} 到达汇点时返回允许流量，回溯时修改正反残量；一条边成功推流后保留当前弧位置，只有走不通时才继续下一条边。一次阻塞流的保守上界为 $O(nm)$，递归深度不超过层数 $O(n)$。残量边与最小割原理见第~\ref{math:flow-basics}~节。
 
 \subsubsection*{使用教程}
-\InlineCode{init(n)} 后用 \InlineCode{add(u,v,c)} 加有向容量边，返回正向边编号。\InlineCode{flow(s,t,limit)} 返回\textbf{本次额外增广量}并修改残量容量；省略上限时最多增广 \InlineCode{INF}。重复调用会从当前残量图继续，而不是重算原图。
+\InlineCode{init(n)} 后用 \InlineCode{add(u,v,c)} 加有向容量边，返回正向边编号。\InlineCode{flow(s,t,limit)} 从源 $s$ 向汇 $t$ 最多再送 \InlineCode{limit} 单位，返回\textbf{本次额外增广量}并修改残量容量；省略上限时最多增广 \InlineCode{INF}。同一源汇重复调用从当前残量图继续；若要从零计算，需重新 \InlineCode{init} 并加边。
 
 初始反向容量为零时，原边净流量为 \InlineCode{e[id^1].cap}；\InlineCode{reachable(s)} 返回正残量可达标记。仅在真正跑满最大流后，可据此解释最小割；达到人为限制就停止时不保证是最小割。
 \begin{lstlisting}[style=mtycpp,numbers=none]

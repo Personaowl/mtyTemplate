@@ -1,0 +1,24 @@
+% Source: ACM_Templates.pdf pp. 40-66. pp. 50-55, mty prefix tree; https://cp-algorithms.com/data_structures/segment_tree.html
+\subsection{主席树：静态区间第 k 小}
+\label{ds:persistent-kth}
+\AlgorithmInfo
+    {查询静态数组任意区间内的第 k 小值，重复值按出现次数计。}
+    {建树 $O(n\log(n+1))$；查询 $O(\log(m+1))$；空间 $O(n\log(m+1))$，$m$ 为不同值数。}
+    {非空数组、1 下标；$1\le l\le r\le n$，$1\le k\le r-l+1$。}
+\subsubsection*{原理}
+先将值离散化，对每个前缀建立一棵频次线段树；\InlineCode{root[i]} 保存 $a_1\ldots a_i$ 的数值频次。区间 $[l,r]$ 的频次等于第 $r$ 个前缀减去第 $l-1$ 个前缀。
+
+同步下降两棵树，求左半值域中的频次差 $cnt$。若 $k\le cnt$，答案在左侧；否则进入右侧并令 $k\gets k-cnt$。到达叶子后，用排名还原原值。离散化方法见第~\ref{stl:discretize}~节。
+
+\subsubsection*{使用教程}
+\InlineCode{init(a)} 内部完成离散化和全部前缀版本；\InlineCode{query(l,r,k)} 直接返回原值，不是离散化编号。\InlineCode{b} 为 0 下标的不同值表，\InlineCode{root[0]} 是空前缀；重新初始化会重建所有状态。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+PersistentSegTree seg;
+seg.init(vector<long long>{0,100,-5,100,7});
+long long ans=seg.query(2,4,2);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/persistent_kth.cpp}
+\subsubsection*{需要注意}
+这里的版本必须是同一数组的嵌套前缀，频次差才能代表区间；不能直接用任意两个分支版本相减，也不支持建好后修改原数组。

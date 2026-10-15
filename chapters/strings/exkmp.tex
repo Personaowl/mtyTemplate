@@ -17,7 +17,7 @@ $z_i$ 是 $t[i\ldots m]$ 与 $t$ 的最长公共前缀长度。维护当前匹�
 扩展 KMP 用同样的区间复用思想，计算 $e_i=\operatorname{LCP}(s[i\ldots n],t)$，只是复用的 $z$ 数组来自模式串 $t$。
 
 \subsubsection*{使用教程}
-单个字符串用 \InlineCode{z_function(t)}；比较文本与模式串用 \InlineCode{exkmp(s,t)}，后者会自行预处理模式串。
+\InlineCode{z_function(t)} 返回模式串自身的 LCP 数组，长度为 $|t|+1$；\InlineCode{exkmp(s,t)} 返回文本 $s$ 各后缀与模式串 $t$ 的 LCP 数组，长度为 $|s|+1$，内部完成预处理。两者均从 1 开始读取，第 0 项不用。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 string s="ababa",t="aba";
 auto z=z_function(t);

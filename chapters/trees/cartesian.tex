@@ -12,7 +12,7 @@
 
 对区间 $[l,r]$，小根笛卡尔树中下标 $l,r$ 的 LCA 对应区间最小值位置。建树本身不包含 LCA 预处理；需要该查询时可将左右儿子转为邻接关系，再接本章的 LCA 模板。
 \subsubsection*{使用教程}
-\InlineCode{build(a)} 建小根堆；第二个参数为假时建大根堆。\InlineCode{root} 为根，\InlineCode{l,r,fa} 为左右儿子与父亲，0 表示不存在；\InlineCode{a={0}} 表示空序列，根为 0。重复构建会清空结果。
+\InlineCode{build(a,small)} 接收第 0 项占位的权值数组；\InlineCode{small} 默认真，建小根堆，传假建大根堆。无需单独初始化或加边。\InlineCode{root} 为根，\InlineCode{l,r,fa} 为左右儿子与父亲，0 表示不存在；\InlineCode{a={0}} 表示空序列，根为 0。重复构建会清空结果。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 CartesianTree g;
 vector<long long> a={0,3,1,1,4,2};

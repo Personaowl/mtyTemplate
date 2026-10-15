@@ -1,0 +1,25 @@
+% Source: Independent split-edge triangle/sector integration; KACTL CirclePolygonIntersection.h (chilli/Takanori MAEHARA, CC0) cross-check.
+\subsection{圆与多边形交面积}
+\label{geo:circle-polygon}
+\AlgorithmInfo
+    {求圆盘与简单多边形的交面积。}
+    {$O(n)$ 时间，每条边只分为常数段。}
+    {依赖圆；多边形可凹、顺逆时针均可；无孔、非自交。}
+\subsubsection*{原理}
+
+将圆心平移到原点，对每条有向边 a→b 累加它与原点形成的有向面积贡献。先求该边与圆的交点参数，按参数将边切成若干段；每段内部不会再次穿过圆周。
+
+若一段中点在圆盘内，其贡献为三角形面积 $(u\times v)/2$；否则贡献为扇形 $r^2atan2(u\times v,u\cdot v)/2$。按边有向累加后取绝对值。切分参数用投影和直线到圆心距离求出，重复端点直接跳过；这样边经过圆心、相切、顶点在圆上时都有明确分支。
+
+\subsubsection*{使用教程}
+\InlineCode{circle_polygon_area(c,p)} 接收有效圆 c（半径非负）和沿边界顺序的简单多边形 p，返回闭圆盘与多边形的实际公共面积，为非负 ld，\textbf{不是两倍面积}。p 可凹可凸，顺逆时针均可，不重复首点；少于三点或点圆返回 0。
+
+圆心不必位于多边形内，函数内部平移到圆心后按边分段积分，不要求先求所有交点；不会改变圆或多边形。多孔区域和自交边界不在此接口契约内。若求占圆面积的比例，确认 r>0 后再除以 $\pi r^2$，避免点圆除零；若只求面积，直接读取返回值。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Circle c{Point{0,0},1};
+vector<Point> p={{-2,-2},{2,-2},{2,2},{-2,2}};
+ld area=circle_polygon_area(c,p);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/circle_polygon.cpp}

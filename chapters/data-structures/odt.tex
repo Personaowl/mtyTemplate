@@ -1,0 +1,29 @@
+% Source: ACM_Templates.pdf pp. 118-119 (split and assignment with a total sum).
+\subsection{珂朵莉树：有序不交区间}
+\label{ds:odt}
+\AlgorithmInfo
+    {用 set 保存若干等值区间，支持区间赋值、区间加、区间和及全局和。}
+    {有 $S$ 段、一次访问 $k$ 段时，操作 $O(\log(S+1)+k)$；空间 $O(n)$，单次最坏 $O(n)$。}
+    {非空数组、1 下标闭区间；元素值、区间和及全局和须能用 64 位保存。}
+\subsubsection*{原理}
+将数组表示为若干不重叠的等值区间 $[l,r]$，用 \InlineCode{set} 按左端点排序。\InlineCode{split(pos)} 把包含 $pos$ 的区间拆开，使 $pos$ 成为新段的起点。操作 $[l,r]$ 前，先拆 $r+1$，再拆 $l$，随后即可连续遍历被覆盖的整段。
+
+赋值时删掉这些段，插入一个新段；区间加时直接修改各段的值；求和时累计“段长乘段值”。成员 \InlineCode{ans} 额外维护整个数组的和。节点的 \InlineCode{v} 使用 \InlineCode{mutable}，使集合迭代器可以修改它；参与排序的左端点不修改。
+
+区间赋值能一次压缩多段，适合段数较少、含大量覆盖操作的场景。算法复杂度依赖实际段数，不保证每次对数时间；不能把随机数据下的表现当作任意数据的保证。
+\subsubsection*{使用教程}
+\InlineCode{init(n,val)} 将 $[1,n]$ 全部初始化为 $val$（省略时为 0）；\InlineCode{init(a)} 读取 \InlineCode{a[1..n]}，相邻相同值合成一段。\InlineCode{assign(l,r,val)} 整段赋值，\InlineCode{add(l,r,val)} 整段加法，\InlineCode{query(l,r)} 返回区间和，\InlineCode{ans} 随修改维护全局和。重新初始化会清空旧区间。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+ODT odt;
+odt.init(vector<long long>{0,1,1,3,3,2});
+odt.assign(2,4,7);
+odt.add(3,5,-2);
+long long sum=odt.query(1,4),total=odt.ans;
+odt.init(6,1);
+odt.assign(1,6,0);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/odt.cpp}
+\subsubsection*{需要注意}
+必须先拆右端点；若先保存左迭代器，右端点的拆分可能删掉它所在的节点。\InlineCode{split(n+1)} 直接返回尾迭代器，不建立空段。查询也会拆分区间，但不会改变数值或 \InlineCode{ans}；本实现不强制合并相邻等值段，因此反复查询也可能增加段数。

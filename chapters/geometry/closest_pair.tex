@@ -1,0 +1,25 @@
+% Source: Independent squared-distance divide and conquer; https://cp-algorithms.com/geometry/nearest_points.html.
+\subsection{平面最近点对：分治}
+\label{geo:closest-pair}
+\AlgorithmInfo
+    {求不同输入位置之间的最小欧氏距离平方。}
+    {$O(n\log n)$ 时间、$O(n)$ 辅助空间。}
+    {依赖整数点；重复坐标的两个点距离为 0。}
+\subsubsection*{原理}
+
+先按 x 排序并按下标平分。递归分别求左右最短距离 d，跨分界的更优点对只可能位于分界线距离小于 d 的条带内。合并时按 y 顺序扫描，只比较 y 差也小于 d 的已有条带点；左右两半各自的点间距至少 d，装箱计数说明每点只需比较常数个候选。
+
+递归返回时将当前区间按 y 排好，以归并代替每层重新排序，从而保持 $O(n\log n)$。分界 x 要在递归打乱 x 顺序前保存。所有距离与条带判断都用整数平方；先发现重复点即可返回 0。
+
+\subsubsection*{使用教程}
+\InlineCode{closest_pair2(a)} 直接传入完整整数点集，顺序任意，不要先取凸包，因为最近点可能在内部。函数按值接收，内部排序不改变原数组，返回 \InlineCode{__int128} 距离平方；不足两点为 -1，存在重复点为 0。
+
+需要实际距离时先检查返回值非负，再转 ld 开根号；只作比较则一直使用平方，避免精度损失。当前接口不返回点编号。内部递归处理半开区间并保持 y 有序，调用者无需处理这些辅助状态，重复调用也无需初始化。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<IPoint> a={{0,0},{5,2},{1,1},{8,3}};
+__int128 d2=closest_pair2(a);
+if(d2>=0){ld d=sqrtl((ld)d2);}
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/closest_pair.cpp}

@@ -14,11 +14,11 @@
 \]
 从叶子向上，合并节点权值单调不减，所以给定阈值 $x$，可倍增到最高的、合并权不超过 $x$ 的祖先，该节点包含的原叶子数就是阈值连通块大小。并查集代表元与重构树根分开维护，不能把并查集按大小合并后的代表元直接当作新建父节点。
 \subsubsection*{使用教程}
-\InlineCode{add(u,v,w)} 每条原图无向边只加一次，\InlineCode{build()} 内部排序并构建全部连通块的倍增表。
+\InlineCode{init(n)} 指定原图顶点数；\InlineCode{add(u,v,w)} 加权为 $w$ 的原图无向边，每边一次。\InlineCode{build()} 内部排序并构建全部连通块的倍增表；追加边后可重建，新数据重新初始化。
 
 \InlineCode{bottleneck(u,v)} 返回 \InlineCode{pair<bool,long long>}，首项为假表示原图不连通；$u=v$ 约定返回真和 0，表示空路径，不拿叶子的占位权值参与瓶颈比较。
 
-\InlineCode{component(u,x)} 返回阈值连通块对应的重构节点，\InlineCode{size(u,x)} 返回其中的原顶点数。\InlineCode{tot} 为总节点数，\InlineCode{roots} 为森林根，\InlineCode{val} 仅在新建合并节点上有意义，\InlineCode{sz} 统计原叶子数。
+查询顶点 $u,v$ 均用原图编号。\InlineCode{component(u,x)} 返回仅允许边权不超过 $x$ 时，$u$ 所在连通块的重构节点；\InlineCode{size(u,x)} 返回该块的原顶点数。\InlineCode{tot} 为总节点数，\InlineCode{roots} 为森林根，\InlineCode{val} 仅在新建合并节点上有意义，\InlineCode{sz} 统计原叶子数。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 KruskalTree g;
 g.init(4);

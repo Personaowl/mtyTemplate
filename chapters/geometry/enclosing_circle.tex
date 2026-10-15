@@ -1,0 +1,31 @@
+% Source: Randomized support-point invariant cross-checked with KACTL MinimumEnclosingCircle.h and CP-Algorithms enclosing-circle.
+\subsection{最小覆盖圆：随机增量}
+\label{geo:enclosing-circle}
+\AlgorithmInfo
+    {求包含全部点的最小闭圆盘。}
+    {随机打乱后期望 $O(n)$，最坏 $O(n^3)$；副本空间 $O(n)$。}
+    {依赖圆与三角形；实数点集可重复，空集单独返回。}
+\subsubsection*{原理}
+
+最小覆盖圆由至多三个边界点决定：一个点、两点为直径端点，或三个非共线点确定外接圆。随机打乱后逐点加入，若新点已在圆内则不变；否则该点必须在新圆边界上，回扫此前点。第二个越界点也固定在边界上，再扫描第三个越界点并重建外接圆。
+
+一、二、三层重建分别固定对应的边界点，其余已扫描点保持被覆盖。随机顺序使较晚点成为边界支撑点的概率下降，三层循环的总期望仍为线性；这不是每个输入顺序都线性。遇到共线三点时以最远两点的直径圆处理，避免除以零。
+
+\subsubsection*{使用教程}
+\InlineCode{minimum_circle(p)} 传入实数点集，直接返回覆盖所有点的圆；允许无序、重复、共线点。函数按值接收，在副本中随机打乱，不改变原点集；可传第二个 \InlineCode{uint64_t} seed 固定顺序以复现。
+
+结果 c.o 为圆心、c.r 为\textbf{半径}。空点集返回 r=-1，单点返回点圆；若还要将结果传给其他圆运算，先检查 r 非负。\InlineCode{circle_contains(c,q)} 是含边界的圆盘包含判断，带长度容差，无效圆返回 false。
+
+\InlineCode{diameter_circle(a,b)} 只是以 ab 为直径构造一个圆，a=b 时是点圆；它是覆盖圆的辅助步骤，不能代替任意点集的最小覆盖圆。所有接口无需 init／清空，重复求解直接再次调用即可。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<Point> p={{0,0},{4,0},{0,3},{1,1},{0,0}};
+Circle c=minimum_circle(p,123456);
+if(c.r>=0){Point o=c.o;ld radius=c.r;}
+bool covered=circle_contains(c,Point{1,1});
+Circle two=diameter_circle(p[0],p[1]);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/enclosing_circle.cpp}
+\subsubsection*{需要注意}
+判断覆盖允许 GEO\_EPS 的长度误差；不额外放大最终半径掩盖错误。若输出要求包含精确边界，按题目的允许误差选择输出位数与容差。

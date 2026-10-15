@@ -17,3 +17,14 @@ Thumbs.db
 *.fls
 *.fdb_latexmk
 *.xdv
+
+# Local contest runs (scripts and source programs remain tracked).
+/contest/*.exe
+/contest/gen
+/contest/brute
+/contest/main
+/contest/stress.in
+/contest/stress.ans
+/contest/stress.diff
+/contest/stress.seed
+/contest/*.err

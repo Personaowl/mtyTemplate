@@ -1,0 +1,32 @@
+% Source: ACM_Templates.pdf, pp.117-118. Algorithm body preserved. Theory cross-check: https://cp-algorithms.com/algebra/fft.html.
+\subsection{NTT：模 998244353 卷积}
+\label{math:ntt}
+\AlgorithmInfo
+    {计算模素数 998244353 的多项式乘积。}
+    {补零长度 L 后 $O(L\log L)$ 时间，$O(L)$ 工作空间及固定翻转表。}
+    {数组 0 下标，输入系数在 $[0,998244352]$；$2\le L\le2^{20}$。}
+\subsubsection*{原理}
+将 FFT 的单位复根替换成模素数域的单位根。若素数 p 有原根 g，且 $L\mid(p-1)$，则
+\[
+ \omega_L=g^{(p-1)/L}\pmod p
+\]
+的阶恰为 L，可以使用同样的奇偶拆分和蝶形合并。逆变换使用单位根的逆元，并将所有系数乘 $L^{-1}$。乘法始终在模 p 下进行，不受浮点误差影响。
+
+本节固定 $p=998244353=119\times2^{23}+1$、原根 g=3；数学上支持的二次幂长度到 $2^{23}$，但本实现的翻转表\textbf{只分配到 $2^{20}$}，必须遵守较小容量。结果是模 p 的卷积；如需任意模数或大整数真值，不能直接将 Mod 替换成其他数字，须重新满足原根、长度和重构条件。
+\subsubsection*{使用教程}
+\InlineCode{NTT::multiply(A,B)} 接收两个非空的升幂系数数组，返回 n+m-1 个模 p 系数，不修改输入。负数先归一化到 $[0,p-1]$；两者都是常数时直接用 64 位乘法取模，避开长度 1 的负位移。空输入在调用处单独处理，L 超过容量时不能直接调用。
+
+底层 \InlineCode{NTT::QuickPow(a,k)} 是模固定 Mod 的非负指数快速幂；\InlineCode{NTT::GetReverse(L,logL)} 生成翻转表。若单独做变换，先补零和建表，再调用同命名空间内的 NTT，dir=1 正变换、-1 逆变换；逆变换已经乘长度逆元，无需再次除 L。每次乘法会重建翻转表。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<int> A={1,2,3},B={4,5},C;
+for(auto& x:A) x=(x%NTT::Mod+NTT::Mod)%NTT::Mod;
+for(auto& x:B) x=(x%NTT::Mod+NTT::Mod)%NTT::Mod;
+if(A.empty()||B.empty()) C={};
+else if(A.size()==1&&B.size()==1) C.assign(1,1LL*A[0]*B[0]%NTT::Mod);
+else C=NTT::multiply(A,B);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/number-theory/ntt.cpp}
+\subsubsection*{需要注意}
+普通 int 下归一化前原值也须装入 int；若数据已归一化可省略循环。固定实现按每个 k 快速幂求旋转因子，常数较大；不改变这里的代码，按题目时限选用。

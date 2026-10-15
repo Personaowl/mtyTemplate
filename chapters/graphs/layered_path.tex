@@ -13,7 +13,7 @@
 物理建图可把 $(u,h)$ 编成 $u+hn$，建立所有转移；逻辑建图则在弹出状态时按规则生成后继。本模板采用后者，不保存重复的跨层边。堆中的过期判断同时检查顶点与层数，不能只给每个原顶点设一个访问标记。
 
 \subsubsection*{使用教程}
-\InlineCode{init(n,k)} 设置点数和允许使用次数。加的是有向边，无向图需加两次；\InlineCode{run(s)} 后，\InlineCode{dis[t][h]} 表示恰好使用 $h$ 次的答案，\InlineCode{query(t)} 取所有层的最小值，表示至多 $k$ 次。若答案为 \InlineCode{INF} 则不可达。
+\InlineCode{init(n,k)} 指定顶点数与最多折扣次数，每次将边权 $w$ 改为 $\lfloor w/2\rfloor$；\InlineCode{add(u,v,w)} 加有向边，无向边加两次。\InlineCode{run(s)} 后，\InlineCode{dis[t][h]} 是从 $s$ 到 $t$ 恰用 $h$ 次折扣的最短距离，\InlineCode{query(t)} 取至多 $k$ 次的最小值，\InlineCode{INF} 表示不可达。换源可重跑，保留原图。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 DiscountPath g;
 g.init(3,1);

@@ -1,0 +1,35 @@
+% Source: Independent algebra; https://cp-algorithms.com/dynamic_programming/knapsack.html
+\subsection{单调队列优化：滑动转移与多重背包}
+\label{dp:queue-optimization}
+\AlgorithmInfo
+    {优化有限前驱窗口，并提供多重背包每类 O(V) 的实现。}
+    {滑动 DP 为 $O(n)$ 时间、$O(n)$ 空间；多重物品 $O(V)$ 时间、$O(V)$ 额外空间。}
+    {$k\ge1,w\ge1,c\ge0$；背包数组含容量 0；有限状态值不越过 4e18 哨兵。}
+\subsubsection*{原理}
+
+若 $f_i=a_i+\max_{\max(0,i-k)\le j<i}f_j$，候选下标构成滑动窗口。队内按 f 值递减，计算 i 前先删 $j<i-k$，查询队首，再把新 $f_i$ 入队；不能先入队，否则把自身作为前驱。初始只加入 $f_0=0$。
+
+多重背包按费用对 w 的余数拆开，令 $j=r+tw$。从上一层选至多 c 件的转移可改写为
+\[
+ f^{new}_{r+tw}=tv+\max_{\max(0,t-c)\le q\le t}
+ \bigl(f^{old}_{r+qw}-qv\bigr).
+\]
+这里 q 表示旧层费用的步数，取了 $t-q$ 件物品，所以数量限制对应 $t-c\le q\le t$。把只依赖 t 的 tv 提出后，比较键为 $f^{old}_{r+qw}-qv$，入队后不随 t 改变。
+
+对每个余数维护上式的滑动最大值，每个容量只进出队一次，一类物品由枚举数量降为 $O(V)$。候选必须来自 old，且要跳过不可达状态。与前面的窗口 DP 不同，这里 q=t 合法，表示取 0 件，因此先加入当前旧层状态，再查询新层答案。
+
+\subsubsection*{使用教程}
+\InlineCode{window_dp(a,k)} 返回 f[0..n]，f[0]=0，f[i] 必须到达 i。\InlineCode{bounded_monotone(f,w,v,c)} 则原地加入一类多重物品，用法与二进制拆分一致；f 由调用处初始化，不依赖背包结构体。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+auto f=window_dp(vector<long long>{0,3,-2,5,1},2);
+long long ans=f[4];
+const long long INF=4e18;
+vector<long long> g(16,-INF);g[0]=0;
+bounded_monotone(g,3,4,5);
+long long best=g[15];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/queue_optimization.cpp}
+\subsubsection*{需要注意}
+滑动 DP 中 i-k 是合法前驱，因此删除的是严格小于 i-k 的下标；固定长度最值模板中的过期界不同。多重背包变形项可能超出 64 位，代码用 128 位保存比较键。

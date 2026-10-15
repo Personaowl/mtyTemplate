@@ -1,0 +1,30 @@
+% Source: User reference pp. 98-102; framework: https://github.com/tianyicui/pack (V2.lyx).
+\subsection{背包计数与最优方案数}
+\label{dp:knapsack-count}
+\AlgorithmInfo
+    {统计 0/1 或完全背包的精确费用组合数。}
+    {时间 $O(nV)$，空间 $O(V)$。}
+    {物品费用 $w_i\ge1$，模数 $P\ge1$；物品／类型列表按 1 下标。}
+\subsubsection*{原理}
+
+求精确费用 $j$ 的选择方案数，空方案 $f_0=1$，其余为 0。处理一件 0/1 物品时倒序执行 $f_j\gets f_j+f_{j-w}$；处理无限供应的一类物品时正序执行。物品在外层时不区分选取顺序，计数的是组合；容量在外层、枚举最后加入的物品则可能统计排列，不能交换循环后仍认为含义相同。
+
+取模只改变计数的保存方式，不改变可达性。两种计数转移的起点都是处理 0 件时 $f_0=1$，最终读精确费用 f[V]；若要求费用不超过 V 的总方案数，再对所有费用求和。
+
+若要求\textbf{达到最优价值的方案数}，同时维护最优值 $best$ 与计数 $cnt$：新价值更优则替换价值并令计数等于前驱计数，相等则累加，较差则忽略。每个物品都要从语义正确的前一状态转移，不能把同一选择重复计入。
+
+统计最优方案且允许费用不超过 $V$ 时，最稳妥的是按精确费用建状态，再对所有费用中达到全局最优值的计数求和。不能直接把不同“容量上限”状态的计数相加：同一方案可能在多个上限下都可行。
+
+\subsubsection*{使用教程}
+\InlineCode{knapsack_ways(w,V,P,complete)} 返回精确费用计数数组，默认按 0/1 物品处理；最后传真则按无限供应类型处理。等费用的不同 0/1 物品视为不同物品，完全背包中重复输入同一类型也会被视为不同类型。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<int> w={0,2,3,5};
+auto once=knapsack_ways(w,10,1000000007);
+auto many=knapsack_ways(w,10,1000000007,true);
+long long cnt=once[5],ways=many[10];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/knapsack_count.cpp}
+\subsubsection*{需要注意}
+若相同面值只代表同一种无限物品，先去重；有限数量的计数不能直接复用二进制拆分，需枚举旧层数量或另行优化。

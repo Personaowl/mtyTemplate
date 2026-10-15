@@ -1,0 +1,26 @@
+% Source: Independent perpendicular-bisector and side-weight derivation; KACTL circumcircle.h cross-check.
+\subsection{三角形外接圆与内切圆}
+\label{geo:triangle}
+\AlgorithmInfo
+    {求非退化三角形的外心、外接半径、内心和内切半径。}
+    {$O(1)$。}
+    {依赖圆；接近共线时返回空 optional。}
+\subsubsection*{原理}
+
+平移 a 为原点，令 u=b-a、v=c-a。外心偏移 o 满足 $2o\cdot u=|u|^2$、$2o\cdot v=|v|^2$，联立解出坐标，分母为 $2(u\times v)$。外接半径是外心到任意顶点的距离。
+
+内心由对边长度加权：设 x=|b-c|、y=|a-c|、z=|a-b|，则 $I=(xa+yb+zc)/(x+y+z)$。由面积等于半周长乘内切半径，得 $r=|(b-a)\times(c-a)|/(x+y+z)$。共线或重复点不能定义正常的三角形圆，应先返回空。
+
+\subsubsection*{使用教程}
+\InlineCode{circumcircle(a,b,c)} 返回三点外接圆，\InlineCode{incircle(a,b,c)} 返回三角形内切圆，顶点顺逆时针均可。两者返回 \InlineCode{optional<Circle>}：重复点、共线或满足近共线阈值时为空，\textbf{先判有值再读圆心 o 与半径 r}。
+
+外心可能在三角形外，不能因此判错；接近共线时外接圆半径很大且敏感，即使有返回值也须关注输入尺度与误差。两个函数都是直接计算，无需先建边或初始化，互不依赖；下例分别读取两种圆。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Point a{0,0},b{4,0},c{0,3};
+auto outer=circumcircle(a,b,c),inner=incircle(a,b,c);
+if(outer){Point o=outer->o;ld r=outer->r;}
+if(inner){Point o=inner->o;ld r=inner->r;}
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/triangle.cpp}

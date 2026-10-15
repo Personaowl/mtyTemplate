@@ -1,0 +1,26 @@
+% Source: ACM_Templates.pdf pp. 40-66. pp. 47-49: equal-run logic; fixed assignment propagation and misleading title.
+\subsection{线段树：最长连续相同段}
+\label{ds:seg-equal-run}
+\AlgorithmInfo
+    {区间赋值，查询区间内连续相等元素的最长长度。}
+    {建树 $O(n)$；修改、查询 $O(\log n)$；空间 $O(n)$。}
+    {1 下标、非空闭区间；赋值可以为 0 或负数。}
+\subsubsection*{原理}
+节点保存左右端点值 $lc,rc$、最长相同前缀与后缀长度 $lsum,rsum$，以及最长相同段 $maxn$。当左儿子的右端值等于右儿子的左端值时，可连接左后缀和右前缀；若一侧整个区间都相同，还能延长父亲的对应前后缀。
+
+整段赋值后，左右端点值都等于新值，三种长度都等于区间长度。用独立的 \InlineCode{has} 表示是否存在待下传赋值，避免把合法的 0 或负数误作空标记。
+
+\subsubsection*{使用教程}
+构造时指定 $n$，把初值放进 \InlineCode{w[1..n]}，再调用 \InlineCode{build(1,1,n)}。\InlineCode{modify(1,L,R,val)} 将整段赋为 $val$；\InlineCode{query(1,L,R).maxn} 返回最长相同段长度。返回节点的 \InlineCode{lsum/rsum} 是长度，\InlineCode{lc/rc} 是值。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+EqualRunSegTree seg(6);
+seg.w={0,1,1,2,2,2,3};
+seg.build(1,1,6);
+seg.modify(1,2,4,0);
+int ans=seg.query(1,1,5).maxn;
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/seg_equal_run.cpp}
+\subsubsection*{需要注意}
+查询、局部修改前均须下传覆盖标记。

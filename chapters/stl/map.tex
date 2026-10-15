@@ -1,0 +1,21 @@
+% Source: ACM_Templates.pdf pp. 106-107.
+% Reference: https://en.cppreference.com/w/cpp/container/map/operator_at.html
+\subsection{map：有序映射与计数}
+\label{stl:map}
+\subsubsection*{原理}
+\InlineCode{map<Key,Value>} 按键有序，每个键只对应一个值。查找、插入与按键删除为 $O(\log n)$。\InlineCode{map<int,int>} 可记录频次，迭代器中的 \InlineCode{first} 是不可直接改动的键，\InlineCode{second} 是可修改的值。
+\subsubsection*{使用教程}
+\InlineCode{mp[x]} 返回值的引用；键不存在时会先插入默认值，整数默认 0。只查询而不想插入，用 \InlineCode{find(x)}，成功后读 \InlineCode{it->second}；\InlineCode{count(x)} 判断存在性。\InlineCode{erase(x)} 删除键并返回 0 或 1，\InlineCode{erase(it)} 返回后继，\InlineCode{clear()} 清空。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+map<int,int> cnt;
+for(int x:vector<int>{3,1,3}) cnt[x]++;
+auto it=cnt.find(3);
+if(it!=cnt.end()){int times=it->second;}
+for(const auto &[x,times]:cnt){
+	if(times==0) continue;
+}
+it=cnt.lower_bound(2);
+if(it!=cnt.end()){int key=it->first;}
+cnt.erase(1);
+\end{lstlisting}
+成员二分按键比较，与 \InlineCode{set} 相同。\InlineCode{insert({key,val})} 遇到已有键不会覆盖原值；希望覆盖时可写 \InlineCode{mp[key]=val}。不要用 \InlineCode{if(mp[x])} 区分“不存在”和“值为零”。C++17 判断存在用 \InlineCode{find/count}，不用 C++20 的 \InlineCode{contains}。

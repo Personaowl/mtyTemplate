@@ -21,7 +21,9 @@
 \subsubsection*{使用教程}
 只需 LCA 或还需拆分路径时，也可使用第~\ref{tree:hld-lca}~节的树剖求法；它无需倍增表，预处理与空间均为 $O(n)$。
 
-\InlineCode{init(n)}、\InlineCode{add(u,v,w)} 后调用 \InlineCode{build(root)}。\InlineCode{jump(u,k)} 的 $k=0$ 返回自身，负数或越过根返回 0；\InlineCode{lca(u,v)} 返回 LCA，\InlineCode{ancestor(u,v)} 判断 $u$ 是否为 $v$ 的祖先（包含自身）。
+\InlineCode{init(n)} 后 \InlineCode{add(u,v,w)} 加无向边，每边一次，省略权值取 1；\InlineCode{build(root)} 选根预处理，省略根取 1。\InlineCode{jump(u,k)} 的 $k=0$ 返回自身，负数或越过根返回 0；\InlineCode{lca(u,v)} 返回 LCA，\InlineCode{ancestor(u,v)} 判断 $u$ 是否为 $v$ 的祖先（含自身），\InlineCode{distance(u,v)} 返回两点路径权和。换根重新构建，新数据重新初始化并加边。
+
+只求 LCA 时用 \InlineCode{add(u,v)} 即可；$w$ 只参与路径距离和根路径最小边。默认权为 1 时，\InlineCode{distance} 返回路径边数。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 TreeLCA g;
 g.init(5);
@@ -31,7 +33,7 @@ int p=g.lca(4,5),ancestor=g.jump(4,2);
 long long dist=g.distance(3,4);
 bool inside=g.ancestor(2,5);
 \end{lstlisting}
-\InlineCode{dfn,out,rk,sz} 的含义见第~\ref{math:tree-basics}~节。对于无环森林，调用 \InlineCode{build(vector<int>{...})}，为每个连通块指定一个根；必须覆盖所有块，不能把含环图作为森林输入。跨块 LCA 为 0，距离为 \InlineCode{INF}。后续差分、长链与虚树封装均按连通树使用。
+\InlineCode{dfn,out,rk,sz} 的含义见第~\ref{math:tree-basics}~节。对于无环森林，调用 \InlineCode{build(vector<int>{...})}，为每棵树各选一个根（如两棵树的根为 1、4，则传 \InlineCode{vector<int>{1,4}}）；单棵树直接传一个整数。根列表必须覆盖所有块，不能把含环图作为森林输入。跨块 LCA 为 0，距离为 \InlineCode{INF}。后续差分、长链与虚树封装均按连通树使用。
 \needspace{7\baselineskip}
 \subsubsection*{模板代码}
 \CodeFile{code/trees/lca.cpp}

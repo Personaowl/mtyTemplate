@@ -19,7 +19,7 @@ $minn$ 取到的最小边可能在当前虚树边的上方，但这不会造成�
 
 空关键点集的答案应为 0。递推中非关键叶子的儿子和为 0，自然得到 0；不能把所有叶子都直接返回 \InlineCode{minn}，否则只剩根的虚树会返回正无穷。关键点含根时无法通过删边隔离根与自身，单独返回 $-1$。
 \subsubsection*{使用教程}
-预处理原树一次后，直接调用 \InlineCode{virtual_cut(g,keys)}；函数内部建立虚树，支持多轮不同关键点、重复点和空集合。它保留构建结果到下一轮清理，计算 DP 不破坏虚树。儿子代价先用 128 位累加，避免中间和溢出。
+参数 \InlineCode{g} 为已完成 \InlineCode{prepare(root)} 的 \InlineCode{VirtualTree}，\InlineCode{keys} 为关键点编号列表，无第 0 项占位。\InlineCode{virtual_cut(g,keys)} 内部建立虚树并返回最小断边代价，空集返回 0，包含根返回 $-1$。可重复传入不同列表，原树无需重建；函数保留本轮虚树，儿子代价先用 128 位累加。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 VirtualTree g;
 g.init(5);

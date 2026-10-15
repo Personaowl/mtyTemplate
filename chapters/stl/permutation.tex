@@ -1,0 +1,18 @@
+% Source: ACM_Templates.pdf p. 111.
+% Reference: https://en.cppreference.com/w/cpp/algorithm/next_permutation.html
+\subsection{枚举全排列}
+\label{stl:permutation}
+\subsubsection*{原理}
+\InlineCode{next_permutation} 原地生成下一个字典序排列，单次最坏 $O(n)$。到达最大排列后返回假，并将区间恢复为最小排列；\InlineCode{prev_permutation} 方向相反。枚举全部不同排列的总时间与排列数成正比，每次还需线性处理。
+\subsubsection*{使用教程}
+先升序排序，再使用 \InlineCode{do...while}，使最小排列也被处理一次。相同元素会自然按不同数值序列枚举，不额外产生交换相等元素的重复方案。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<int> a={1,1,2};
+sort(a.begin(),a.end());
+long long cnt=0;
+do{
+	cnt++;
+	// Process the current permutation here.
+}while(next_permutation(a.begin(),a.end()));
+\end{lstlisting}
+若数组有第 0 项占位，排序与排列都只传 \InlineCode{begin()+1,end()}。从未排序的初始序列开始，只能枚举到它之后的排列，不能保证覆盖全部；想保留原数组先复制一份。

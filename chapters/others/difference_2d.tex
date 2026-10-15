@@ -1,0 +1,28 @@
+% Source: Independent derivation and implementation.
+\subsection{二维差分}
+\label{other:difference-2d}
+\AlgorithmInfo
+    {离线完成多次子矩形加法，再一次性还原矩阵。}
+    {每次修改 $O(1)$，还原 $O(nm)$，空间 $O(nm)$。}
+    {初始全 0，行列 1 下标；全部修改值绝对值之和 $\le4\times10^{18}$。}
+\subsubsection*{原理}
+二维差分是二维前缀和的逆运算。给闭矩形 $[x_1,x_2]\times[y_1,y_2]$ 加 v，只需四个角标记
+\[
+ \begin{aligned}
+ d_{x_1,y_1}&\mathrel{+}=v,&d_{x_2+1,y_1}&\mathrel{-}=v,\\
+ d_{x_1,y_2+1}&\mathrel{-}=v,&d_{x_2+1,y_2+1}&\mathrel{+}=v.
+ \end{aligned}
+\]
+对差分数组求二维前缀，左上角标记从该点开始生效，两个负标记分别终止行／列方向的影响，右下角补回重复减去部分。额外分配 n+1 行和 m+1 列用于边界标记。
+\subsubsection*{使用教程}
+先 \InlineCode{Diff2D::init(n,m)} 建立全 0 矩阵，再按合法闭矩形多次 add，最后 \InlineCode{build()} 返回带占位行／列的结果。build 在新数组上还原，不修改 d，因此可重复读取，也可继续 add 后再次还原；重新 init 才清空修改。若有初始矩阵，将还原的增量按元素加回初值。需要在线边改边查时应换其他数据结构。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Diff2D diff;diff.init(3,4);
+diff.add(1,2,3,4,5);diff.add(2,1,2,3,-2);
+auto a=diff.build();
+Prefix2D pre;pre.build(a);
+long long sum=pre.query(1,1,3,4);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/others/difference_2d.cpp}

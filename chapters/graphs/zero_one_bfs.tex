@@ -1,0 +1,29 @@
+% Reference: https://cp-algorithms.com/graph/01_bfs.html
+% Review and validation: docs/validation.md.
+\subsection{0-1 BFS：边权只有零或一}
+\label{algo:zero-one-bfs}
+\AlgorithmInfo
+    {在线性时间内求边权只有 $0,1$ 的单源最短路。}
+    {时间、空间 $O(n+m)$。}
+    {顶点 $1\ldots n$，$n\geq1$；支持有向图、重边、自环和零权环。}
+
+\subsubsection*{原理}
+Dijkstra 每次取距离最小的点。边权只有 $0,1$ 时，从当前距离为 $d$ 的点松弛，只会产生距离为 $d$ 或 $d+1$ 的候选，双端队列即可维护这一顺序：零权边更新的点放队首，一权边更新的点放队尾。
+
+首次弹出顶点时，其最短距离已经确定，再扫描它的出边。重复入队的顶点用 \InlineCode{vis} 跳过；每个点只扫描一次，每次成功松弛对应一次入队，因此总时间为 $O(n+m)$。不能把混合的零、一权边直接交给普通 BFS，也不能把本模板用于其他边权。
+
+\subsubsection*{使用教程}
+\InlineCode{init(n)} 清空，\InlineCode{add(u,v,w)} 加一条有向边，无向边加两个方向；$w$ 必须为 $0$ 或 $1$。\InlineCode{run(s)} 后读 \InlineCode{dis[v]}，不可达为 \InlineCode{ZeroOneBFS::INF}。再次 \InlineCode{run} 会重置距离并保留图，可更换源点。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+ZeroOneBFS g;
+g.init(4);
+g.add(1,2,1);g.add(1,3,0);g.add(3,2,0);
+g.add(2,4,1);
+g.run(1);
+long long d=g.dis[4];
+if(d!=ZeroOneBFS::INF){/* use d */}
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/graphs/zero_one_bfs.cpp}

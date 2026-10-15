@@ -1,0 +1,31 @@
+% Source: Independent derivation; cross-checked with KACTL geometry.
+\subsection{空间直线、平面与距离}
+\label{geo:space}
+\AlgorithmInfo
+    {点到平面的投影、线面交点、两空间直线距离。}
+    {$O(1)$。}
+    {依赖三维点；Plane 法向量非零，线面求交的两直线点不同。}
+\subsubsection*{原理}
+
+平面用经过点 p 与单位法向量 n 表示，q 的有向距离为 $(q-p)\cdot n$。投影为 $q-n((q-p)\cdot n)$。将直线 $a+tv$ 代入平面方程，非平行时 $t=-((a-p)\cdot n)/(v\cdot n)$；平行时再区分整条直线在平面内或与其分离。
+
+空间两直线方向 u、v 不平行时，公垂线方向为 $u\times v$，距离为 $|(c-a)\cdot(u\times v)|/|u\times v|$。平行时改用点到直线距离；任一条退化为点则单独计算，不归一化零向量。
+
+\subsubsection*{使用教程}
+\InlineCode{Plane(p,normal)} 用平面上一点和\textbf{非零法向量}构造平面，自动将法向量单位化。三个非共线点可先计算叉积作为 normal；共线时不能构造。成员 p、n 为平面点和单位法向量，\InlineCode{f.side(q)} 为有符号点面距离，n 所指一侧为正；取绝对值为点到平面距离，勿把 n 改成非单位向量。
+
+\InlineCode{projection(q,f)} 返回 q 到平面的垂足。\InlineCode{line_plane(a,b,f)} 将不同点 a、b 视为无限直线，返回 kind=0 平行无交、1 唯一交点、2 整条直线在平面内；只有 kind=1 时读取 p。若题目是线段与平面，还须另检查该点在线段范围内。
+
+\InlineCode{space_line_distance(a,b,c,d)} 返回空间两条无限直线 ab、cd 的非负最短距离，支持平行、相交和异面；某一对端点重合时按点处理，两对都重合时为点点距离。它不是两条闭线段的距离。以上接口直接调用，不建立共享状态或修改输入。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Plane f(Point3{0,0,1},Point3{0,0,1});
+auto hit=line_plane(Point3{0,0,0},Point3{1,1,2},f);
+if(hit.kind==1){Point3 p=hit.p;}
+Point3 q=projection(Point3{2,3,4},f);
+ld plane_distance=fabsl(f.side(Point3{2,3,4}));
+ld d=space_line_distance(Point3{0,0,0},Point3{1,0,0},
+	Point3{0,1,1},Point3{0,2,1});
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/space.cpp}

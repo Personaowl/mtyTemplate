@@ -1,0 +1,30 @@
+% Source: Independent derivation; cross-checked with KACTL geometry.
+\subsection{实数多边形面积与重心}
+\label{geo:polygon-real}
+\AlgorithmInfo
+    {计算均匀薄片多边形的面积和面积重心。}
+    {$O(n)$ 时间、$O(1)$ 额外空间。}
+    {依赖实数点；重心要求非零面积的简单多边形。}
+\subsubsection*{原理}
+
+以首点为局部原点，三角形 0ab 的有向两倍面积为 $a\times b$、重心为 $(a+b)/3$。按有向面积加权，最后除以总面积，得到多边形的面积重心：
+\[
+ C=p_0+\frac{\sum(a+b)(a\times b)}{3\sum(a\times b)}.
+\]
+分子、分母同时随顶点方向变号，因此顺逆时针给出相同结果。面积使用补偿求和；平移局部原点降低大坐标相消，但接近零面积时重心仍可能敏感。
+
+\subsubsection*{使用教程}
+顶点用 \InlineCode{vector<Point>} 沿简单多边形边界给出，不重复首点；凹多边形可用，顺逆时针均可。\InlineCode{polygon_area2(p)} 返回有符号两倍面积，实际面积写为 \InlineCode{fabsl(...)/2}；不足三点返回 0。它和整数版本按点类型重载，调用时不要混用两种 vector。
+
+这里仍基于鞋带定理，但平移到首点后累加有向三角形，并用补偿求和减少舍入损失。不要为了公式简短改回大坐标下直接相减的浮点乘积；输入本身已经丢失的小数无法通过平移恢复。
+
+\InlineCode{polygon_centroid(p)} 返回均匀多边形薄片重心的 optional，不是顶点坐标的平均值；凹多边形的重心可能在外。少于三点或\textbf{计算出的面积恰为 0} 时返回空；先判断是否有值，再读 \InlineCode{->x/->y}。近退化而面积非零时仍可能返回数值敏感的结果，须结合题目尺度判断是否适合求重心，不能把 optional 有值当作精度保证。两个函数都不改变输入。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<Point> p={{0,0},{4,0},{4,2},{0,2}};
+ld area=fabsl(polygon_area2(p))/2;
+auto center=polygon_centroid(p);
+if(center){ld x=center->x,y=center->y;}
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/polygon_real.cpp}

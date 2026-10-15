@@ -1,0 +1,27 @@
+% Source: ACM_Templates.pdf pp. 40-66. pp. 46-50; https://cp-algorithms.com/geometry/convex_hull_trick.html
+\subsection{李超线段树：直线最小值}
+\label{ds:li-chao}
+\AlgorithmInfo
+    {插入 $y=kx+b$，查询某个整数横坐标上的最小值；可限制直线生效区间。}
+    {整线插入、查询 $O(\log C)$；限域插入 $O(\log^2 C)$；$q$ 次插入至多 $O(q\log C)$ 节点。}
+    {整数域 $[L,R]$，$1\le C\le2\times10^9$；各直线在域内取值严格在 $(-4\times10^{18},4\times10^{18})$ 内。}
+\subsubsection*{原理}
+每个节点保存一条直线。插入新线时，先比较中点，让中点更优的线留在当前节点。两条一次函数最多相交一次，剩下的线只可能在一侧更优；比较端点后递归到该侧。查询只需沿横坐标所在的根到叶路径，对沿途直线取最小值。
+
+若直线仅在 $[l,r]$ 生效，先把这段拆为线段树节点，再在每个完整覆盖节点执行上述插入，多一层对数。求最大值可将 $k,b$ 同时取负，再对查询结果取负。
+
+\subsubsection*{使用教程}
+\InlineCode{init(L,R)} 清空并固定横坐标域；\InlineCode{add(k,b)} 插入整条直线；\InlineCode{add(l,r,k,b)} 插入只在整数闭区间 $[l,r]$ 有效的直线。\InlineCode{query(x)} 返回最小值，没有覆盖该位置的直线时返回 \InlineCode{INF}。内部比较用 128 位，最终返回 \InlineCode{long long}。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+LiChaoTree seg;
+seg.init(-10,10);
+seg.add(2,3);
+seg.add(-1,5);
+seg.add(-2,4,0,-7); // y=-7, only on [-2,4]
+long long ans=seg.query(3);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/li_chao.cpp}
+\subsubsection*{需要注意}
+横坐标必须在初始化域内；本模板处理整数系数直线，不直接把几何线段端点当作参数。不同直线取值相同时仅求值，不维护最小编号。

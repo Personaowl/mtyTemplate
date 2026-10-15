@@ -1,0 +1,28 @@
+% Source: User reference pp. 98-102; framework: https://github.com/tianyicui/pack (V2.lyx).
+\subsection{分组背包：每组至多一件}
+\label{dp:group-knapsack}
+\AlgorithmInfo
+    {维护组内互斥、组间可组合的背包。}
+    {若组内共 m 件，更新一组 $O(Vm)$ 时间、$O(V)$ 额外空间。}
+    {容量数组按 0 下标；组内体积非负，价值和满足背包范围。}
+\subsubsection*{原理}
+
+每组内互斥，必须在同一旧层上枚举组内的选择：
+\[
+ f^{new}_j=\max\bigl(f^{old}_j,\ \max_{(w,v)\in group}(f^{old}_{j-w}+v)\bigr).
+\]
+保留旧层副本后，组内枚举顺序不影响结果，且体积为 0 的组内选项也不会被重复使用。不同组逐次加入，整组只贡献零件或一件。
+
+\subsubsection*{使用教程}
+\InlineCode{group_knapsack(f,items)} 原地加入一组，items 中每对数为体积与价值；从这一组至多选一件，空组不改变状态。f 的初始化决定精确费用或不超过容量，本函数无需基础背包代码。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<long long> f(9,0);
+group_knapsack(f,{{2,4},{3,6}});
+group_knapsack(f,{{4,7},{5,9}});
+long long ans=f[8];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/group_knapsack.cpp}
+\subsubsection*{需要注意}
+每组必须选一件时，不能保留 $f^{old}_j$ 的“不选”分支，应将新层先置为不可达，再只从旧层转移。不能对每个组内物品单独调用 0/1 背包，否则一组可能选多件。

@@ -1,0 +1,36 @@
+% Source: Independent derivation; cross-checked with KACTL geometry.
+\subsection{实数点、旋转与有向角}
+\label{geo:point}
+\AlgorithmInfo
+    {实数向量运算与旋转，为交点和圆等算法提供基础。}
+    {$O(1)$。}
+    {非零向量才求夹角或归一化；除数非零。}
+\subsubsection*{原理}
+
+点和位移共用 Point。点积与叉积的几何意义和整数版相同；垂直向量 $(-y,x)$ 是逆时针旋转 $\pi/2$。一般旋转使用
+\[
+ (x',y')=(x\cos\theta-y\sin\theta,\ x\sin\theta+y\cos\theta).
+\]
+两非零向量的有向夹角用 $atan2(a\times b,a\cdot b)$，范围为 $[-\pi,\pi]$；相比 acos，它保留方向且不需要先除以两个长度。Point 的小于号仅供精确字典序排序，近似相等通过 same\_point 单独判断。
+
+\subsubsection*{使用教程}
+\InlineCode{Point{x,y}} 存实数坐标，\InlineCode{+/-} 表示向量运算，\InlineCode{*k}、\InlineCode{/k} 表示缩放；除数须非零。\InlineCode{<} 仅为不带 EPS 的字典序，近点判断另用 \InlineCode{same_point(a,b)}，它比较两点距离是否不超过长度容差。
+
+\InlineCode{dot(a,b)}、\InlineCode{cross(a,b)} 接收向量，分别为点积、叉积；\InlineCode{norm2(v)} 是长度平方，\InlineCode{length(v)} 是长度，\InlineCode{distance(a,b)} 是两点距离。单位化写成 \InlineCode{v/length(v)}，调用前先保证向量非零。
+
+\InlineCode{perp(v)} 将向量逆时针转 $90^\circ$；\InlineCode{rotate_point(v,rad)} 绕原点转 rad 弧度，正值逆时针。绕点 o 旋转位置 p 时写成下例的“先减 o、旋转、再加 o”。\InlineCode{angle(a,b)} 返回非零向量 a 到 b 的有向夹角，范围 $[-\pi,\pi]$。
+
+\InlineCode{geo_sgn(x,eps)} 按给定阈值返回 -1、0、1；默认 eps 为长度容差，判断叉积等其他单位的量时须另估阈值。\InlineCode{clamp_unit(x)} 截到 $[-1,1]$，用于合法反三角公式的舍入保护，不是任意数据合法化。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Point p{2,1},o{1,1};
+Point v=p-o,q=o+rotate_point(v,GEO_PI/2);
+Point n=perp(v),unit=v/length(v);
+ld d=distance(p,q),rad=angle(v,q-o);
+ld squared=norm2(v),dp=dot(v,n),cp=cross(v,n);
+bool near=same_point(p,q);
+int side=geo_sgn(cp,GEO_EPS*length(v));
+ld theta=acosl(clamp_unit(dot(unit,unit)));
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/point.cpp}

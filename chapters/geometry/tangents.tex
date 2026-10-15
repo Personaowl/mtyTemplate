@@ -1,0 +1,31 @@
+% Source: Independent unit-normal derivation; KACTL CircleTangents.h (Victor Lecomte/chilli, CC0).
+\subsection{圆的切点与两圆公切线}
+\label{geo:tangents}
+\AlgorithmInfo
+    {求点到圆的切点，以及外公切线／内公切线。}
+    {$O(1)$。}
+    {依赖圆；本条所有圆半径严格为正。}
+\subsubsection*{原理}
+
+圆外点 p 到圆心的距离为 d，切点方向相对 op 偏转 $\arccos(r/d)$；圆内无切线，圆上只有一个切点。
+
+两圆公切线用单位法向量 n 表示。外公切线满足 $n\cdot(o_2-o_1)=r_1-r_2$，内公切线将第二半径取负，改为 $r_1+r_2$。把 n 沿圆心连线和垂直方向分解，可得两个对称解；距离恰好等于半径差／和时两个解重合。容差内判单解时直接取单位圆心方向为法向量，保持切点在各自圆周上。切线方向取 perp(n)，即使两个切点重合，也仍能表示整条切线。
+
+\subsubsection*{使用教程}
+本节两个圆均要求\textbf{严格正半径}。\InlineCode{tangent_points(p,c)} 返回从点 p 向圆作切线的切点：圆内为空、圆上一个、圆外两个；这里只返回圆上切点，圆上点的切线方向可取 \InlineCode{perp(p-c.o)}，不能用两个相同点构造直线。
+
+\InlineCode{circle_tangents(a,b)} 默认外公切线，第三参数 true 改求内公切线。返回 TangentSet：infinite=true 为重合圆的无限条外公切线；否则 lines 中有 0、1 或 2 条。不取无限集合的“第一条”，也不要将无限情况的空数组判成没有切线。
+
+每个 Tangent 的 a、b 是两圆切点，dir 为切线方向。构造直线用 \InlineCode{Line(t.a,t.a+t.dir)}；相切时两个切点可能相同，\textbf{不能用两个切点直接构造 Line}。内外公切线分别调用，结果之间无状态依赖，不修改输入。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Circle a{Point{0,0},1},b{Point{4,0},1};
+auto points=tangent_points(Point{3,0},a);
+auto outer=circle_tangents(a,b);
+auto inner=circle_tangents(a,b,true);
+if(!outer.lines.empty()){
+	auto t=outer.lines[0];Line l(t.a,t.a+t.dir);
+}
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/tangents.cpp}

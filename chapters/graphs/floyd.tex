@@ -15,7 +15,7 @@
 原地更新时，中转点 $k$ 必须在最外层。初始对角线为 $0$，重边取最小；两个子路径都可达时才相加，避免无穷与负权相加产生假路径。
 
 \subsubsection*{使用教程}
-\InlineCode{add(u,v,w)} 加有向边，无向图加反向边。全部输入后运行 \InlineCode{run()}；返回真才将 \InlineCode{dis[u][v]} 作为有限最短路使用，\InlineCode{INF} 表示不可达。返回假说明某个 $dis_{ii}<0$，图中存在负环。
+\InlineCode{init(n)} 创建空图，\InlineCode{add(u,v,w)} 加有向边并保留重边最小权，无向边加两次。全部加完后 \InlineCode{run()}，返回真才读取 \InlineCode{dis[u][v]}，\InlineCode{INF} 表示不可达；返回假表示图中存在负环。计算会改写距离矩阵，新一组数据应重新初始化并加边。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Floyd g;
 g.init(3);

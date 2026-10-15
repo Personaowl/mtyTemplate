@@ -1,0 +1,27 @@
+% Source: Independent end-decision interval DP.
+\subsection{区间 DP：两端决策与回文插入}
+\label{dp:interval-ends}
+\AlgorithmInfo
+    {求将整个字符串补成回文的最少插入次数。}
+    {时间、空间 $O(n^2)$。}
+    {传入普通 C++ 字符串，允许为空；内部按 1 下标处理。}
+\subsubsection*{原理}
+
+令 $f_{l,r}$ 为把子串 $s_l\ldots s_r$ 变成回文的最少插入次数。若两端相同，可以直接匹配并处理内部；否则在一端插入一个与另一端相同的字符，选择较优方向：
+\[
+ f_{l,r}=\begin{cases}
+ f_{l+1,r-1},&s_l=s_r,\\
+ 1+\min(f_{l+1,r},f_{l,r-1}),&s_l\ne s_r.
+ \end{cases}
+\]
+空区间和单字符区间均为 0，再按长度递增。与枚举中间断点的区间 DP 相比，这里每个状态只有两个端点方向，时间降为 $O(n^2)$。
+
+\subsubsection*{使用教程}
+\InlineCode{palindrome_insertions(s)} 返回最少插入次数。这里比较单个字节字符；常见竞赛英文字母字符串可直接使用。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+string s="abca";
+int ans=palindrome_insertions(s);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/interval_ends.cpp}

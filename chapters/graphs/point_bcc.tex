@@ -1,0 +1,36 @@
+% Reference: https://oi-wiki.org/graph/bcc/
+% Review and validation: docs/validation.md.
+\subsection{Tarjan 点双连通分量}
+\label{algo:point-bcc}
+\AlgorithmInfo
+    {分解无向图的点双连通分量，同时标记割点。}
+    {时间、空间 $O(n+m)$，包含全部分量成员表；递归深度最坏 $O(n)$。}
+    {顶点从 1 开始，允许重边、非连通图与孤立点；自环忽略。}
+
+\subsubsection*{点双与边双的区别}
+点双连通分量是没有割点的极大连通块；本模板也把一条桥的两个端点作为一个分量，孤立点单独作为一个分量。它与第~\ref{algo:cuts}~节删除全部桥后得到的边双分量不同：\textbf{割点可以出现在多个点双分量中}，不能给每个顶点只记录一个归属编号。
+
+\subsubsection*{原理}
+仍用 $dfn_u$ 记录访问次序，$low_u$ 记录子树经回边可到达的最早祖先。DFS 访问顶点时将它放入点栈。对子树根 $v$，若 $low_v\geq dfn_u$，说明该子树不能绕开 $u$ 向更早祖先连接，于是弹出栈中顶点直到 $v$，再加入 $u$，组成一个点双分量；\textbf{此时保留 $u$ 在栈中}，它还可能属于之后的分量。
+
+非根 $u$ 在上述条件成立时为割点；DFS 根仅在有至少两个搜索树儿子时为割点。跳过父边时按边编号判断，保留平行边作为回边。每个顶点只入栈、出栈一次，割点只在输出各分量时重复出现，总成员数仍为 $O(n+m)$。
+
+\subsubsection*{使用教程}
+\InlineCode{init(n)} 清空图，\InlineCode{add(u,v)} 加一次无向边并返回从 0 开始的编号；自环返回 $-1$ 且不加入图，因为它不改变顶点间的连通关系，本条目不额外输出自环块。
+
+\InlineCode{build()} 后，\InlineCode{cnt} 为分量数，\InlineCode{dcc[1..cnt]} 保存各分量的顶点列表，\InlineCode{belong[u]} 保存包含 $u$ 的全部分量编号，\InlineCode{cut[u]} 判断割点；列表内部从下标 0 读取，顺序不作保证。重复 \InlineCode{build} 重置结果并保留边，覆盖所有连通块。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+PointBCC g;
+g.init(6);
+g.add(1,2);g.add(2,3);g.add(3,1);
+g.add(3,4);g.add(4,5);
+g.build();
+bool is_cut=g.cut[3];
+auto groups=g.belong[3];
+for(int id:groups){auto vertices=g.dcc[id];}
+int blocks=g.cnt;
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/graphs/point_bcc.cpp}

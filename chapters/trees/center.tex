@@ -17,7 +17,7 @@
 本模板只返回原树顶点；若题目允许选边的内部，直径中点也可能位于边上。树的中心优化\textbf{最大距离}；下一节的重心优化删除顶点后的\textbf{最大连通块点数}。
 
 \subsubsection*{使用教程}
-\InlineCode{TreeMetrics::build()} 同时求出所有中心，直接读取 \InlineCode{center}；源码见第~\ref{tree:diameter}~节。
+使用第~\ref{tree:diameter}~节的 \InlineCode{TreeMetrics}：\InlineCode{init(n)} 后 \InlineCode{add(u,v,w)} 加无向边，每边一次，省略权值取 1。\InlineCode{build()} 后读取顶点编号列表 \InlineCode{center}；重跑保留边、重置结果。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 TreeMetrics g;
 g.init(4);

@@ -1,0 +1,36 @@
+% Source: User expectation examples daily-problems/5-26/CF1245E.cpp; self-loop algebra derived independently.
+\subsection{期望 DP：逆序递推与自环}
+\label{dp:expectation-dp}
+\AlgorithmInfo
+    {计算非自环部分为 DAG 的随机过程到吸收状态的期望费用。}
+    {时间 $O(n+m)$，空间 $O(n)$（不含输入边）。}
+    {状态 $1\ldots n$，n 为终点；其他边 to≥u，各行概率和为 1，离开概率严格为正。}
+\subsubsection*{原理}
+
+令 $E_u$ 为从状态 u 到终止状态的期望剩余费用，每条转移以概率 p 发生，发生时付费 w。先列出
+\[
+ E_u=\sum_{u\to v}p_{uv}(w_{uv}+E_v),\qquad E_n=0.
+\]
+若存在自环，把它的 $p_{uu}E_u$ 移到左侧；非自环按 v>u 编号后可以从 n-1 到 1 逆序计算，每个右侧期望都已求出：
+\[
+ E_u=\frac{\sum_{u\to v}p_{uv}w_{uv}+\sum_{v\ne u}p_{uv}E_v}
+ {\sum_{v\ne u}p_{uv}}.
+\]
+分母为离开当前状态的概率，等于 $1-\sum p_{uu}$；直接累加离开概率能减少接近 1 时相减的损失。自环的即时费用也在分子中，不能漏掉。
+
+\subsubsection*{使用教程}
+边用 \InlineCode{ProbEdge} 保存，字段依次为终点、概率和即时费用。输入 \InlineCode{e[u]} 为该状态的全部转移，终点的 e[n] 留空。
+
+\InlineCode{expected_cost(e)} 返回期望数组，结果从 1 开始，终点为 0；节点须已按拓扑顺序编号。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<vector<ProbEdge>> e(4);
+e[1]={{1,0.5L,1},{2,0.5L,1}};
+e[2]={{3,1,2}};
+auto f=expected_cost(e);
+long double ans=f[1];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/expectation_dp.cpp}
+\subsubsection*{需要注意}
+离开概率为 0 时不能套这个除法；一般有环过程需建立联立方程，并先判断终止概率、是否存在无限期望。概率求的是事件发生的可能性，期望求的是随机代价的平均值，不是互换初值后就能通用。

@@ -1,0 +1,25 @@
+% Source: ACM_Templates.pdf, pp.113-114; https://cp-algorithms.com/num_methods/ternary_search.html. Reorganized without finite-difference assumption.
+\subsection{三分：实数域与整数域}
+\label{other:ternary}
+\AlgorithmInfo
+    {在单谷／单峰函数上寻找极值位置。}
+    {实数至多 400 次求值；整数 $O(\log(r-l+1))$ 次求值，空间 $O(1)$。}
+    {区间非空；默认求最小值，严格下降后严格上升，允许最小值处为一段平区间。}
+\subsubsection*{原理}
+求最小时取三等分点 a<b。若 f(a)<f(b)，b 右侧不能优于 a，保留 [l,b]；若 f(a)>f(b)，a 左侧不能优于 b，保留 [a,r]。相等时，在单谷条件下可保留任一侧连同谷底，本实现取 [l,b]。每轮至少舍掉约三分之一。
+
+实数域固定 200 轮并在无法推进时停止；整数域等到剩余至多四个整数后直接枚举，避免两个取整分点重合。单调函数也可视为极值在端点的情形，但\textbf{非最优处任意平台或多个局部极值不满足这里的前提}；仅看到函数图像大致像单谷，不能作为正确性依据。
+\subsubsection*{使用教程}
+\InlineCode{ternary_min(l,r,calc)} 返回实数极小值的\textbf{位置}，再调用 calc 才得到函数值。
+
+\InlineCode{ternary_min_int(l,r,calc)} 接收闭整数区间并返回其中一个最优位置；不保证并列时最左。数值边界通常取绝对值不超过 $10^{12}$，所有函数值及中间计算须在类型范围内。
+
+求最大值时对 -f 三分，读取原 f 的值；整数 f 取负可能溢出时先提升类型。若函数不是单峰而只是可导，或离散转移无法证明单谷，不适用。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+auto calc=[](long double x){return (x-3)*(x-3)+2;};
+long double pos=ternary_min(-10,10,calc),value=calc(pos);
+long long k=ternary_min_int(-10,10,[](long long x){return (x-3)*(x-3);});
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/others/ternary.cpp}

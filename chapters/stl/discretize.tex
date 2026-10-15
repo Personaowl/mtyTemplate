@@ -1,0 +1,22 @@
+% Source: ACM_Templates.pdf p. 40 (coordinate compression).
+% Reference: https://en.cppreference.com/w/cpp/algorithm/unique.html
+\subsection{去重与离散化}
+\label{stl:discretize}
+\subsubsection*{原理}
+\InlineCode{unique} 只把\textbf{相邻相等}的元素合并到区间前部，返回新的逻辑末尾，并不缩短容器。先排序，再删除尾部，即得到升序不同值表；用二分将原值映射为排名，总时间 $O(n\log n)$、额外空间 $O(n)$。
+\subsubsection*{使用教程}
+原数组按 1 下标保存，取值表按 0 下标保存；将取值表中的位置加 1 作为离散化编号。编号 $id$ 的原值为 \InlineCode{b[id-1]}，不要误把占位的 0 加入取值表。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<long long> a={0,100,-5,100,7};
+vector<long long> b(a.begin()+1,a.end());
+sort(b.begin(),b.end());
+b.erase(unique(b.begin(),b.end()),b.end());
+int n=(int)a.size()-1;
+vector<int> id(n+1);
+for(int i=1;i<=n;i++){
+	id[i]=lower_bound(b.begin(),b.end(),a[i])-b.begin()+1;
+}
+int m=b.size();
+long long original=b[id[1]-1];
+\end{lstlisting}
+离散化保留相等和大小关系，不保留数值差、距离、相邻整数关系。若题目依赖长度，应保存原坐标并计算真实间距，不能直接用排名差代替。

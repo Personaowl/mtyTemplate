@@ -24,7 +24,7 @@
 最小点覆盖的补集是最大独立集，大小为 $n_L+n_R-|M|$。这些匹配数与点覆盖数的等式依赖二分图条件。
 
 \subsubsection*{使用教程}
-\InlineCode{init(nL,nR)}、\InlineCode{add(u,v)} 与匈牙利模板使用同样的编号。\InlineCode{solve()} 内部重新建立网络并跑满最大流，返回匹配数；\InlineCode{ans} 为左右点编号对，\InlineCode{coverL}、\InlineCode{coverR} 分别为最小点覆盖在两侧选中的编号。重复求解会重新计算，支持新增配对后再求解。
+\InlineCode{init(nL,nR)} 指定左右点数；\InlineCode{add(u,v)} 加左点 $u$ 到右点 $v$ 的合法配对，两侧各自从 1 编号。\InlineCode{solve()} 重建网络并跑满最大流，返回匹配数；\InlineCode{ans} 保存左右点编号对，\InlineCode{coverL,coverR} 为最小点覆盖两侧的编号列表。新增配对可再求解；新数据重新初始化。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 FlowMatching g;
 g.init(3,2);

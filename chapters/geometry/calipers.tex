@@ -1,0 +1,26 @@
+% Source: Independent antipodal-area calipers; KACTL HullDiameter.h and standard support-line derivation.
+\subsection{旋转卡壳：直径与最小宽度}
+\label{geo:calipers}
+\AlgorithmInfo
+    {求凸包最远点对的距离平方和最窄平行支撑线间距。}
+    {给定凸包后 $O(n)$ 时间、$O(1)$ 额外空间。}
+    {依赖整数点与实数点基础；严格逆时针凸包。}
+\subsubsection*{原理}
+
+依次固定每条有向边，让对踵点 j 在凸包上前进，直到到该边的有向面积不能继续增加。随着边方向逆时针旋转，最远支撑点也只前进，不会反退，因此总移动为线性。
+
+凸包直径一定出现在某组对踵点中。更新当前边两端到 j 的距离；面积相等意味着对边平行，还要检查 j 的下一个点，避免漏掉并列支撑点。最小宽度则为各边方向的最远支撑距离中的最小值，即 $\min \max_j((p_{i+1}-p_i)\times(p_j-p_i))/|p_{i+1}-p_i|$。
+
+\subsubsection*{使用教程}
+先调用 \InlineCode{convex_hull}，将其严格逆时针结果 h 传入。\InlineCode{hull_diameter2(h)} 返回最远两点距离的平方，类型为 \InlineCode{__int128}；空集返回 -1，单点返回 0，线段返回两端点距离平方。它不返回端点编号，若只比较大小应保持整数平方，确需长度时先确认非负再转 ld 开根号。
+
+\InlineCode{hull_min_width(h)} 返回能包住 h 的最窄平行带宽度，ld 类型，至多两点时为 0；它不是最小外接矩形面积。两个函数都要求凸包已整理好，不会内部重新求凸包或修改 h，每次调用无需清空状态。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+auto h=convex_hull(vector<IPoint>{{0,0},{4,0},{4,3},{0,3}});
+__int128 d2=hull_diameter2(h);
+if(d2>=0){ld diameter=sqrtl((ld)d2);}
+ld width=hull_min_width(h);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/calipers.cpp}

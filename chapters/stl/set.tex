@@ -1,0 +1,33 @@
+% Source: ACM_Templates.pdf pp. 108-110.
+% References: https://en.cppreference.com/w/cpp/container/set.html
+% https://en.cppreference.com/w/cpp/container/multiset/erase.html
+\subsection{set 与 multiset：有序集合}
+\label{stl:set}
+\subsubsection*{原理}
+有序关联容器自动按比较规则维护元素，查找与插入为 $O(\log n)$。\InlineCode{set} 不保留重复键，\InlineCode{multiset} 保留；元素的键不能通过迭代器直接修改，要先删除再插入。
+\subsubsection*{使用教程}
+\InlineCode{insert(x)} 插入，\InlineCode{find(x)} 返回某个匹配项或 \InlineCode{end()}。成员 \InlineCode{lower_bound(x)} 找第一个不小于 $x$ 的元素，\InlineCode{upper_bound(x)} 找第一个大于 $x$ 的元素，均为 $O(\log n)$。最大、最小值分别用 \InlineCode{*rbegin()}、\InlineCode{*begin()}，要求非空。
+
+\InlineCode{erase(x)} 删除所有等于 $x$ 的项并返回数量；只删一份时先 \InlineCode{find}，再 \InlineCode{erase(it)}，它返回后继迭代器。\InlineCode{set::count(x)} 为 0 或 1；多重集合的计数及按值删除为 $O(\log n+k)$，$k$ 为匹配项数。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+multiset<int> st={1,2,2,4};
+auto it=st.find(2);
+if(it!=st.end()) st.erase(it);
+it=st.lower_bound(3);
+if(it!=st.end()){int next=*it;}
+if(it!=st.begin()){int prev=*std::prev(it);}
+for(it=st.begin();it!=st.end();){
+	if(*it%2==0) it=st.erase(it);
+	else ++it;
+}
+auto removed=st.erase(2);
+\end{lstlisting}
+倒序枚举用 \InlineCode{rbegin()/rend()}，仍然递增迭代器；默认升序集合会按从大到小访问，\InlineCode{multiset} 的重复项也会逐个保留。全遍历为 $O(n)$，不改变容器原有顺序；若容器本身采用降序比较，反向访问则是升序。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+set<int> st={1,4,2};
+vector<int> order;
+for(auto it=st.rbegin();it!=st.rend();++it){
+	order.push_back(*it);
+}
+\end{lstlisting}
+遍历时删除要接住返回迭代器，不要删除后再递增旧迭代器。树上二分用容器成员函数，通用 \InlineCode{lower_bound(st.begin(),st.end(),x)} 的迭代器移动可能为线性。标准 \InlineCode{set} 不直接支持第 $k$ 小或排名；\InlineCode{distance(begin,it)} 也需要线性遍历。

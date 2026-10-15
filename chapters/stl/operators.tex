@@ -1,0 +1,43 @@
+% References: https://en.cppreference.com/w/cpp/language/operators.html
+% https://eel.is/c++draft/associative.reqmts
+% https://eel.is/c++draft/priority.queue
+\subsection{重载运算符与自定义比较}
+\label{stl:operators}
+\subsubsection*{原理}
+给结构体定义 \InlineCode{operator<}，即可让默认排序、有序集合和堆知道怎样比较对象。成员写法中，当前对象是左操作数，参数是右操作数；末尾的 \InlineCode{const} 表示比较不修改当前对象，参数用常量引用避免复制。
+
+比较必须形成严格弱序，不能把小于写成小于等于。\InlineCode{set/map} 判断两个键等价的条件是两方向比较均为假，\textbf{不依赖} \InlineCode{operator==}；若同权值但不同编号的点应分别保留，就把编号也作为次关键字。
+\subsubsection*{使用教程}
+以下按 \InlineCode{x}、再按 \InlineCode{id} 升序比较，可直接用于排序、集合和映射。\InlineCode{operator>} 复用反向小于关系，便于构造 \InlineCode{greater<Node>} 小根堆；\InlineCode{operator==} 判断字段相等，供 \InlineCode{find/unique} 等使用。C++17 不会仅凭小于自动生成其余比较运算符。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+struct Node{
+	long long x;int id;
+	bool operator<(const Node &b)const{
+		if(x!=b.x) return x<b.x;
+		return id<b.id;
+	}
+	bool operator>(const Node &b)const{return b<*this;}
+	bool operator==(const Node &b)const{
+		return x==b.x&&id==b.id;
+	}
+};
+vector<Node> a={{3,2},{1,5},{3,1}};
+sort(a.begin(),a.end());
+set<Node> st(a.begin(),a.end());
+map<Node,int> cnt;
+cnt[{3,1}]++;
+priority_queue<Node> mx;
+priority_queue<Node,vector<Node>,greater<Node>> mn;
+for(auto p:a){mx.push(p);mn.push(p);}
+struct Cmp{
+	bool operator()(const Node &a,const Node &b)const{
+		return b<a;
+	}
+};
+set<Node,Cmp> desc(a.begin(),a.end());
+priority_queue<Node,vector<Node>,Cmp> heap;
+heap.push({3,1});
+\end{lstlisting}
+自然的小于关系下，\InlineCode{sort} 和 \InlineCode{set/map} 按升序排列，默认 \InlineCode{priority_queue} 却取最大者；改用 \InlineCode{greater} 或上述 \InlineCode{Cmp} 后，堆顶取最小者。同一个 \InlineCode{Cmp} 用在集合上则表示降序。\InlineCode{operator()} 让比较器对象可像函数一样接收两个参数，适合只改变某个容器的规则。
+
+只为小根堆把 \InlineCode{operator<} 写反也可行，但该类型再放进默认 \InlineCode{set} 或 \InlineCode{sort} 时顺序也会反转。需要多种顺序时，保留自然的小于并单独定义比较器更直观。\InlineCode{unordered_map/set} 还需要相应的哈希函数与相等判断，仅重载小于不能作为哈希键直接使用。

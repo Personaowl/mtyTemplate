@@ -12,7 +12,7 @@ $w$ 必须保留原始最小边权，不能被全源最短路覆盖；$d$ 则逐
 \subsubsection*{使用教程：自环、重边与环的定义}
 \InlineCode{MinCycle::init(n)} 默认把自环视为一边环、两条不同平行边视为二边环，并单独取这些候选的最小值。\InlineCode{init(n,false)} 则只计算至少三个不同顶点的环。按题目定义选择；不能将同一条无向边走两个方向当作二边环。
 
-无向边只 \InlineCode{add} 一次，\InlineCode{run()} 不修改原图，返回最小环权；无环时为 \InlineCode{INF}。边权、有限路径与答案均需小于 $4\times10^{18}$，候选加法先用 128 位计算。
+用 \InlineCode{add(u,v,w)} 加权为 $w$ 的无向边，每边只加一次；\InlineCode{run()} 不修改原图，返回最小环权；无环时为 \InlineCode{INF}。边权、有限路径与答案均需小于 $4\times10^{18}$，候选加法先用 128 位计算。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 MinCycle g;
 g.init(3,false);

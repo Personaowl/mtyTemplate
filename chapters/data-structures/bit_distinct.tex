@@ -1,0 +1,27 @@
+% Problem: https://www.luogu.com.cn/problem/P1972
+\subsection{树状数组应用：P1972 HH 的项链}
+\label{ds:bit-distinct}
+\AlgorithmInfo
+    {离线查询静态数组每个区间内不同数的个数。}
+    {时间 $O((n+m)\log(n+m+1)+V)$；空间 $O(n+m+V)$。}
+    {数组按 1 下标，$n\ge1$、$1\le a_i\le10^6$；$V=\max a_i$，依赖 BIT。}
+\subsubsection*{原理}
+题目为\href{https://www.luogu.com.cn/problem/P1972}{洛谷 P1972：HH 的项链}，要求对多组闭区间 $[l,r]$ 统计不同值数量。将询问按右端点递增排序，扫描数组到当前右端点，每个值只在它\textbf{最后一次出现的位置}保留一个 1，其余位置为 0。
+
+扫描到 $a_r=x$ 时，若 $x$ 曾出现于 $last_x$，先在该位置加 $-1$，再在 $r$ 处加 1，并更新 $last_x=r$。对当前询问，某个值在 $[l,r]$ 中出现，当且仅当它在前缀 $[1,r]$ 中的最后出现位置不小于 $l$。因此树状数组的区间和就是答案。
+
+每个位置至多产生两次单点更新，每个询问只需两个前缀查询。静态不同数统计也能用莫队，本题利用最后出现位置可以做到对数复杂度的更新与查询。
+\subsubsection*{使用教程}
+复制 \InlineCode{BIT} 后，调用 \InlineCode{count_distinct(a,ask)}。\InlineCode{a[0]} 占位，\InlineCode{ask} 是从 0 开始保存的闭区间数组；返回答案按询问原顺序排列。函数内部清空状态，每次调用独立。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<int> a={0,1,2,1,3,2};
+vector<pair<int,int>> ask={{2,5},{1,3},{3,3}};
+auto ans=count_distinct(a,ask);
+int kinds=ans[0];
+\end{lstlisting}
+代码末尾的 \InlineCode{solve_p1972()} 已按题目格式完成读入与输出；直接做题时，在常用主函数中调用它即可。题目有 $10^6$ 级输入，主函数应关闭同步并解除 \InlineCode{cin} 绑定。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/bit_distinct.cpp}
+\subsubsection*{需要注意}
+\InlineCode{last} 按值访问，因此本实现利用题目给定的较小正整数值域；若取值为负数或很大，先离散化，再沿用相同逻辑。不能把每个出现位置都设为 1，否则统计的只是区间长度。

@@ -1,0 +1,35 @@
+% Reference: https://en.cppreference.com/w/cpp/container/priority_queue.html
+\subsection{priority\_queue：大小根堆与比较器}
+\label{stl:heap}
+\subsubsection*{原理}
+堆只保证堆顶是当前最高优先级，不保证其余元素有序。\InlineCode{top()} 为 $O(1)$，\InlineCode{push/pop} 为 $O(\log n)$。默认用 \InlineCode{less<T>} 得到大根堆；\InlineCode{greater<T>} 得到小根堆，数对默认按字典序比较。
+\subsubsection*{使用教程}
+\InlineCode{push(x)} 插入，\InlineCode{top()} 读取堆顶，\InlineCode{pop()} 删除且不返回值；先判空再读取或删除。比较器返回真，表示左边元素的优先级比右边低；自定义小根堆可在 \InlineCode{operator<} 中写反向比较。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+priority_queue<int> mx;
+priority_queue<int,vector<int>,greater<int>> mn;
+mx.push(3),mn.push(3);
+using PII=pair<int,int>;
+priority_queue<PII,vector<PII>,greater<PII>> q;
+q.push({5,2}),q.push({3,1});
+if(!q.empty()){auto [d,u]=q.top();q.pop();}
+struct Node{
+	long long d;int u;
+	bool operator<(const Node &b)const{
+		if(d!=b.d) return d>b.d;
+		return u>b.u;
+	}
+};
+priority_queue<Node> heap;
+heap.push({5,2}),heap.push({3,1});
+\end{lstlisting}
+若用 lambda 比较器，必须在构造时传入该对象（C++17）：
+\begin{lstlisting}[style=mtycpp,numbers=none]
+using PII=pair<int,int>;
+auto cmp=[](const PII &a,const PII &b){return a.first>b.first;};
+priority_queue<PII,vector<PII>,decltype(cmp)> q(cmp);
+q.push({3,1});
+\end{lstlisting}
+比较必须严格，相等时不能返回真；不能写成大于等于。堆没有任意删除、直接修改优先级的接口；最短路中可追加新状态，在弹出时跳过过期项。不要让比较规则依赖会在外部任意改变的权值。
+
+上例的 \InlineCode{Node} 把小于反向定义，适合直接构造小根堆；若同一类型还用于排序、集合或映射，自然小于与独立比较器的统一写法见第~\ref{stl:operators}~节。

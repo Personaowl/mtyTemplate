@@ -1,0 +1,20 @@
+% Reference: https://en.cppreference.com/w/cpp/container/unordered_map.html
+\subsection{unordered\_map 与 unordered\_set}
+\label{stl:unordered}
+\subsubsection*{原理}
+哈希容器按哈希值分桶，不维护大小顺序；查找、插入与按键删除平均为 $O(1)$，碰撞严重时单次最坏为 $O(n)$。\InlineCode{unordered_map} 保存键值对，\InlineCode{unordered_set} 只保存键。
+\subsubsection*{使用教程}
+\InlineCode{find/count/erase} 的基本含义与有序容器相同，映射的 \InlineCode{mp[x]} 也会插入缺失键。预计元素数为 $n$ 时，可先设 \InlineCode{max_load_factor}，再 \InlineCode{reserve(n)} 预留桶容量，减少重哈希；这不会保证最坏复杂度或防止针对性碰撞。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+unordered_map<int,int> mp;
+mp.max_load_factor(0.7);
+mp.reserve(100);
+for(int x:vector<int>{4,7,4}) mp[x]++;
+auto it=mp.find(7);
+if(it!=mp.end()){int times=it->second;}
+unordered_set<int> vis;
+vis.insert(4);
+bool ok=vis.count(4);
+mp.clear();
+\end{lstlisting}
+遍历顺序没有大小意义，不提供 \InlineCode{lower_bound}，也不能直接取最小键。插入导致重哈希时，旧迭代器会失效；不要保留它跨越可能重哈希的操作。需要有序访问或稳定的对数复杂度时改用 \InlineCode{map/set}。

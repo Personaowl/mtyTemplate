@@ -12,7 +12,7 @@
 
 模板借用 HLD 的父亲、重儿子和子树区间，递归控制保留顺序；按 DFS 序扫描子树来增删颜色计数。\InlineCode{eval} 维护频次数组与当前不同颜色数，只在完整子树合并后记录 \InlineCode{ans[u]}。
 \subsubsection*{使用教程}
-\InlineCode{init(n,m)} 后加边，\InlineCode{run(color,root)} 返回各子树的不同颜色数，每次运行重建剖分并清空统计。颜色范围较大时，先离散化到 $1\ldots m$。改成其他统计时，需要同时改 \InlineCode{eval}、清理状态和记录答案的位置，保持加点与删点互为逆操作。
+\InlineCode{init(n,m)} 指定顶点数和颜色上界，再用 \InlineCode{add(u,v)} 加无向边，每边一次。\InlineCode{run(color,root)} 接收第 0 项占位的颜色数组，返回从 1 开始的子树不同颜色数；省略根取 1，每次运行重建剖分并清空统计。颜色须在 $1\ldots m$ 内，范围大时先离散化。改换统计时，同步调整 \InlineCode{eval}、清理和记录答案的位置，保持增删互逆。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 DSUOnTree g;
 g.init(5,3);

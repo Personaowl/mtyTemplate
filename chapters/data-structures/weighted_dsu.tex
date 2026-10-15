@@ -1,0 +1,36 @@
+% Reference: https://cp-algorithms.com/data_structures/disjoint_set_union.html
+% Difference constraint model: https://atcoder.jp/contests/abc087/tasks/arc090_b
+\subsection{带权并查集：维护两点差值}
+\label{ds:weighted-dsu}
+\AlgorithmInfo
+    {维护形如 $a_y-a_x=w$ 的关系，查询差值并判断新关系是否矛盾。}
+    {初始化 $O(n)$；合并、查询均摊 $O(\alpha(n))$；空间 $O(n)$。}
+    {编号 $1\ldots n$；保存的父边势差、压缩后的势差及查询结果须在 64 位有符号范围内。}
+\subsubsection*{原理}
+给父边附加权值 $d_x=a_x-a_{fa_x}$，沿父亲链相加得到点到根的差。路径压缩时，先记住原父亲 $p$，递归处理 $p$ 后，将 $d_p$ 累加到 $d_x$，此时 $d_x$ 就表示 $a_x-a_{root}$。
+
+加入 $a_y-a_x=w$ 时，先查到根 $p_x,p_y$。若两根相同，直接检查 $d_y-d_x=w$；否则若把 $p_y$ 接到 $p_x$ 下，应设置
+\[
+ d_{p_y}=a_{p_y}-a_{p_x}=w+d_x-d_y.
+\]
+按大小合并时，如果交换两根，父边方向随之反转，所赋权值也要取负。这里的权值是有方向的数值差，不是集合大小或合并代价。
+
+\subsubsection*{使用教程}
+\InlineCode{init(n)} 清空关系；\InlineCode{merge(x,y,w)} 尝试加入“$y$ 的值减 $x$ 的值等于 $w$”。返回真表示关系可以成立，已经存在且一致也返回真；矛盾则返回假，不加入该关系。\InlineCode{query(x,y)} 返回 \InlineCode{pair<bool,long long>}，第一项表示差值是否已知，已知时第二项为 $a_y-a_x$。
+
+\InlineCode{check(x,y)} 判断两点是否已有关系，\InlineCode{size(x)} 返回原元素连通块大小；\InlineCode{find(x)} 返回根并更新 $d_x$。重新 \InlineCode{init} 会重置全部状态。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+WeightedDSU dsu;
+dsu.init(4);
+bool ok1=dsu.merge(1,2,3); // a[2]-a[1]=3
+bool ok2=dsu.merge(2,3,-1);
+auto [known,diff]=dsu.query(1,3);
+bool ok3=dsu.merge(1,3,5);
+bool linked=dsu.check(1,4);
+int cnt=dsu.size(2);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/weighted_dsu.cpp}
+\subsubsection*{需要注意}
+差值方向统一为 $a_y-a_x$，交换参数时权值也要取负。内部用 128 位计算中间加减，但存储仍为 \InlineCode{long long}；不能让累计势差超出约定。它维护的是等式关系，不能替代图论中处理不等式的差分约束。与普通并查集不同，本节的 \InlineCode{merge} 返回值表示“是否相容”，不是“是否发生了一次新合并”。

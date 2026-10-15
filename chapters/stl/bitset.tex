@@ -1,0 +1,22 @@
+% Source: ACM_Templates.pdf pp. 107-108.
+% Reference: https://en.cppreference.com/w/cpp/utility/bitset.html
+\subsection{bitset：定长位集}
+\label{stl:bitset}
+\subsubsection*{原理}
+\InlineCode{bitset<N>} 将 $N$ 个布尔状态压入若干机器字，$N$ 必须为编译期常量。常见 GCC 实现的整个位集运算和计数按机器字批量处理，约需 $O(\lceil N/w\rceil)$，$w$ 为机器字长；它不是对任意规模都比单个整数位运算更快。
+\subsubsection*{使用教程}
+\InlineCode{b[i]/test(i)} 读取第 $i$ 位；\InlineCode{set(i)/reset(i)/flip(i)} 将其置一、置零、翻转，省略位置则作用于全部位。\InlineCode{count()} 数 1，\InlineCode{any/none/all} 判断是否有 1、全 0、全 1。位置从 0 开始，小于 $N$；默认构造全零。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+bitset<16> b("10101");
+b.set(3),b.reset(0);
+auto c=(b<<2)|b;
+int cnt=c.count();
+bool ok=c.test(3);
+string s=c.to_string();
+const int W=64;
+bitset<W> can;
+can[0]=1;
+for(int x:vector<int>{2,3,7}) can|=can<<x;
+bool possible=can[10];
+\end{lstlisting}
+字符串最右字符对应第 0 位；左移把低位状态移向更高位，移出范围的位丢弃。示例用 \InlineCode{can|=can<<x} 处理一次物品 $x$，只保留和小于 $W$ 的状态，要求物品非负。\InlineCode{to_ullong()} 仅在值可放入对应整数时使用，否则会抛溢出异常。

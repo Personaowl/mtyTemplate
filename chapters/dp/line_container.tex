@@ -1,0 +1,51 @@
+% Source: User supplied LineContainer; KACTL Simon Lindholm CC0, https://github.com/kth-competitive-programming/kactl/blob/main/content/data-structures/LineContainer.h
+\subsection{动态直线凸包：任意顺序插入与查询}
+\label{dp:line-container}
+\AlgorithmInfo
+    {任意顺序插入整数直线，任意顺序查询最大值；附通用顺序平方 DP。}
+    {每次插入均摊 $O(\log n)$，查询 $O(\log n)$，空间 $O(n)$。}
+    {斜率、截距、x 为有符号 64 位；空容器不查询；使用 C++17 异构查找与 GNU 128 位。}
+\subsubsection*{原理}
+
+用 multiset 按斜率保存上凸壳，每条线额外保存整数分界点 p：它在上凸壳中负责的查询区间右端点。相邻线斜率递增时，这个边界为
+\[
+ p_x=\left\lfloor\frac{m_y-m_x}{k_x-k_y}\right\rfloor.
+\]
+例如 $y=0$ 与 $y=x-3$ 的边界为 3：整数 x≤3 时前者可取最优，x≥4 时后者更优。各边界严格递增，查询时用异构 \InlineCode{lower_bound(x)} 找到第一条 p≥x 的直线。同斜率时由更大截距给出最优值，较小截距不会被查询选中。插入后向前、向后清理有效区间为空的线，删除操作均可分摊到该线之前的插入。
+
+C++ 整数除法向零截断，负商不一定是向下取整；\InlineCode{div_floor} 在有余数且两数异号时再减 1。
+
+\InlineCode{isect(x,y)} 计算 x 与 y 的新分界，返回 $p_x\ge p_y$，说明\textbf{后一条 y 的有效区间为空}；清理循环据此删除 y，不是将这个返回值解释成 x 无用。
+
+分界、差值与最终乘法都使用 128 位。内部无穷为 $2^{126}$，专用于分界，不使用 \InlineCode{INT_MAX}；否则合法的大横坐标可能使查找落到 end。斜率、截距与查询横坐标仍为 64 位。
+
+\subsubsection*{使用教程}
+\InlineCode{add_line(k,m)} 插入 $y=kx+m$，\InlineCode{query(x)} 返回 128 位最大值；继承的 \InlineCode{clear()/empty()} 可直接使用。已有至少一条线后，可在后续插入之间任意查询；查询只比较当前已经加入的直线，相同斜率、重复直线无需手动去重。
+
+\InlineCode{quadratic_dp_dynamic(a,C)} 计算平方转移，a 可含负数；前缀和绝对值不超过 $10^8$、$|f_i+S_i^2|\le10^{18}$，结果为 f[0..n]。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+LineContainer hull;
+hull.add_line(3,-2);
+hull.add_line(-1,5);
+hull.add_line(3,7);
+__int128 y=hull.query(-4);
+hull.clear();
+auto f=quadratic_dp_dynamic(vector<long long>{0,3,-2,1},4);
+long long ans=f.back();
+\end{lstlisting}
+
+\subsubsection*{求最小值：维护下凸壳}
+无需改内部比较符号或 isect。将每条原直线 $y=kx+m$ 转换为 $y=-kx-m$ 后加入，查询时将返回值取负：
+\begin{lstlisting}[style=mtycpp,numbers=none]
+LineContainer lower;
+vector<pair<long long,long long>> lines={{3,2},{-2,5},{1,-4}};
+for(auto [k,m]:lines) lower.add_line(-k,-m);
+__int128 minimum=-lower.query(4);
+__int128 another=-lower.query(-1);
+\end{lstlisting}
+这里原斜率、插入顺序和查询 x 均可任意。若同时维护同一批直线的最大值和最小值，用两个容器分别加入原系数与取负系数。用于 $f_i=A_i+\min_j(k_jx_i+m_j)$ 时，先取 $f_i=A_i-query(x_i)$，再将 i 对应直线的负系数加入；第一轮前先加入合法边界状态。每组新数据重新创建容器或 clear；继承的 erase 不负责修复分界，不能当作删线接口。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/line_container.cpp}
+\subsubsection*{需要注意}
+集合本身按 k 排序，查询时通过 p 二分；p 可变但 k 不能在插入后修改。取最小值时，斜率与截距的取负也要能表示；\InlineCode{LLONG_MIN} 不能直接在 long long 中取负。输出使用第~\ref{stl:int128}~节的 str128。

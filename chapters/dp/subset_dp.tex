@@ -1,0 +1,32 @@
+% Source: Subset decomposition and bit DP derivation.
+\subsection{状压基础：子集枚举与 SOS DP}
+\label{dp:subset-dp}
+\AlgorithmInfo
+    {求每个集合的所有子集权值和。}
+    {时间 $O(n2^n)$，空间 $O(2^n)$。}
+    {$0\le n\le22$，输入长度恰为 $2^n$；集合数组从 0 开始，所有累加和不溢出。}
+\subsubsection*{原理}
+
+用二进制位表示集合，位号从 0 开始：$mask\mathbin{|}(1\ll i)$ 加入元素，$mask\mathbin{\&}(1\ll i)$ 判断包含，移除已存在元素可用异或。若枚举 $mask$ 的全部子集，依次取 $sub=mask$、$sub\gets(sub-1)\mathbin{\&}mask$，必须单独处理终止于 0 的情形。
+
+对每个元素而言，它可以不在 mask 中、在 mask 中但不在 sub 中、同时在两者中，所以枚举所有集合及其子集的总量是 $3^n$。
+
+SOS DP 将 $f_S=\sum_{T\subseteq S}a_T$ 在 $O(n2^n)$ 内算出。按位处理，若 $S$ 包含当前位 $i$，执行 $f_S\gets f_S+f_{S\setminus\{i\}}$；初值 f=a，处理完前 i 位后，f[S] 已汇总在这些位上任意删去元素、其他位与 S 一致的集合。当前位从未处理到已处理，恰好把子集分成包含该位和不包含该位两部分；作为来源的集合不含当前位，不会被本轮更新，因此可原地累加。
+
+\subsubsection*{使用教程}
+\InlineCode{subset_sums(a,n)} 返回子集和表，不修改原输入。下面同时演示包含空集的子集枚举；若只需非空子集，可用普通的 sub 非零循环。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+int n=3,mask=5;
+vector<long long> a={1,2,3,4,5,6,7,8};
+auto f=subset_sums(a,n);
+vector<int> subs;
+for(int sub=mask;;sub=(sub-1)&mask){
+	subs.push_back(sub);
+	if(sub==0) break;
+}
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/subset_dp.cpp}
+\subsubsection*{需要注意}
+状态个数是 $2^n$，不是 $n^2$；先估计内存。位移使用 \InlineCode{1LL<<i}，并控制位宽；本节状态数组无需额外的 1 下标占位。

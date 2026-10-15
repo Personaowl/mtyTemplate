@@ -1,0 +1,27 @@
+% Source: Independent Andrew implementation; KACTL ConvexHull.h (Stjepan Glavina/chilli, Unlicense).
+\subsection{Andrew 凸包}
+\label{geo:convex-hull}
+\AlgorithmInfo
+    {求整数点集的严格凸包。}
+    {$O(n\log n)$ 时间、$O(n)$ 空间。}
+    {依赖整数点；输入可无序、重复、共线或为空。}
+\subsubsection*{原理}
+
+先按坐标字典序排序并去重。按从左到右的顺序维护下凸壳，若新点使末尾不是严格左转，就弹掉中间点；反向扫描得到上凸壳。合并时各去掉一个重复端点。
+
+弹栈条件为叉积不大于 0，所以边上的中间共线点不保留。全共线时只保留两端；全重复时只保留一个点。非退化结果为逆时针，首点是字典序最小点，末尾不重复首点，便于后续扇形二分和旋转卡壳直接复用。
+
+\subsubsection*{使用教程}
+\InlineCode{convex_hull(a)} 直接接收任意顺序整数点，可含重复点，无需预先排序；函数按值接收，不改变原点集。返回严格凸包 h，从字典序最小点开始逆时针排列，不重复首点，也不保留边上的中间共线点。
+
+空点集返回空，只有一种点返回单点，全部共线时返回两端点。面积可交给整数 \InlineCode{polygon_area2(h)}，点包含可用下一节二分，直径／宽度可接旋转卡壳；这些接口复用本节输出，不要手动再补一个首点。只有题目明确需要保留边上所有点时才另改凸包与下游契约。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<IPoint> a={{0,0},{2,0},{1,0},{2,2},{0,2},{1,1},{0,0}};
+auto h=convex_hull(a);
+__int128 a2=polygon_area2(h);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/convex_hull.cpp}
+\subsubsection*{需要注意}
+本实现有意不保留边中间共线点，后续模板依赖这一性质。改弹栈条件以保留它们后，需要同时调整全共线处理与后续接口前提。

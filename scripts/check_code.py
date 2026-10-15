@@ -25,7 +25,7 @@ def run_cpp(temp, name, source, data=''):
 
 
 def check(temp):
-    run_cpp(temp, 'solution', (ROOT / 'code/basics/solution.cpp').read_text(encoding='utf-8'))
+    run_cpp(temp, 'solution', (ROOT / 'code/basics/solution.cpp').read_text(encoding='utf-8'), '1\n')
     cases = [(0,0,1),(0,0,7),(0,1,7),(-2,3,13),(2,0,2000000000),
              (2000000000,9223372036854775807,2000000000),
              (-9223372036854775808,17,1999999973)]
@@ -102,6 +102,12 @@ if __name__ == '__main__':
     from check_number_theory import check as check_number_theory
     from check_graphs import check as check_graphs
     from check_trees import check as check_trees
+    from check_stl import check as check_stl
+    from check_data_structures import check as check_data_structures
+    from check_dp import check as check_dp
+    from check_geometry import check as check_geometry
+    from check_others import check as check_others
+    from check_basic_additions import check as check_basic_additions
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--full', action='store_true', help='also run the existing behavioral regression')
     args = parser.parse_args()
@@ -110,5 +116,11 @@ if __name__ == '__main__':
         check_number_theory(Path(directory), smoke=args.full)
         check_graphs(Path(directory), smoke=args.full)
         check_trees(Path(directory), smoke=args.full)
+        check_stl(Path(directory), smoke=args.full)
+        check_data_structures(Path(directory), smoke=args.full)
+        check_dp(Path(directory), smoke=args.full)
+        check_geometry(Path(directory), smoke=args.full)
+        check_others(Path(directory), smoke=args.full)
         if args.full:
+            check_basic_additions(Path(directory))
             check(Path(directory))

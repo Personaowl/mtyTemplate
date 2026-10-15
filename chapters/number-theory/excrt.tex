@@ -30,13 +30,13 @@ $M_i$ 在模 $m_i$ 下可逆，且对应项在其余模数下为零，因此该�
 初始 $R=0,M=1$，依次处理即可。归一化后 $R$ 是最小非负解；若题目要最小正解且 $R=0$，答案应为最终模数 $M$。
 
 \subsubsection*{使用教程}
-先复制扩欧。\InlineCode{merge(b,n)} 的参数顺序为“余数、模数”；返回 $1$ 表示成功，$0$ 表示无解，$-1$ 表示合并模数超出 64 位范围。失败时保留合并前状态，应停止并按状态处理；成功后读取 \InlineCode{r,m}。\InlineCode{init()} 可清空复用。
+构造 \InlineCode{ExCRT} 后初始为 $x\equiv0\pmod1$。\InlineCode{merge(b,n)} 加入 $x\equiv b\pmod n$，参数顺序为“余数、模数”；返回 $1$ 为成功、$0$ 为无解、$-1$ 为合并模数超出 64 位。成功后 \InlineCode{r,m} 表示 $x\equiv r\pmod m$，$r$ 为最小非负解；失败保留原状态，应停止处理。\InlineCode{init()} 清空全部约束，源码依赖扩欧。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 ExCRT crt;
 int status=crt.merge(2,6);
 if(status==1) status=crt.merge(5,9);
 if(status==1){
-    long long ans=crt.r,period=crt.m;
+	long long ans=crt.r,period=crt.m;
 }
 \end{lstlisting}
 

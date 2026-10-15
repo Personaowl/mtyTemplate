@@ -1,0 +1,22 @@
+% Source: Independent derivation and implementation.
+\subsection{折半搜索：子集和计数}
+\label{other:meet-middle}
+\AlgorithmInfo
+    {n 约 40 时统计满足目标和的子集，元素可有负数。}
+    {时间 $O(n2^{\lceil n/2\rceil})$，空间 $O(2^{\lceil n/2\rceil})$。}
+    {$0\le n\le40$，普通 vector 不补占位；元素绝对值之和 $\le4\times10^{18}$。}
+\subsubsection*{原理}
+把元素拆成两半，分别枚举所有子集和 L、R。任意原子集恰好由一个左子集和一个右子集构成，目标是找到 $l+r=target$。排序 R 后，对每个 l 二分统计 target-l 的出现次数；重复的和对应不同选法，必须保留。
+
+枚举规模由 $2^n$ 降到两个约 $2^{n/2}$，排序与二分再带一个对数因子。若改成最大且不超过容量，就二分最大的可行右和；若要求方案，枚举时一起记录子集掩码。
+\subsubsection*{使用教程}
+\InlineCode{subset_sum_count(a,target)} 返回满足和的子集个数，不修改 a；同值不同下标仍是不同元素。包含空集，所以 target=0 时也计入空选法；空数组同样按此含义处理。\InlineCode{half_sums(a,l,r)} 是半开区间子集和枚举，可用于改写其他折半模型。
+
+元素允许负数，不能按“当前和超过目标”剪枝。差值用 128 位计算，避免 target 与半边和相减溢出；每个半边和依赖输入绝对值和范围。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<long long> a={-2,0,3,3};
+long long count=subset_sum_count(a,4);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/others/meet_middle.cpp}

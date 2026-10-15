@@ -1,0 +1,22 @@
+% Source: Independent derivation and implementation.
+\subsection{浮点数二分}
+\label{other:binary-real}
+\AlgorithmInfo
+    {在实数单调判定上定位分界点。}
+    {至多 200 次判定，空间 $O(1)$，另计 check 的代价。}
+    {有限 $l<r$，通常 $|l|,|r|\le10^{12}$；判定单调且端点夹住分界。}
+\subsubsection*{原理}
+浮点二分维护一对具有相反判定结果的端点。对于先 false 后 true 的谓词，始终保持 check(l)=false、check(r)=true；中点为真就右端左移，否则左端右移。输出 r 保留“为真”这一侧。先 true 后 false 时对称处理，输出 l。
+
+与整数二分不同，不给中点加减 1。每轮区间减半，理论宽度为初始宽度乘 $2^{-t}$；固定轮数避免仅用 eps 判断时由于中点舍入等于端点而无法退出。代码还在中点与端点相同时提前停止。200 轮只控制横坐标区间，\textbf{不能修复 check 的计算误差，也不直接保证函数值误差}。
+\subsubsection*{使用教程}
+\InlineCode{first_true_real(l,r,check)} 用于左假右真，返回右侧近似分界；\InlineCode{last_true_real(l,r,check)} 用于左真右假，返回左侧近似分界。先证明单调性并选好端点；若全真／全假，先按题意处理，不能硬套夹逼前提。求方程根还要保证根的存在与连续性，二分判定边界本身不要求连续。
+
+例子用平方比较定位非负平方根；两函数不共享状态。输出按题目设置小数位；若 long double 不够，需改用更高精度类型。不要无依据加入 EPS 改变判定条件。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+long double x=first_true_real(0,2,[](long double v){return v*v>=2;});
+long double y=last_true_real(0,2,[](long double v){return v*v<=2;});
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/others/binary_real.cpp}

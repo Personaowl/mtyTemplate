@@ -1,0 +1,20 @@
+% Reference: https://en.cppreference.com/w/cpp/utility/pair.html
+\subsection{pair、tuple 与结构化绑定}
+\label{stl:pair-tuple}
+\subsubsection*{原理}
+\InlineCode{pair} 存两个值，\InlineCode{tuple} 可存多个不同类型的值。默认比较按字典序：先比较第一项，只有相等才比较下一项。因此数对可直接排序、放入有序容器或作为堆节点。
+\subsubsection*{使用教程}
+\InlineCode{p.first/second} 访问数对，\InlineCode{get<I>(t)} 访问元组的编译期第 $I$ 项（从 0 开始）。C++17 的 \InlineCode{auto [x,y]=p} 解包到副本；需修改原对象时用引用绑定。\InlineCode{tie(x,y)} 可同时赋值，也可用于多关键字比较。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+using PII=pair<int,int>;
+PII p={3,7};
+auto [u,v]=p;
+auto &[x,y]=p;
+x+=1;
+tuple<int,int,long long> t={1,2,9};
+long long w=get<2>(t);
+tie(u,v)=make_pair(5,6);
+vector<PII> a={{2,3},{1,7},{2,1}};
+sort(a.begin(),a.end());
+\end{lstlisting}
+若只按第一项比较，会把第一项相等的数对视为同一排序键；用于 \InlineCode{set} 时可能合并本想保留的元素。需要区分时把编号等次关键字也放入比较。

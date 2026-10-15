@@ -1,0 +1,17 @@
+% Source: ACM_Templates.pdf p. 111.
+% Reference: https://gcc.gnu.org/onlinedocs/gcc/Bit-Operation-Builtins.html
+\subsection{GNU 扩展：整数位运算内建函数}
+\label{stl:builtins}
+\subsubsection*{原理}
+GCC 内建函数对一个机器整数做位计数，通常映射为硬件指令或固定字长运算。它们属于编译器扩展；C++17 中不能直接改用 C++20 的 \InlineCode{std::popcount}。
+\subsubsection*{使用教程}
+64 位数据用带 \InlineCode{ll} 的版本：\InlineCode{__builtin_popcountll(x)} 数二进制 1，\InlineCode{__builtin_clzll(x)} 数前导零，\InlineCode{__builtin_ctzll(x)} 数末尾零。后两者要求 $x\ne0$；\InlineCode{__builtin_ffsll(x)} 返回最低位 1 的位置（从 1 开始），$x=0$ 时返回 0。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+unsigned long long x=40;
+int cnt=__builtin_popcountll(x);
+int low=x?__builtin_ctzll(x):-1;
+int high=x?63-__builtin_clzll(x):-1;
+int pos=__builtin_ffsll((long long)x);
+unsigned long long mask=1ULL<<40;
+\end{lstlisting}
+普通 \InlineCode{__builtin_popcount} 接收 \InlineCode{unsigned int}，在常见评测平台只有 32 位；\InlineCode{#define int long long} 不会改变内建函数签名，传 64 位值仍可能截断。移位使用无符号常量，且移位量须小于类型位数；不要写 \InlineCode{1<<40} 或右移 64 位整数 64 位。

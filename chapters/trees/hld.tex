@@ -14,7 +14,7 @@
 \subsubsection*{使用教程}
 树剖求 LCA 的跳链原理与选型说明见第~\ref{tree:hld-lca}~节。
 
-\InlineCode{init(n)}、\InlineCode{add(u,v)}、\InlineCode{build(root)} 后，\InlineCode{fa,dep,sz,son,top,dfn,rk} 对应父亲、深度、大小、重儿子、链顶、序号与反向映射。\InlineCode{lca(u,v)} 可直接查询；\InlineCode{subtree(u)} 返回闭区间，区间中的序号通过 \InlineCode{rk} 还原为顶点。
+\InlineCode{init(n)} 指定点数，\InlineCode{add(u,v)} 加无向边（每边一次），\InlineCode{build(root)} 选根预处理（默认 1）。\InlineCode{fa,dep,sz,son,top,dfn,rk} 对应父亲、深度、大小、重儿子、链顶、序号与反向映射。\InlineCode{lca(u,v)} 返回最近公共祖先；\InlineCode{subtree(u)} 返回闭区间，区间中的序号通过 \InlineCode{rk} 还原为顶点。
 
 \InlineCode{path(u,v)} 返回按原路径 $u\to v$ 顺序排列的区间 \InlineCode{Part{l,r,rev}}。每段均有 $l\le r$；\InlineCode{rev=true} 表示按 $r,r-1,\ldots,l$ 读取，否则按 $l,l+1,\ldots,r$ 读取。对求和等可交换操作，方向可以忽略；拼接、矩阵乘、颜色段合并等必须处理方向。
 \begin{lstlisting}[style=mtycpp,numbers=none]

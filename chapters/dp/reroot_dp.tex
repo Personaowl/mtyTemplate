@@ -1,0 +1,33 @@
+% Source: User reference p. 105 reroot framework; distance-sum formula derived explicitly.
+\subsection{换根 DP：所有点的距离和}
+\label{dp:reroot-dp}
+\AlgorithmInfo
+    {求树上每个顶点到所有顶点的加权距离和。}
+    {时间、空间 $O(n)$。}
+    {非空连通树、1 下标；边权非负，所有相关距离和在 64 位范围内。}
+\subsubsection*{原理}
+
+第一次递归 DFS 求子树大小 $sz_u$ 和 $down_u$，后者为 u 到其子树各点的距离和：
+\[
+ down_u=\sum_{v\text{ 为孩子}}(down_v+sz_v w_{uv}).
+\]
+叶子的 sz 为 1、down 为 0；先处理孩子再合并，初始根的答案就是它的 down。根沿边从 u 移到孩子 v 时，v 子树中的 $sz_v$ 个点都近 $w$，其余 $n-sz_v$ 个点都远 $w$，所以
+\[
+ ans_v=ans_u+(n-2sz_v)w_{uv}.
+\]
+第二次 DFS 将根外贡献向下传递，即可在线性时间内得到所有根的答案。其他换根问题也要明确如何移除该孩子的贡献，再合并父侧贡献。
+
+\subsubsection*{使用教程}
+\InlineCode{distance_sums(e,root)} 接收加权双向邻接表，返回按 1 下标编号的距离和数组；预处理根默认 1，改变它不改变最终答案。每条无向边需要在两个端点各存一次；无权树将权值填为 1。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<vector<pair<int,long long>>> e(5);
+auto add=[&](int u,int v,long long w){
+	e[u].push_back({v,w});e[v].push_back({u,w});
+};
+add(1,2,3);add(2,3,2);add(2,4,1);
+auto ans=distance_sums(e);
+long long sum=ans[3];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/reroot_dp.cpp}

@@ -1,0 +1,38 @@
+% Source: https://cp-algorithms.com/dynamic_programming/divide-and-conquer-dp.html; independent implementation.
+\subsection{分治优化：决策单调性}
+\label{dp:divide-conquer}
+\AlgorithmInfo
+    {将序列恰好分成 K 个非空段，优化每层的断点枚举。}
+    {cost 为 O(1) 时，时间 $O(Kn\log(n+1))$，额外空间 $O(n)$。}
+    {$0\le K\le n$；cost 对所有非空段有有限值，最左最优决策单调，所有有限代价在 (-INF,INF)。}
+\subsubsection*{原理}
+
+对分层划分型 DP
+\[
+ f_{t,i}=\min_{t-1\le j<i}\{f_{t-1,j}+cost(j+1,i)\},
+\]
+初始 $f_{0,0}=0$，其他为 INF；第 t 层只计算 i≥t，前驱下标 j≥t-1 保证前面 t-1 段均非空。若同一层的最优决策 $opt_i$ 随 i 不减，则先求中点 mid，找到它的最优 j 后，左半只需考虑 j 及以前，右半只需考虑 j 及以后。递归缩小状态区间和决策区间，一层降为 $O(n\log n)$。相等时统一选择最左决策，保持约定一致。
+
+决策单调性必须证明。例如非负数组的区间和平方代价 $cost(l,r)=(S_r-S_{l-1})^2$，对 $a\le b\le c\le d$，记两段外侧的和为 $A=\sum_{i=a}^{b-1}a_i$、$B=\sum_{i=c+1}^d a_i$，则
+\[
+ cost(a,d)+cost(b,c)-cost(a,c)-cost(b,d)=2AB\ge0.
+\]
+这给出所需四边形不等式，加入只依赖断点的上一层代价后仍成立，可推出最左最优断点不减。若数组可负，A、B 可能异号，不能继续套此优化。其他代价应重新证明决策单调性，不能仅因形式相同就使用。
+
+\subsubsection*{使用教程}
+\InlineCode{divide_conquer_dp(n,K,cost)} 接收 1 下标闭区间代价函数，返回最后一层 f[0..n]；无法划分的状态为 4e18。示例先求前缀和，再用非负数组的区间和平方作为代价。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<long long> a={0,1,3,2,4},s(5);
+for(int i=1;i<=4;i++) s[i]=s[i-1]+a[i];
+auto cost=[&](int l,int r)->long long{
+	long long sum=s[r]-s[l-1];
+	return sum*sum;
+};
+auto f=divide_conquer_dp(4,2,cost);
+long long ans=f[4];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/divide_conquer.cpp}
+\subsubsection*{需要注意}
+本节依赖的是同层最优断点随右端点单调，与 Knuth 优化的两侧夹逼条件不同，不能互相替代。若 cost 不是 O(1)，还要计入它的调用代价。

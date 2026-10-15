@@ -1,18 +1,25 @@
-% Source: daily-problems/8-19/CF1253D.cpp; see docs/validation.md.
-\section{并查集}
-\label{algo:dsu}
-\AlgorithmMeta
-    {维护无向连通关系，支持集合合并、连通性判断和集合大小查询。}
-    {初始化 $O(n)$，均摊单次操作 $O(\alpha(n))$，空间 $O(n)$。}
-    {节点编号 $1\ldots n$；路径压缩与按大小合并；不支持撤销。}
-    {已进行重复初始化、边界检查与随机对拍，记录见 \InlineCode{docs/validation.md}。}
+% Source: ACM_Templates.pdf pp. 40-66. daily-problems/8-19/CF1253D.cpp; existing shared implementation.
+\subsection{并查集}
+\label{ds:dsu}
+\AlgorithmInfo
+    {维护集合合并、连通性和集合大小。}
+    {初始化 $O(n)$；合并、查询均摊 $O(\alpha(n))$；空间 $O(n)$。}
+    {元素编号 $1\ldots n$；路径压缩、按大小合并，不支持撤销。}
+\subsubsection*{原理}
+每个集合用一棵父亲树表示，根是集合代表。\InlineCode{find} 在递归返回时把路径上的点直接连到根；合并时把较小集合的根接到较大集合的根下，并累加根上的大小。
 
-\subsection*{接口与调用}
-\InlineCode{DSU dsu;dsu.init(n);} 初始化；\InlineCode{merge(x,y)} 在实际合并时返回真；\InlineCode{check(x,y)} 判断连通；\InlineCode{size(x)} 查询所在集合大小。
-
+\subsubsection*{使用教程}
+\InlineCode{init(n)} 建立 $n$ 个单点集合；\InlineCode{find(x)} 返回当前代表，\InlineCode{merge(x,y)} 合并两集合，成功合并返回真，原本同集合返回假。\InlineCode{check(x,y)} 判断是否同集合，\InlineCode{size(x)} 返回所在集合大小。重复 \InlineCode{init} 会清空合并结果。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+DSU dsu;
+dsu.init(5);
+bool joined=dsu.merge(1,2);
+dsu.merge(2,3);
+bool ok=dsu.check(1,3);
+int rt=dsu.find(2),cnt=dsu.size(1);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
 \CodeFile{code/data-structures/dsu.cpp}
-
-\begin{Pitfalls}
-    \item \InlineCode{init(n)} 可以重复调用，会重置父节点和集合大小。
-    \item \InlineCode{sz} 只在根节点处表示集合大小，请通过 \InlineCode{size(x)} 查询。
-\end{Pitfalls}
+\subsubsection*{需要注意}
+只有根的 \InlineCode{sz} 有意义，直接读其他位置不能得到集合大小。图论与树章复用本实现，无需再复制一份。

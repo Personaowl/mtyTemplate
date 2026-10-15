@@ -1,0 +1,25 @@
+% Source: Independent unit-sphere atan2 derivation from dot and cross products.
+\subsection{球面大圆距离}
+\label{geo:sphere}
+\AlgorithmInfo
+    {根据经纬度求球面两点的最短弧长。}
+    {$O(1)$。}
+    {依赖三维点；纬度在 [-π/2,π/2]，经度为弧度，球半径 R≥0。}
+\subsubsection*{原理}
+
+将经纬度转成单位球向量 $(\cos\varphi\cos\lambda,\cos\varphi\sin\lambda,\sin\varphi)$。两向量间较小夹角为 $atan2(|a\times b|,a\cdot b)$，范围 [0,π]，再乘球半径。
+
+相比直接 acos 点积，atan2 同时利用正弦与余弦，在接近同一点或对跖点时也较稳定。球面距离是弧长，不是空间弦长；经纬度以度给出时要先乘 π/180。
+
+\subsubsection*{使用教程}
+\InlineCode{great_circle_distance} 依次传入纬度 lat1、经度 lon1、纬度 lat2、经度 lon2 和球半径 R。\textbf{四个角都用弧度}，角度制先乘 $\pi/180$；纬度范围 $[-\pi/2,\pi/2]$，R 非负，经度应先整理到合理周期内以避免极大角的精度损失。
+
+返回两点的最短大圆弧长，范围 $[0,\pi R]$，单位与 R 相同；不是穿过球内的弦长，也不考虑海拔或椭球地球模型。同点、对跖点按同一公式处理，内部 unit 辅助函数将经纬度转成单位三维向量。无需初始化，以下示例用公里作为半径单位。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+ld lat1=30*GEO_PI/180,lon1=120*GEO_PI/180;
+ld lat2=40*GEO_PI/180,lon2=116*GEO_PI/180;
+ld d=great_circle_distance(lat1,lon1,lat2,lon2,6371);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/sphere.cpp}

@@ -1,0 +1,24 @@
+% Source: ACM_Templates.pdf p. 106.
+% Reference: https://en.cppreference.com/w/cpp/container/vector.html
+\subsection{vector 与 array：顺序存储}
+\label{stl:vector}
+\subsubsection*{原理}
+\InlineCode{vector<T>} 是可变长连续数组；下标访问为 $O(1)$，尾部追加均摊 $O(1)$，中间插入、删除为 $O(n)$。\InlineCode{array<T,N>} 是长度在编译期确定的连续数组，也支持迭代器与标准算法。
+\subsubsection*{使用教程}
+\InlineCode{vector<int> a(n+1,0)} 创建可访问的 $n+1$ 项；\InlineCode{resize(m)} 改变长度并保留已有前缀，\InlineCode{assign(m,x)} 则覆盖为 $m$ 个 $x$。\InlineCode{reserve(m)} 只预留容量，不增加长度，之后仍应通过追加或调整长度创建元素。
+
+\InlineCode{push_back(x)} 尾插，\InlineCode{pop_back()} 尾删且不返回值，\InlineCode{back()} 读取末项，后两者要求非空。中间操作中，\InlineCode{insert(it,x)} 在该位置前插入，\InlineCode{erase(it)} 删除该项并返回后继，区间删除用 \InlineCode{erase(first,last)}；\InlineCode{clear()} 清空元素但不保证释放容量。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+int n=3,m=2;
+vector<int> a(n+1,0);
+iota(a.begin()+1,a.end(),1);
+a.reserve(10);
+a.push_back(8);
+auto it=find(a.begin()+1,a.end(),2);
+if(it!=a.end()) a.erase(it);
+vector<vector<int>> g(n+1,vector<int>(m+1,0));
+array<int,3> cnt{};
+cnt.fill(0);
+a.assign(n+1,0);
+\end{lstlisting}
+\InlineCode{a[i]} 不做越界检查，\InlineCode{a.at(i)} 越界会抛异常。扩容会使所有旧迭代器、指针和引用失效；删除会使被删位置及其后的迭代器失效。\InlineCode{array<int,N> a;} 的整数元素未初始化，使用 \InlineCode{a{}} 或 \InlineCode{fill} 清零。\InlineCode{vector<bool>} 的元素是位代理，不能完全按普通布尔引用使用。

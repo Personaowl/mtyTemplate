@@ -1,2 +1,33 @@
 \chapter{计算几何}
-% Add \input{chapters/geometry/your-entry} after writing the first entry.
+\ChapterIntro{先选择精确谓词或实数构造，再核对坐标范围、方向与退化返回值。整数拓扑优先使用 128 位精确运算；实数计算统一为 long double，容差按物理量尺度使用。点集与循环多边形均为 0 下标，函数按需要组合，不重复维护基础点类。}
+\begin{AlgorithmGroups}
+\section{基础与精度}
+\input{chapters/geometry/precision}
+\input{chapters/geometry/integer_point}
+\input{chapters/geometry/point}
+\section{直线与线段}
+\input{chapters/geometry/segment}
+\input{chapters/geometry/line}
+\section{多边形与点集}
+\input{chapters/geometry/polygon}
+\input{chapters/geometry/polygon_real}
+\input{chapters/geometry/convex_hull}
+\input{chapters/geometry/convex_query}
+\input{chapters/geometry/calipers}
+\input{chapters/geometry/closest_pair}
+\input{chapters/geometry/minkowski}
+\section{圆与三角形}
+\input{chapters/geometry/circle}
+\input{chapters/geometry/tangents}
+\input{chapters/geometry/triangle}
+\input{chapters/geometry/enclosing_circle}
+\input{chapters/geometry/circle_polygon}
+\section{裁剪与半平面交}
+\input{chapters/geometry/polygon_cut}
+\input{chapters/geometry/halfplane}
+\section{三维基础}
+\input{chapters/geometry/point3}
+\input{chapters/geometry/space}
+\input{chapters/geometry/volume}
+\input{chapters/geometry/sphere}
+\end{AlgorithmGroups}

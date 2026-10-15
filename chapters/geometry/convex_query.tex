@@ -1,0 +1,25 @@
+% Source: Independent fan binary search; KACTL PointInsideHull.h cross-check.
+\subsection{凸多边形内点查询}
+\label{geo:convex-query}
+\AlgorithmInfo
+    {严格凸包上多次判断点在内、边界或外部。}
+    {每次 $O(\log n)$，额外空间 $O(1)$。}
+    {依赖整数点、线段；逆时针严格凸包，建议直接用 Andrew 输出。}
+\subsubsection*{原理}
+
+以首点为扇形中心，先判断查询点是否在第一条和最后一条射线夹成的角域内。射线上要单独检查是否落在边段上，不能把射线延长线误判成边界。
+
+其余点对首点的角度严格递增，二分找到夹住 q 的相邻顶点，再判断 q 在该凸包边的左侧、线上还是右侧。扇形内部的分割射线不是多边形边界，所以只用最后一条真实边决定内部／边界。
+
+\subsubsection*{使用教程}
+先用 \InlineCode{convex_hull} 得到严格逆时针凸包，再多次调用 \InlineCode{point_in_convex(h,q)}；每次查询 $O(\log n)$，函数不建索引、不修改 h。直接读入的凸多边形须先满足逆时针、无重复首点、无边上中间共线点的契约，不能原样传入任意顺序点集。
+
+返回 -1 在外、0 在边界、1 严格在内；包含边界判断用 \InlineCode{where>=0}，严格包含用 \InlineCode{where==1}，不能直接转 bool。空凸包判外，单点与两端点线段也已处理，无需为每种大小分开调用。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+auto h=convex_hull(vector<IPoint>{{0,0},{4,0},{4,3},{0,3}});
+int where=point_in_convex(h,IPoint{1,2});
+bool covered=where>=0,strict=where==1;
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/convex_query.cpp}

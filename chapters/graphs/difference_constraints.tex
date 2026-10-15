@@ -8,14 +8,14 @@
     {约束常数为整数，绝对值小于 $4\times10^{18}$；可行势值绝对值也须小于该界。}
 
 \subsubsection*{原理与连边方向}
-把不等式改写为 $x_u\leq x_v+w$，恰好对应最短路的三角不等式，所以从 $v$ 向 $u$ 连权为 $w$ 的边。所有点从超级源可达时，若图有负环，把环上的不等式相加会得到 $0<0$ 的矛盾；没有负环时，最短距离本身就是一组满足所有约束的赋值。
+把不等式改写为 $x_u\leq x_v+w$，恰好对应最短路的三角不等式，所以从 $v$ 向 $u$ 连权为 $w$ 的边。所有点从超级源可达时，若图有负环，把环上的不等式相加会得到 $0\leq\sum w<0$ 的矛盾；没有负环时，最短距离本身就是一组满足所有约束的赋值。
 
 本模板将所有初始距离设为 $0$，等价于补上超级源的零权边，确保不漏掉不连通部分的矛盾。只从某一个变量出发检查负环是不够的。
 
 常见变形：$x_u-x_v\geq w$ 改写为 $x_v-x_u\leq-w$；等式拆成两个方向的不等式。整数变量的严格小于 $x_u-x_v<w$ 可转为 $\leq w-1$，实数变量不能直接减一。
 
 \subsubsection*{使用教程}
-先复制 SPFA。\InlineCode{le(u,v,w)} 表示 $x_u-x_v\leq w$；\InlineCode{ge} 表示大于等于，\InlineCode{eq} 表示等于。\InlineCode{solve()} 返回真后读取 \InlineCode{val[u]}，为假表示约束矛盾。加约束后可重新求解，多测调用 \InlineCode{init(n)}。
+先复制 SPFA。\InlineCode{init(n)} 指定变量数；\InlineCode{le(u,v,w)} 加入 $x_u-x_v\le w$，\InlineCode{ge(u,v,w)}、\InlineCode{eq(u,v,w)} 对应大于等于、等于。\InlineCode{solve()} 返回真后，\InlineCode{val[u]} 是一组可行解；返回假则约束矛盾，不能读取解。追加约束可再求解，新一组数据重新初始化。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 DifferenceConstraints dc;
 dc.init(3);

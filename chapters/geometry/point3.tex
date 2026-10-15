@@ -1,0 +1,30 @@
+% Source: Independent vector algebra; CP-Algorithms basic-geometry and KACTL Point3D.h.
+\subsection{三维点积、叉积与混合积}
+\label{geo:point3}
+\AlgorithmInfo
+    {三维向量、法向量及有向体积的基础运算。}
+    {$O(1)$。}
+    {依赖实数基础的 ld 和精度常量。}
+\subsubsection*{原理}
+
+三维点积仍是各坐标乘积之和。叉积是同时垂直于两个向量的法向量，方向遵循右手法则，长度是平行四边形面积。
+\[
+ a\times b=(a_yb_z-a_zb_y,\ a_zb_x-a_xb_z,\ a_xb_y-a_yb_x).
+\]
+混合积 $a\cdot(b\times c)$ 是有向平行六面体体积，绝对值为 0 表示三向量共面；对实数而言仍需结合尺度判断近共面。叉积在三维返回向量，不能像二维一样直接比较正负。
+
+\subsubsection*{使用教程}
+\InlineCode{Point3{x,y,z}} 表示三维点或向量，支持加、减、乘实数和除非零实数；位移仍用两点相减。\InlineCode{dot(a,b)} 为点积，\InlineCode{cross(a,b)} 为右手方向的叉积向量，\InlineCode{length(v)} 为长度；两点距离写为 \InlineCode{length(a-b)}，长度平方写为 \InlineCode{dot(v,v)}。
+
+\InlineCode{triple(a,b,c)} 返回 $a\cdot(b\times c)$，即有向平行六面体体积，交换两向量会变号。以点 a、b、c 定三角形时，法向量为 $(b-a)\times(c-a)$，面积为它的长度除以 2；单位化前须检查法向量非零。三维函数与二维函数按点类型重载，无需 init，混合积是否近零的判定仍须结合尺度，不能直接套长度 EPS。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Point3 a{1,0,0},b{0,2,0},c{0,0,3};
+Point3 normal=cross(b-a,c-a);
+if(length(normal)>0){Point3 unit=normal/length(normal);}
+ld triangle_area=length(normal)/2;
+ld d=length(a-b),squared=dot(a-b,a-b);
+ld volume6=triple(a,b,c);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/point3.cpp}

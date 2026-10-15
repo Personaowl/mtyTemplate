@@ -1,0 +1,86 @@
+% References: https://dlmf.nist.gov/27.5 ; linear-sieve recurrence derived from definition.
+% Review and validation: docs/validation.md.
+\subsection{莫比乌斯函数与反演}
+\label{algo:mobius}
+\AlgorithmInfo
+    {把因子求和关系反解，或将 gcd 条件转成可分离的整除计数。}
+    {筛表 $O(N)$；整表因子反演 $O(N\log N)$；互质计数分块 $O(\sqrt n+\sqrt m)$。}
+    {正整数上定义 $\mu$；复用第~\ref{algo:sieve}~节的 \InlineCode{Sieve}，计数结果为有符号 128 位。}
+
+\subsubsection*{定义与关键恒等式}
+莫比乌斯函数定义为
+\[
+    \mu(n)=\begin{cases}
+        1,&n=1,\\
+        0,&n\text{ 含某个素数的平方因子},\\
+        (-1)^r,&n\text{ 是 }r\text{ 个不同素数的乘积}.
+    \end{cases}
+\]
+例如 $\mu(6)=1$、$\mu(12)=0$、$\mu(30)=-1$。它是积性函数，即 $\gcd(a,b)=1$ 时 $\mu(ab)=\mu(a)\mu(b)$。最常用的恒等式为
+\[
+    \sum_{d\mid n}\mu(d)=[n=1].
+\]
+证明：只有不含平方因子的约数有贡献。若 $n>1$ 含 $r$ 种不同素因子，选其中任意子集组成约数，求和等于 $(1-1)^r=0$；$n=1$ 时只有约数 1。
+
+\subsubsection*{线性筛递推}
+令 $p$ 为线性筛当前枚举的素数。若 $p\mid i$，则 $ip$ 含 $p^2$，所以 $\mu(ip)=0$，并按线性筛规则停止；否则多了一个不同素因子，有 $\mu(ip)=-\mu(i)$。初始化 $\mu(1)=1$，素数的函数值为 $-1$。现有 \InlineCode{Sieve} 同时生成 \InlineCode{mu} 和前缀和 \InlineCode{pre_mu}，不需要另复制一套筛。
+
+\subsubsection*{因子形式的反演}
+若
+\[
+    F(n)=\sum_{d\mid n}f(d),
+    \qquad\text{则}\qquad
+    f(n)=\sum_{d\mid n}\mu(d)F(n/d).
+\]
+将右侧的 $F$ 展开，对每个 $f(t)$ 合并系数，可得
+\[
+    \sum_{d\mid n}\mu(d)\sum_{t\mid n/d}f(t)
+    =\sum_{t\mid n}f(t)\sum_{d\mid n/t}\mu(d)=f(n).
+\]
+也就是说，函数值是按约数累加得到时，用 $\mu$ 把多算的部分抵消。模板枚举 $d$ 与 $i$，向位置 $di$ 累加 $\mu(d)F(i)$。
+
+类似地，有限范围 $1\ldots N$ 上若 $F(n)=\sum_{k\leq N/n}f(kn)$，则
+\[
+    f(n)=\sum_{k\leq N/n}\mu(k)F(kn).
+\]
+此处是\textbf{倍数求和}，不要与因子形式混用；附带的 \InlineCode{mobius_invert} 只实现前一种因子形式。
+
+\subsubsection*{应用：互质与指定 gcd 的数对}
+计数有序正整数对 $1\leq i\leq n,1\leq j\leq m$。利用
+\[
+    [\gcd(i,j)=1]=\sum_{d\mid i,\ d\mid j}\mu(d),
+\]
+交换求和顺序，得到
+\[
+    C(n,m)=\sum_{d=1}^{\min(n,m)}\mu(d)
+    \left\lfloor\frac nd\right\rfloor\left\lfloor\frac md\right\rfloor.
+\]
+给定 $k\geq1$，$\gcd(i,j)=k$ 的答案为 $C(\lfloor n/k\rfloor,\lfloor m/k\rfloor)$，因为同时除以 $k$ 后恰好互质。这里不包含零，也不是无序对或 $i<j$ 的计数。
+
+按第~\ref{algo:division-blocks}~节，同时保持两个整除商不变：从 $l$ 出发，右端点为
+\[
+    r=\min\left(\left\lfloor\frac{n}{\lfloor n/l\rfloor}\right\rfloor,
+                \left\lfloor\frac{m}{\lfloor m/l\rfloor}\right\rfloor\right).
+\]
+这一段的贡献为 $(M(r)-M(l-1))\lfloor n/l\rfloor\lfloor m/l\rfloor$，其中 $M$ 是 $\mu$ 的前缀和。筛表空间 $O(N)$，整表反演另用 $O(N)$，计数函数额外空间 $O(1)$。
+
+\subsubsection*{使用教程}
+先复制 \InlineCode{Sieve} 并 \InlineCode{sv.init(N)}，再复制下方函数。\InlineCode{sv.mu[x]} 读取函数值，\InlineCode{sv.pre_mu[x]} 读取 $1\ldots x$ 的和。
+
+\InlineCode{mobius_invert(F,sv)} 接收 $F[0]$ 占位、$F[1..L]$ 有效的非空数组，要求 $L\leq N$；返回同样 1 下标的 128 位数组 $f$，$F$ 的元素为 \InlineCode{long long}，可为负数。\InlineCode{coprime_pairs(n,m,sv)} 返回互质有序对数，$n,m\geq0$；筛表须覆盖 $\min(n,m)$。\InlineCode{gcd_pairs(n,m,k,sv)} 返回 gcd 恰为 $k$ 的有序对数，$k\geq1$，筛到 $\min(\lfloor n/k\rfloor,\lfloor m/k\rfloor)$ 即可。任一计数维度为零时返回零，调用均不修改筛表。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Sieve sv;
+sv.init(100);
+int mu=sv.mu[30];
+long long prefix=sv.pre_mu[50];
+vector<long long> F{0,1,3,4,7,6};
+auto f=mobius_invert(F,sv);
+__int128 a=coprime_pairs(12,18,sv);
+__int128 b=gcd_pairs(12,18,3,sv);
+\end{lstlisting}
+
+输出可用第~\ref{stl:int128}~节的 \InlineCode{str128}，不要直接缩窄为 64 位。分块只减少求和次数，\textbf{仍需预处理到上述筛表上界}，不能只筛到根号；本模板不处理无法存下该表的超大上界。
+
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/number-theory/mobius.cpp}

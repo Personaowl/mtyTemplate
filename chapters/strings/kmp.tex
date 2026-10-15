@@ -13,7 +13,7 @@
 匹配时，$j$ 表示已经匹配的模式串长度。若下一个字符失配，就令 $j=\pi_j$，保留已经确定相同的部分，而不让文本指针回退。完整匹配后同样回退到 $\pi_m$，因此不会漏掉重叠出现。
 
 \subsubsection*{使用教程}
-\InlineCode{kmp(s,t)} 无需预处理，直接返回模式串在文本中的所有匹配起点。
+\InlineCode{kmp(s,t)} 中 $s$ 为文本、$t$ 为模式串，无需预处理；返回按升序排列的全部匹配起点，位置从 1 开始，无匹配时返回空数组。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 string s="ababa",t="aba";
 auto pos=kmp(s,t);

@@ -1,0 +1,21 @@
+% Source: ACM_Templates.pdf p. 106.
+% Reference: https://en.cppreference.com/w/cpp/algorithm/lower_bound.html
+\subsection{lower\_bound 与 upper\_bound}
+\label{stl:binary-search}
+\subsubsection*{原理}
+二分利用满足条件与不满足条件的分界，默认在升序区间中查找。\InlineCode{lower_bound} 返回首个 $\ge x$ 的位置，\InlineCode{upper_bound} 返回首个 $>x$ 的位置；没有这样的元素时返回区间尾。随机访问区间上的时间为 $O(\log n)$。
+\subsubsection*{使用教程}
+两函数传入 \InlineCode{first,last,x}，返回迭代器；将返回位置相减可统计值 $x$ 的出现次数。查询前排序，并保持比较规则一致。\InlineCode{equal_range} 一次返回这两个边界，\InlineCode{binary_search} 只返回是否存在。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<int> a={0,1,2,2,5};
+auto first=a.begin()+1,last=a.end();
+auto l=lower_bound(first,last,2);
+auto r=upper_bound(first,last,2);
+int cnt=r-l;
+int pos=l-a.begin();
+bool found=l!=last&&*l==2;
+int L=2,R=4;
+int inside=upper_bound(first,last,R)-lower_bound(first,last,L);
+auto [lo,hi]=equal_range(first,last,2);
+\end{lstlisting}
+\InlineCode{inside} 统计 $[L,R]$ 内元素个数，要求 $L\le R$。降序时传 \InlineCode{greater<int>()}：此时下边界是首个 $\le x$，上边界是首个 $<x$，不能沿用升序解释。对 \InlineCode{set/map} 使用其成员二分，避免通用算法逐步移动树迭代器。

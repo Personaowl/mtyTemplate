@@ -15,7 +15,7 @@
 
 单哈希只存一组前缀与幂，写法较短；双哈希同时维护两组参数，比较时要求两个结果均相同，以降低碰撞风险。
 \subsubsection*{使用教程}
-先调用 \InlineCode{init(s)}，再用 \InlineCode{query(l,r)} 获取区间哈希，或用 \InlineCode{same(l1,r1,l2,r2)} 比较同一字符串内的两个子串。
+\InlineCode{init(s)} 建立前缀；\InlineCode{query(l,r)} 返回闭区间的单个哈希值，\InlineCode{same(l1,r1,l2,r2)} 返回同一字符串内两个子串是否等长且哈希相同。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 SingleHash ha;
 ha.init("ababa");

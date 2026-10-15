@@ -1,0 +1,20 @@
+% References: https://en.cppreference.com/w/cpp/algorithm/accumulate.html
+% https://en.cppreference.com/w/cpp/numeric/gcd.html
+\subsection{初始化、累加与常用数值函数}
+\label{stl:numeric}
+\subsubsection*{原理}
+\InlineCode{fill} 统一赋值，\InlineCode{iota} 从给定初值依次递增赋值；\InlineCode{accumulate} 按顺序累加，\InlineCode{partial_sum} 写出各位置的前缀和，这些均遍历区间一次，时间 $O(n)$。
+\subsubsection*{使用教程}
+\InlineCode{accumulate(first,last,init)} 的累加类型由 \InlineCode{init} 决定，求 64 位和时传 \InlineCode{0LL}。\InlineCode{partial_sum} 的中间类型跟随输入元素类型，仅将输出数组设成 64 位并不能避免中间溢出；需先让输入为 64 位。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+int n=4;
+vector<int> id(n+1);
+iota(id.begin()+1,id.end(),1);
+vector<long long> a={0,3,5,2,7},pre(n+1,0);
+long long sum=accumulate(a.begin()+1,a.end(),0LL);
+partial_sum(a.begin()+1,a.end(),pre.begin()+1);
+fill(id.begin(),id.end(),0);
+long long g=gcd(18LL,30LL);
+long long l=lcm(18LL,30LL);
+\end{lstlisting}
+C++17 的 \InlineCode{gcd}、\InlineCode{lcm} 在 \InlineCode{<numeric>} 中，通常写同类型参数。\InlineCode{gcd(0,0)} 为 0；非负输入最省心，绝对值及最小公倍数须能由对应类型表示。大数乘法应在乘之前转宽，如 \InlineCode{1LL*x*y} 或 \InlineCode{(__int128)x*y}。

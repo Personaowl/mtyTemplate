@@ -69,7 +69,7 @@ $C_n$ 可计数 $n$ 对合法括号、长度 $2n$ 且不跌到横轴下方的括
 按第一或第三式取模时，需要 $n+1$ 可逆。组合数之差不涉及该除法，但每个组合数本身仍需选用适合模数的算法；不能在阶乘已被模数整除时直接求逆。
 
 \subsubsection*{使用教程}
-先复制快速幂。\InlineCode{Comb::init(N,p)} 预处理到 $N$，之后 \InlineCode{C(n,k)} 查询，合法的 $n$ 不得超过 $N$；越界的 $k$ 返回 $0$。修改模数时重新初始化。
+先复制快速幂。\InlineCode{init(N,p)} 指定最大查询上界 $N$ 与素数模数 $p$，要求 $N<p$；之后 \InlineCode{C(n,k)} 返回 $\binom nk\bmod p$，非负 $n$ 不得超过 $N$，非法 $k$ 返回 0。相同上界和模数可反复查询，改变它们时重新初始化。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Comb cb;
 cb.init(100,998244353);

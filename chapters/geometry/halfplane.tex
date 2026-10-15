@@ -1,0 +1,35 @@
+% Source: Independent unit-direction deque implementation; https://cp-algorithms.com/geometry/halfplane-intersection.html algorithm/parallel cases cross-check.
+\subsection{半平面交：排序与双端队列}
+\label{geo:halfplane}
+\AlgorithmInfo
+    {求多条闭左半平面与给定边界框相交后的正面积凸区域。}
+    {$O(n\log n)$ 时间、$O(n)$ 空间。}
+    {依赖实数点／直线／多边形／裁剪；B>0，返回区域限制在 [-B,B]²。}
+\subsubsection*{原理}
+
+按有向边界的极角排序，用双端队列保存仍可能成为边界的直线。加入新半平面时，若队尾两线交点被排除，则末尾直线失效并弹出；队首同理。相同方向只保留更靠左、限制更紧的半平面；相反平行线相邻出现时不能继续按唯一交点处理。最后再检查首尾约束，计算循环相邻直线交点。
+
+显式加入边界框使处理对象有界，也让相反平行且可形成二维条带的约束之间有框边参与。\textbf{B 不是随手设置的 INF}：本函数始终求原区域与框的交；若题目原交集本来有界，B 必须容纳全部相关交点，而非只大于输入点坐标。若原区域无界，结果是截断后的区域，不是原区域面积。
+
+本接口只返回正面积区域；点、线段、空集以及尺度接近容差的薄区域均返回空。面积退化阈值使用 GEO\_EPS 乘周长，使单位一致。需要区分“可行但零面积”时，不能把非空判定交给此函数；小规模可从已知边界框逐次 cut\_polygon，保留点／线段结果。
+
+\subsubsection*{使用教程}
+每个 \InlineCode{Line(a,b)} 表示保留有向边 a 到 b 的左侧及边界，a、b 必须不同；顶点按逆时针给出的凸多边形，可把每条边直接加入约束。对于不等式 $ax+by+c\ge0$（a、b 不同时为 0），可取边界上一点 $p=(-c/a,0)$（$a\ne0$）或 $(0,-c/b)$，再以方向 $(b,-a)$ 构造 Line，左侧恰是满足不等式的一侧。
+
+\InlineCode{halfplane_intersection(lines,B)} 按值接收约束，B 必须为有限正数，返回与 $[-B,B]^2$ 再取交后的\textbf{正面积区域}。B 应按题目几何范围选择，不能直接塞整数 INF；若原答案越出方框，返回的是被截断的区域，不能据此求原无界区域面积。没有约束时返回该方框。
+
+返回 vector 是逆时针边界，可用实数 \InlineCode{polygon_area2} 取绝对值再除以 2。空返回涵盖无交、交成点／线段及面积低于数值阈值的极薄区域，\textbf{不能用作任意线性约束可行性或无界性判断}。若必须保留有界点／线段结果，可从合适方框开始反复调用上一节裁剪。无额外初始化，不修改原约束；局部角度、判外、求交辅助函数在代码内标注，调用者只使用主接口。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<Line> lines;
+lines.emplace_back(Point{0,0},Point{3,0});
+lines.emplace_back(Point{3,0},Point{3,2});
+lines.emplace_back(Point{3,2},Point{0,2});
+lines.emplace_back(Point{0,2},Point{0,0});
+auto p=halfplane_intersection(lines,10);
+ld area=fabsl(polygon_area2(p))/2;
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/halfplane.cpp}
+\subsubsection*{需要注意}
+极角排序直接比较 atan2 值，不用 EPS 排序。近平行但不平行的边可能在很远处相交；方向夹角低于数值阈值时按平行处理，需结合数据尺度核对条件，不能通过无限增大 B 解决精度问题。

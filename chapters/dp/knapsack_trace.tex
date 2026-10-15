@@ -1,0 +1,27 @@
+% Source: User reference pp. 98-102; framework: https://github.com/tianyicui/pack (V2.lyx).
+\subsection{0/1 背包的方案还原}
+\label{dp:knapsack-trace}
+\AlgorithmInfo
+    {返回不超过容量的最优价值和一组所选物品编号。}
+    {时间、空间均为 $O(nV)$。}
+    {费用、价值数组长度相同且按 1 下标；$w_i\ge1$，价值范围同背包。}
+\subsubsection*{原理}
+
+保留二维状态 $f_{i,j}$：前 $i$ 件物品、容量不超过 $j$ 的最优值。边界 $f_{0,j}=0$，取或不取的转移为
+\[
+ f_{i,j}=\max(f_{i-1,j},f_{i-1,j-w_i}+v_i),
+\]
+第二项仅在 $j\ge w_i$ 时考虑。先物品、后容量计算，答案是 $f_{n,V}$，转移只来自上一物品层。倒推时，如果 $f_{i,j}>f_{i-1,j}$，说明本模板选择了第 $i$ 件，记录编号并令 $j\gets j-w_i$；否则跳过它。相等时固定不选当前物品，从而得到一个合法最优方案。
+
+不能简单给一维滚动数组保存“当前前驱容量”，因为那个前驱后来也会被覆盖，倒推时可能重复选同一件物品。本节保留完整的物品层来避免这个问题。
+
+\subsubsection*{使用教程}
+\InlineCode{knapsack_trace(w,v,V)} 返回 \InlineCode{pair<long long,vector<int>>}：第一项是最优值，第二项是升序物品编号。空集可选，相等时不选当前物品；不保证特定字典序。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<int> w={0,2,3,4};
+vector<long long> v={0,4,5,7};
+auto [value,chosen]=knapsack_trace(w,v,6);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/knapsack_trace.cpp}

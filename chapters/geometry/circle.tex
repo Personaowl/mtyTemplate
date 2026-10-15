@@ -1,0 +1,38 @@
+% Source: Independent classification/area formulas; KACTL CircleIntersection.h (Simon Lindholm, CC0).
+\subsection{圆与直线、圆与圆的交点及交面积}
+\label{geo:circle}
+\AlgorithmInfo
+    {求交点数量、坐标，以及两个圆盘的交面积。}
+    {$O(1)$。}
+    {依赖实数点与直线；Circle 的 o 为圆心，r≥0。}
+\subsubsection*{原理}
+
+圆与直线：先将圆心投影到直线，距离 d 大于半径时不交，相等时相切；否则沿单位方向左右移动 $\sqrt{r^2-d^2}$ 得到两交点。
+
+两圆先按圆心距 d 与 $r_1+r_2$、$|r_1-r_2|$ 分类，分别处理相离、相切、两点交、内含与重合。非同心时，将公共弦中点写成 $o_1+xv$，其中 v 为两圆心连线的单位向量，
+\[
+ x=\frac{d^2+r_1^2-r_2^2}{2d},\qquad h=\sqrt{r_1^2-x^2}.
+\]
+交点沿垂直方向偏移 ±h。零半径视为点，先处理；正半径同心等半径圆有无限交点。容差内按相切分类时直接沿单位圆心方向构造圆周点，避免在圆心很近、半径较大时放大交点公式的误差。
+
+圆盘交面积先处理相离与包含；两点交时为两扇形减三角形，使用 $atan2(h,x)$ 和 $atan2(h,d-x)$ 保留钝角，面积为 $r_1^2atan2(h,x)+r_2^2atan2(h,d-x)-dh$。面积函数按实际连续公式计算，不把一条 EPS 宽的小月牙直接当成零面积。
+
+\subsubsection*{使用教程}
+\InlineCode{Circle{Point{x,y},r}} 表示圆心和半径，普通几何运算要求 $r\ge0$，允许点圆；$r<0$ 仅是空覆盖圆的无效标记，不可直接交给本节运算。
+
+\InlineCode{circle_line(c,l)} 求圆周与\textbf{无限直线}的交点，返回 vector：大小为 0、1、2，分别是无交、相切、两交点；不保证交点在线段端点之间。点圆只有在线上才给一个点。
+
+\InlineCode{circle_intersection(a,b)} 返回 cnt 和交点数组 p：cnt=-1 为正半径圆重合、无限交点，此时 p 为空；cnt=0/1/2 为对应有限交点数，只有大于 0 时才取 p 中元素。同位置的两个点圆返回一个点。近相切／重合按本章容差分类，不依赖交点排列顺序。
+
+\InlineCode{circle_overlap(a,b)} 返回两个闭圆盘公共面积，为非负 ld；相离／外切为 0，包含时是较小圆盘面积。不要将圆周交点为空理解成圆盘交面积为 0。所有调用相互独立，不修改两圆或直线。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Circle a{Point{0,0},2},b{Point{3,0},2};
+auto hit=circle_intersection(a,b);
+if(hit.cnt>0){Point p=hit.p[0];}
+bool coincident=hit.cnt==-1;
+auto points=circle_line(a,Line(Point{-3,1},Point{3,1}));
+ld area=circle_overlap(a,b);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/circle.cpp}

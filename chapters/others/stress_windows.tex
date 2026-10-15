@@ -1,0 +1,12 @@
+% Source: Contest workflow independently written; GNU Bash/coreutils or Microsoft CMD documentation.
+\subsection{Windows 对拍脚本}
+\label{other:stress-windows}
+\subsubsection*{使用教程}
+将脚本和 gen.cpp、brute.cpp、main.cpp 放到同一目录，确保 g++ 已加入 PATH。在 CMD 中运行 \InlineCode{stress.bat 1000}；PowerShell 中用 \InlineCode{.\stress.bat 1000}。参数必须是正整数，省略时为 1000 轮。自动编译，按编号传种子，错误输入和输出文件名与 Linux 版相同。
+
+使用 \InlineCode{fc.exe /b} 按字节比较；退出码 0 为相同、1 为不同、2 为比较错误。脚本分别处理比较失败和输出不一致，并检查三个程序的退出状态；编译或运行失败退出 2。\textbf{该简洁批处理不设单轮超时}，死循环时用 Ctrl+C 中断，再查看保留的 stress.in 与 stress.seed；需要自动限时时可在 WSL／Ubuntu 使用上一节脚本。
+
+这是普通输出一致性检查，空白、多解和浮点容差仍需按题目另配判定器。三个 err 文件与 stress.diff 用于定位问题；第一次不一致时即保留现场退出。
+\needspace{7\baselineskip}
+\subsubsection*{脚本代码}
+\lstinputlisting[style=mtycpp,language=]{contest/stress.bat}

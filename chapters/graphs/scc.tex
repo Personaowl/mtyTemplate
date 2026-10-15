@@ -12,7 +12,7 @@
 
 搜索树边 $u\to v$ 完成后，用 $low_v$ 更新 $low_u$；遇到已发现且仍在点栈内的 $v$，用 $dfn_v$ 更新。已经分配到某个 SCC 的点不能再用来降低当前 $low$。若 $low_u=dfn_u$，从点栈弹到 $u$ 为止，这些点恰好形成一个 SCC。
 
-模板采用递归 DFS，在子节点搜索完成后回代 $low$。\InlineCode{stk} 是 Tarjan 维护未归属分量顶点的算法栈，用于在发现 SCC 根时整段弹出，不用于模拟 DFS 调用；递归深度最坏为 $O(n)$。
+模板使用递归 DFS，最坏深度 $O(n)$；\InlineCode{stk} 只保存尚未归属分量的顶点。
 
 \subsubsection*{缩点与 DAG 上的计算}
 将分量内部的边忽略，其余边按分量编号连接，得到有向无环图；若缩点图仍有环，环上各点本应属于同一个 SCC，矛盾。模板按弹栈顺序编号，因此跨分量边满足
@@ -23,10 +23,10 @@
 
 一般 DAG 的拓扑排序、路径计数和最短 / 最长路模板见第~\ref{algo:dag-dp}~节。
 
-例如在每个分量内能收集所有点权时，先求分量点权和 $w$。若路径可从任意分量开始，初始化 $dp_u=w_u$，再按拓扑序转移 $dp_v\gets\max(dp_v,dp_u+w_v)$。这样也支持负点权，不能把 $dp=0$ 当成未访问标记。若限定起点，则其余状态初始化为负无穷。
+若题意允许收集分量内全部点权，可先求分量权和，再按第~\ref{algo:dag-dp}~节做点权 DP；起点限制和负权初始化沿用该节约定。
 
 \subsubsection*{使用教程}
-\InlineCode{init(n)} 后逐条 \InlineCode{add(u,v)}；\InlineCode{build()} 返回分量个数，\InlineCode{bel[u]} 是所属分量，\InlineCode{sz[c]} 是分量大小。构建后可调用 \InlineCode{dag()}，新增边后需重新构建。
+\InlineCode{init(n)} 后用 \InlineCode{add(u,v)} 加有向边。\InlineCode{build()} 返回分量数，\InlineCode{bel[u]} 是 $1\ldots cnt$ 内的分量编号，\InlineCode{sz[c]} 是分量大小；\InlineCode{dag()} 返回以分量编号为点的邻接表，保留平行边。新增边后重新构建即可，原图保留。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 SCC g;
 g.init(4);

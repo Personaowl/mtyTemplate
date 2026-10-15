@@ -1,0 +1,16 @@
+% Source: ACM_Templates.pdf, pp.122-123. Rebuilt as seed-driven small-data generator.
+\subsection{随机数据生成器}
+\label{other:generator}
+\AlgorithmInfo
+    {给对拍提供可复现的小数据，并提供随机树／图辅助函数。}
+    {数组／树 $O(n)$；简单连通图 $O(n^2\log n)$ 上界、$O(n^2)$ 空间。}
+    {独立 C++17 程序；随机区间含两端，图点号从 1 开始。}
+\subsubsection*{原理}
+每轮把编号作为随机种子传给生成器，出现错误时可用同一个种子复现。mt19937\_64 负责伪随机序列，均匀整数分布代替取模。生成树时每个 i 连接到 $[1,i-1]$ 的一个点，保证连通且无环；这种方法\textbf{不是所有标号树的均匀采样}。简单连通图先生成树，再从剩余无向边中打乱补边，避免重边和死循环。
+\subsubsection*{使用教程}
+把源码复制成 gen.cpp，命令行传入一个非负整数种子；省略时按时钟取种子。main 默认输出 T=1、n 和一行小整数数组，按题目格式修改。\InlineCode{RandomData::rnd(l,r)} 两端都含；tree(n) 返回 n-1 条边，graph(n,m) 返回连通简单无向边表，要求 $n\ge1$ 且 $n-1\le m\le n(n-1)/2$，仅用于小数据；若改生成带权图，再逐边生成权值。
+
+随机覆盖之外主动构造单点、空选择、链、星形、全相等、边界值等数据；对拍的参考程序也要独立实现。重放种子需使用相同生成器与标准库环境，标准库分布／shuffle 不保证跨实现产生相同输出，最终以保留下来的输入文件为准。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/others/generator.cpp}

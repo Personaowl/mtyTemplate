@@ -21,7 +21,7 @@
 强制 $A$ 为真可加入 $A\lor A$；$A\Rightarrow B$ 对应 $\neg A\lor B$，需要同时加入其逆否命题的边。$A=B$ 加入 $A\Rightarrow B$ 与 $B\Rightarrow A$；$A\ne B$ 加入 $A\lor B$ 和 $\neg A\lor\neg B$。三个文字任意组成的析取不能直接当作普通 2-SAT 子句。
 
 \subsubsection*{使用教程}
-先复制 SCC 模板。\InlineCode{either(x,a,y,b)} 表示 $(x_x=a)\lor(x_y=b)$；\InlineCode{imply(x,a,y,b)} 表示前者成立则后者必须成立，内部会补齐逆否边；\InlineCode{force(x,a)} 强制值。\InlineCode{solve()} 返回真后读 \InlineCode{ans[i]}，为假则无解。
+先复制 SCC。\InlineCode{init(n)} 指定布尔变量数；\InlineCode{either(x,a,y,b)} 加入 $(x_x=a)\lor(x_y=b)$，\InlineCode{imply(x,a,y,b)} 加入对应蕴含（含逆否边），\InlineCode{force(x,a)} 强制取值，$a,b$ 传 0 或 1。\InlineCode{solve()} 返回真后 \InlineCode{ans[i]} 是一组赋值；假表示无解并清空答案。追加约束可重新求解，新数据重新初始化。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 TwoSAT sat;
 sat.init(3);

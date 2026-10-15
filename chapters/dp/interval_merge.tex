@@ -1,0 +1,30 @@
+% Source: Independent interval DP derivation.
+\subsection{区间 DP：线性与环形石子合并}
+\label{dp:interval-merge}
+\AlgorithmInfo
+    {相邻石子合并的最小代价，可选环形。}
+    {时间 $O(n^3)$，空间 $O(n^2)$。}
+    {非空 1 下标非负数组；前缀和及所有代价严格小于 $4\times10^{18}$。}
+\subsubsection*{原理}
+
+令 $f_{l,r}$ 为把连续区间 $[l,r]$ 合并成一堆的最小代价。最后一次合并将它分为相邻两部分，因此
+\[
+ f_{l,r}=\min_{l\le k<r}(f_{l,k}+f_{k+1,r})+\sum_{i=l}^r a_i,
+ \qquad f_{i,i}=0.
+\]
+按区间长度从小到大枚举，保证两个更短区间已经求出。区间和用前缀和 $O(1)$ 取得。
+
+环形问题将数组复制一遍，仍只计算长度不超过 $n$ 的区间，答案为 $\min_{1\le l\le n}f_{l,l+n-1}$，对应不同断环位置。
+
+\subsubsection*{使用教程}
+\InlineCode{merge_stones(a)} 求线性答案；\InlineCode{merge_stones(a,true)} 求环形答案。函数内部创建状态，多次调用独立。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<long long> a={0,4,2,7,3};
+long long line=merge_stones(a);
+long long ring=merge_stones(a,true);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/interval_merge.cpp}
+\subsubsection*{需要注意}
+只能合并相邻区间，不能直接用每次取最小两堆的堆式贪心。长度为 1 时没有合并代价；环形扩展后也不应把长度为 2n 的区间当作答案。

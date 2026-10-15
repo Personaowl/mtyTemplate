@@ -7,7 +7,7 @@
 \subsubsection*{Kruskal 原理与使用教程}
 按边权从小到大枚举，用并查集判断两个端点是否属于不同连通块；只有连接不同块时才选择该边。选中 $n-1$ 条才得到生成树，否则当前结果只是最小生成森林。时间 $O(m\log(m+2))$，空间 $O(n+m)$。
 
-先复制 \InlineCode{code/data-structures/dsu.cpp}。\InlineCode{add(u,v,w)} 每条无向边只加一次，返回从 $0$ 开始的边编号；\InlineCode{run()} 返回是否连通，\InlineCode{cost} 为总权，\InlineCode{chosen} 为选中边编号。树权和及累加中间量须在 64 位范围内。
+先复制 \InlineCode{code/data-structures/dsu.cpp}，用 \InlineCode{init(n)} 开始建图。\InlineCode{add(u,v,w)} 每条无向边只加一次，返回从 0 开始的边编号；\InlineCode{run()} 返回是否连通，\InlineCode{cost} 为总权，\InlineCode{chosen} 保存原始边表 \InlineCode{e} 中的选中边编号。重跑保留边，失败时结果为最小生成森林；树权和与中间量须在 64 位范围内。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Kruskal g;
 g.init(3);
@@ -23,7 +23,7 @@ if(ok){long long ans=g.cost;}
 \subsubsection*{Prim 原理与使用教程}
 从一个点出发，每次选择连接“已加入点集”和“未加入点集”的最小权边。本实现把候选边放入小根堆，弹出已加入的顶点时跳过。全部点被加入即成功，时间保守为 $O((n+m)\log(m+2))$，空间 $O(n+m)$。
 
-\InlineCode{add(u,v,w)} 内部会加两个方向，不要重复输入反向边。\InlineCode{run(s)} 从 $s$ 出发，默认 $1$；返回真后读取 \InlineCode{cost}。要求 $n\geq1$；单个顶点的树权为 $0$。
+\InlineCode{init(n)} 开始建图，\InlineCode{add(u,v,w)} 内部加两个方向，无向边只输入一次。\InlineCode{run(s)} 从 $s$ 出发，默认 $1$；返回真后读取 \InlineCode{cost}。每次运行重置总权与访问状态，保留原图；失败时 \InlineCode{cost} 只覆盖源点所在连通块。要求 $n\ge1$，单点树权为 0。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Prim g;
 g.init(3);

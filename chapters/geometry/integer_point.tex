@@ -1,0 +1,33 @@
+% Source: Independent exact vector and half-plane polar comparator derivation; CP-Algorithms basic-geometry.
+\subsection{整数点、向量与极角排序}
+\label{geo:integer-point}
+\AlgorithmInfo
+    {精确计算方向、点积、叉积、距离平方和极角顺序。}
+    {基本运算 $O(1)$；排序 $O(n\log n)$。}
+    {输入坐标范围见本组约定；使用 GNU 128 位。}
+\subsubsection*{原理}
+
+向量 a、b 的点积为 $a_xb_x+a_yb_y$，可判断夹角与投影；叉积为 $a_xb_y-a_yb_x$，绝对值是平行四边形面积。三点方向为 $(b-a)\times(c-a)$：正数左转，负数右转，0 为共线。距离平方是差向量与自身的点积，整个判定过程不需要开方。
+
+极角不能只按叉积排序，因为跨过半周时符号会改变。先将零向量单列，再按上半平面（含正 x 轴）、下半平面分组，同组比较叉积；同射线按长度排序。这样角度从正 x 轴开始逆时针增加，零向量放最前，重复向量等价，比较器满足严格弱序。
+
+\subsubsection*{使用教程}
+用 \InlineCode{IPoint{x,y}} 建立点，\InlineCode{+} 用于向量相加或平移，\InlineCode{-} 将两点变成位移向量；两者仍用 long long，须保证坐标运算不溢出。\InlineCode{<} 是精确字典序，\InlineCode{==} 是坐标相等，可用于 sort、unique。
+
+\InlineCode{dot(a,b)} 和 \InlineCode{cross(a,b)} 接收\textbf{向量}，分别返回点积与叉积；把点当参数时，表示从原点出发的向量。\InlineCode{orient(a,b,c)} 则直接接收三个点，返回三角形有向两倍面积：正为 c 在 a 到 b 左侧，负为右侧，0 为共线。\InlineCode{dist2(a,b)} 是两点距离平方，以上结果均为 \InlineCode{__int128}；\InlineCode{sgn128(x)} 将其符号变成 -1、0、1。
+
+极角排序调用 \InlineCode{polar_less}：从正 x 轴起逆时针，同一射线上短向量在前，零向量排最前。
+
+\InlineCode{polar_half(p)} 是比较器的辅助分区，返回零向量 -1、上半平面（含正 x 轴）0、其余 1。若绕点 o 排序，先取各点减 o 的向量，不能直接对原坐标使用原点比较器。以下示例无需初始化或清空状态。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+IPoint a{0,0},b{4,0},c{1,3};
+IPoint u=b-a,v=c-a;
+__int128 turn=orient(a,b,c),d2=dist2(b,c);
+__int128 dp=dot(u,v),cp=cross(u,v);
+int side=sgn128(turn);
+vector<IPoint> dirs={{1,0},{0,1},{-1,0},{0,-1},{0,0}};
+sort(dirs.begin(),dirs.end(),polar_less);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/integer_point.cpp}

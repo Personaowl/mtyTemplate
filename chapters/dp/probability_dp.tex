@@ -1,0 +1,27 @@
+% Source: Independent probability transition; user floating-point DP style.
+\subsection{概率 DP：独立事件次数分布}
+\label{dp:probability-dp}
+\AlgorithmInfo
+    {计算多次独立但成功率可不同的试验，成功次数的完整分布。}
+    {时间 $O(n^2)$，空间 $O(n)$。}
+    {p 按 1 下标，$0\le p_i\le1$；使用 long double，允许没有试验。}
+\subsubsection*{原理}
+
+第 i 次独立试验成功的概率为 $p_i$，令 $f_{i,j}$ 表示前 i 次恰好成功 j 次的概率。按最后一次结果分类：
+\[
+ f_{i,j}=f_{i-1,j}(1-p_i)+f_{i-1,j-1}p_i.
+\]
+初始 $f_{0,0}=1$，其余为 0；越界的成功次数概率按 0 处理。两项对应最后一次失败与成功，是互斥且完备的两种情况。压成一维后 j 倒序更新，使右侧的两个概率仍来自上一层。求“至少 K 次”时，对结果中 j≥K 的状态求和；成功次数的期望为 $\sum_j j f_j$，也等于 $\sum_i p_i$。
+
+\subsubsection*{使用教程}
+\InlineCode{head_probabilities(p)} 返回从 0 到 n 次成功的概率数组。输入 p[0] 占位，结果 f[0] 是真实的零次成功概率；每次调用独立。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<long double> p={0,0.5L,0.3L,0.8L};
+auto f=head_probabilities(p);
+long double at_least_two=f[2]+f[3];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/probability_dp.cpp}
+\subsubsection*{需要注意}
+递推依赖试验相互独立；若成功概率还依赖历史状态，必须把所需历史加入状态。浮点结果按题目精度输出，不能用取模计数直接代替普通概率。

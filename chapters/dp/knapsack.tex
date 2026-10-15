@@ -1,0 +1,40 @@
+% Source: User reference pp. 98-102; framework: https://github.com/tianyicui/pack (V2.lyx).
+\subsection{0/1 背包与完全背包}
+\label{dp:knapsack}
+\AlgorithmInfo
+    {逐件加入 0/1 或无限供应物品，支持不超过容量与恰好占满两种状态。}
+    {每类物品 $O(V)$ 时间，空间 $O(V)$；初始化 $O(V)$。}
+    {$V\ge0$、$w\ge1$；所有合法选择价值和严格在 $(-4\times10^{18},4\times10^{18})$ 内。}
+\subsubsection*{原理}
+
+先保留物品层：$f_{i,j}$ 表示只考虑前 i 件（类）物品、容量不超过 j 时的最大价值。每次只决定第 i 件（类）是否再取一件。费用与价值为 $w_i,v_i$ 时，两个模型的区别是取物品后读哪一层：
+\[
+\begin{aligned}
+\text{0/1：}\quad f_{i,j}&=\max(f_{i-1,j},f_{i-1,j-w_i}+v_i),\\
+\text{完全：}\quad f_{i,j}&=\max(f_{i-1,j},f_{i,j-w_i}+v_i).
+\end{aligned}
+\]
+仅当 $j\ge w_i$ 且前驱可达时考虑第二项。第一项为不取，第二项为取一件；完全背包第二项仍可含当前类物品。
+
+压成一维后都写成 $f_j\gets\max(f_j,f_{j-w}+v)$。0/1 按 j \textbf{倒序}，较小位置还未更新，所以读到旧层；完全背包按 j \textbf{正序}，较小位置已更新，可以反复加入当前类。循环方向来自这两个转移，而非额外规定。
+
+若求总费用\textbf{不超过}容量的最优值，初值全部为 0，表示任意容量都能选择空集。若求\textbf{恰好}占满，只有 $f_0=0$，其余为 $-INF$，此时下标表示精确费用。两种定义必须从初始化到答案保持一致。
+
+\subsubsection*{使用教程}
+直接创建容量数组 f，再逐件更新。\InlineCode{zero_one(f,w,v)} 加一件，\InlineCode{complete_knapsack(f,w,v)} 加一类无限件；容量由数组长度确定，结果读 f[V]。以下先演示不超过容量，再将数组重置为恰好占满；\InlineCode{-INF} 表示不可达。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+int V=10;
+const long long INF=4e18;
+vector<long long> f(V+1,0);
+zero_one(f,3,5);
+complete_knapsack(f,4,6);
+long long ans=f[V];
+f.assign(V+1,-INF);f[0]=0;
+zero_one(f,3,5);
+bool reachable=f[V]!=-INF;
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/knapsack.cpp}
+\subsubsection*{需要注意}
+完全背包要求正体积；体积为 0 且价值为正的无限供应物品会使答案无界，不能调用本模板。负价值允许出现，精确占满时不能把不可达初值写成 0。

@@ -1,0 +1,27 @@
+% Source: Broken-profile DP, independent recursive transition generation.
+\subsection{状压 DP：棋盘铺砖}
+\label{dp:profile-dp}
+\AlgorithmInfo
+    {计算 n 行 m 列矩形用 1×2 骨牌铺满的方案数。}
+    {宽度 $w=\min(n,m)$，列数 $h=\max(n,m)$；时间上界 $O(h3^w)$，空间 $O(3^w+2^w)$。}
+    {$n,m\ge1$，$w\le12$，模数 $P\ge1$；棋盘没有障碍。}
+\subsubsection*{原理}
+
+用列轮廓的二进制掩码表示当前列中已被上一列横砖占用的格子。对每个输入掩码，递归从上到下填当前列：已占用就跳过；否则可放一块横砖延伸到下一列，或在当前列放一块竖砖占据相邻两行。
+
+令 $f_{c,mask}$ 为前 c 列已经填好、伸入第 c+1 列的占用情况为 mask 的方案数。初始 $f_{0,0}=1$，其余为 0；若 mask 能填出 next，就累加
+\[
+ f_{c+1,next}\gets f_{c+1,next}+f_{c,mask}.
+\]
+填完后得到下一列的占用掩码。预处理所有合法掩码转移，逐列用新数组统计方案数，避免同一列重复转移；处理全部列后必须回到掩码 0，不能有横砖伸出棋盘。将较短边作为掩码宽度可以降低指数部分。
+
+\subsubsection*{使用教程}
+\InlineCode{domino_tilings(n,m,P)} 返回模 P 的铺法数，旋转后的两边由函数内部交换；奇数格或其他不可铺情形会自然得到 0。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+long long ways=domino_tilings(3,4,1000000007);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/dp/profile_dp.cpp}
+\subsubsection*{需要注意}
+掩码表示“已被上一列占据”，不是当前列任选若干格。若增加障碍或更复杂砖形，需要重新定义合法状态与轮廓转移。

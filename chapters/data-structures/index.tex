@@ -1,3 +1,38 @@
 \chapter{数据结构}
-\ChapterIntro{以小而完整的结构体封装状态，保持熟悉的命名与调用方式。}
+\ChapterIntro{按 1 下标、闭区间和简短结构体接口组织。线段树沿用 Node、tr、w 与递归的 build、modify、query 写法；有共享状态才封装。先区分静态与动态、在线与离线，再按修改和查询类型选择实现。离散化见第~\ref{stl:discretize}~节，树的剖分结构见第四章。}
+\begin{AlgorithmGroups}
+\section{并查集}
 \input{chapters/data-structures/dsu}
+\input{chapters/data-structures/weighted_dsu}
+\input{chapters/data-structures/kind_dsu}
+\input{chapters/data-structures/rollback_dsu}
+\section{单调结构与对顶堆}
+\input{chapters/data-structures/monotonic_stack}
+\input{chapters/data-structures/monotonic_queue}
+\input{chapters/data-structures/median_heap}
+\section{位运算、静态查询与树状数组}
+\input{chapters/data-structures/binary_trie}
+\input{chapters/data-structures/st}
+\input{chapters/data-structures/bit}
+\input{chapters/data-structures/bit_distinct}
+\input{chapters/data-structures/bit_2d_count}
+\section{线段树}
+\label{ds:segment-conventions}
+前五份静态模板统一约定：$n\ge1$，查询／修改为 $1\le L\le R\le n$ 的闭区间；构造对象、填 \InlineCode{w[1..n]} 后调用 \InlineCode{build(1,1,n)}。\InlineCode{w} 只保存初值，修改后不会同步；再次 build 按当前 w 重建，改变点数时重新构造对象。动态开点、李超树等按各自 init 接口使用。
+\input{chapters/data-structures/seg_point}
+\input{chapters/data-structures/seg_lazy}
+\input{chapters/data-structures/seg_affine}
+\input{chapters/data-structures/seg_max_subarray}
+\input{chapters/data-structures/seg_equal_run}
+\input{chapters/data-structures/seg_dynamic}
+\input{chapters/data-structures/li_chao}
+\input{chapters/data-structures/hld_segment}
+\section{可持久化}
+\input{chapters/data-structures/persistent_array}
+\input{chapters/data-structures/persistent_kth}
+\section{分块、ODT 与莫队}
+\input{chapters/data-structures/odt}
+\input{chapters/data-structures/sqrt_block}
+\input{chapters/data-structures/mo}
+\input{chapters/data-structures/mo_update}
+\end{AlgorithmGroups}

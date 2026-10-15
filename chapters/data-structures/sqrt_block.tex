@@ -1,0 +1,28 @@
+% Source: ACM_Templates.pdf pp. 40-66. pp. 63-66; rebuilt sorted blocks and safe signed midpoint.
+\subsection{分块：区间加与区间第 k 小}
+\label{ds:sqrt-block}
+\AlgorithmInfo
+    {维护区间加、统计不大于某值的数量，并二分查询第 k 小。}
+    {建块 $O(n\log n)$；修改、计数 $O(\sqrt n\log(n+1))$；第 k 小再乘 $O(\log(V+1))$；空间 $O(n)$。}
+    {非空数组、1 下标；$V$ 为当前值域宽度，合法 $k$；底值、标记及真实值不溢出。}
+\subsubsection*{原理}
+把序列分成约 $\sqrt n$ 个块，每块保存排序后的底值和统一增量 $tag$。整块加法只修改标记；零散部分修改底值后重排所在块。统计不大于 $x$ 的个数时，整块在排序表中二分 $x-tag$，散块逐点检查。
+
+第 $k$ 小是满足 $count(l,r,x)\ge k$ 的最小整数 $x$。先用涉及块的最小、最大真实值夹住答案，再二分。边缘块的范围可以比查询更大，只会放宽二分边界。
+
+\subsubsection*{使用教程}
+\InlineCode{init(a)} 由初值建块，再次调用会清除原有标记。区间修改用 \InlineCode{modify(l,r,val)}，将每个元素加上 $val$。
+
+查询接口 \InlineCode{count(l,r,x)} 统计不大于 $x$ 的元素个数，\InlineCode{query(l,r,k)} 返回第 $k$ 小原值。成员数组 \InlineCode{a} 保存未加块标记的底值，不能直接当作更新后的真实数组读取。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+SqrtBlock sq;
+sq.init(vector<long long>{0,4,-2,7,4,1});
+sq.modify(2,4,3);
+int cnt=sq.count(1,5,5);
+long long ans=sq.query(2,5,2);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/sqrt_block.cpp}
+\subsubsection*{需要注意}
+此模板通过数值二分求排名，不要求预先知道所有修改后的值。用 128 位计算二分中点、计数阈值，避免负值与大范围差值溢出；底值加标记及修改本身仍须在 64 位范围内。

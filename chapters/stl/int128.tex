@@ -1,0 +1,19 @@
+% Source: ACM_Templates.pdf pp. 111-112; omit problem-specific square-root code.
+% Reference: https://gcc.gnu.org/onlinedocs/gcc/_005f_005fint128.html
+\subsection{GNU 扩展：\_\_int128 与输入输出}
+\label{stl:int128}
+\subsubsection*{原理}
+\InlineCode{__int128} 是支持相应整数模式的平台上的 GNU 扩展，有符号范围为 $[-2^{127},2^{127}-1]$，\InlineCode{__uint128_t} 为无符号类型。可用于 64 位乘法的中间值；仍有固定范围，不是大整数，也不能让有符号运算溢出。
+\subsubsection*{使用教程}
+\InlineCode{read128(x)} 从 \InlineCode{cin} 读取一个十进制整数，成功后通过引用写入 $x$，无输入时返回假；约定输入格式合法且在有符号 128 位范围内。\InlineCode{str128(x)} 返回十进制字符串，再用 \InlineCode{cout} 输出。两函数无需初始化，不要混用已关闭同步的 C 输入输出。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+long long a=1000000000000LL,b=1000000000000LL;
+__int128 product=(__int128)a*b;
+cout<<str128(product)<<endl;
+__int128 x;
+if(read128(x)) cout<<str128(x)<<endl;
+\end{lstlisting}
+必须在乘法之前转宽；\InlineCode{(__int128)(a*b)} 不能补救已经发生的 64 位溢出。读取负数时直接累积负值，输出时转为无符号幅值，因此模板也支持最小负数，不执行无法表示的有符号取负。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/stl/int128.cpp}

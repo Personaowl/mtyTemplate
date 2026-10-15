@@ -1,0 +1,26 @@
+% Source: Independent derivation and implementation.
+\subsection{高维前缀和与容斥查询}
+\label{other:prefix-multi}
+\AlgorithmInfo
+    {对 d 维网格预处理前缀和，查询轴对齐超矩形。}
+    {网格体积 V：建表 $O(dV)$，查询 $O(d2^d)$，空间 $O(V+d)$。}
+    {$1\le d\le20$，各维长度正且乘积 $V\le2\times10^6$；坐标 0 下标。}
+\subsubsection*{原理}
+在每一维上依次做一维前缀即可。处理完前 k 个维度后，每个位置已经汇总这些维度中不超过当前位置、其余维度固定的数据；再处理下一维，就扩大一维的前缀区域。因此不必为每个格点显式枚举 $2^d$ 项递推。
+
+区间查询用各维端点的容斥。每维选 hi 或 lo-1，共 $2^d$ 个前缀角点；选择 lo-1 的维数为奇数时减，偶数时加；若某坐标为 -1，该前缀贡献为 0。
+
+所有维度长度都为 2 时，坐标可视作二进制集合，逐维前缀就是子集和变换（SOS DP）；对应的专用写法复用第~\ref{dp:subset-dp}~节，不重复维护。一般网格不限定每维为 2。
+\subsubsection*{使用教程}
+\InlineCode{multi_prefix(a,shape)} 按值接收展平的原数据并返回前缀表，shape 为各维长度，\textbf{末维变化最快}，不带 1 下标占位。二维 shape=$\{n,m\}$ 的下标为 x*m+y，三维 shape=$\{n,m,k\}$ 为 (x*m+y)*k+z。
+
+\InlineCode{multi_sum(s,shape,lo,hi)} 接收同一 shape 的前缀表与各维闭区间端点，要求 lo、hi 与维数等长，且各维 $0\le lo\le hi<shape$。所有输入元素绝对值之和须不超过 $4\times10^{18}$；查询容斥的暂存累加用 128 位，返回 long long。维数大时即使网格较小，$2^d$ 查询也可能较慢，先估计查询总量。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<int> shape={2,3,2};
+vector<long long> a={1,2,3,4,5,6,7,8,9,10,11,12};
+auto s=multi_prefix(a,shape);
+long long sum=multi_sum(s,shape,vector<int>{0,1,0},vector<int>{1,2,1});
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/others/prefix_multi.cpp}

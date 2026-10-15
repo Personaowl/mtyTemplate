@@ -26,9 +26,9 @@
 一次增广可推送路径瓶颈容量，不是固定推一单位。但增广次数仍可能依赖流量规模，不能只写成与流量无关的 $O(m\log n)$。
 
 \subsubsection*{使用教程}
-\InlineCode{add(u,v,cap,cost)} 加一条容量边。\InlineCode{flow(s,t,limit)} 返回包含 \InlineCode{ok,flow,cost} 的结果，其中流量和费用都是本次额外增加的量，残量图会被修改。\InlineCode{ok=false} 表示当前初始残量图存在负费用环，此次没有推流；不等价于网络无可行流，也不等价于费用无界，而是超出该模板的适用条件。
+\InlineCode{init(n)} 后，\InlineCode{add(u,v,cap,cost)} 加容量为 \InlineCode{cap}、单位费用为 \InlineCode{cost} 的有向边，返回正向边编号。\InlineCode{flow(s,t,limit)} 从源 $s$ 向汇 $t$ 最多增广 \InlineCode{limit}（省略取 \InlineCode{INF}），返回 \InlineCode{ok,flow,cost}：是否满足适用条件、本次新增流量及费用。同源汇重跑会继续当前残量，重算原网络需重新初始化并加边。\InlineCode{ok=false} 表示当前残量图有负费用环，本次没有推流；不代表无可行流或费用无界。
 
-顶点从 $1$ 开始，$s\ne t$，容量与上限不超过 $4\times10^{18}$；边费用使用 64 位且不能取 \InlineCode{LLONG_MIN}，避免反向费用取负溢出。总费用和累加中间量须能用有符号 128 位表示。\InlineCode{cost} 为 128 位，按需要格式化输出，不要直接缩窄为 64 位。
+顶点从 $1$ 开始，$s\ne t$，容量与上限不超过 $4\times10^{18}$；边费用使用 64 位且不能取 \InlineCode{LLONG_MIN}，避免反向费用取负溢出。总费用和累加中间量须能用有符号 128 位表示。\InlineCode{cost} 可用第~\ref{stl:int128}~节的 \InlineCode{str128} 输出，不要直接缩窄为 64 位。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 MinCostFlow g;
 g.init(4);

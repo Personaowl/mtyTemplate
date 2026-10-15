@@ -1,0 +1,27 @@
+% Source: Independent normalization and exact angular merge; https://cp-algorithms.com/geometry/minkowski.html.
+\subsection{Minkowski 和}
+\label{geo:minkowski}
+\AlgorithmInfo
+    {求两组点的凸包所围凸集的向量和。}
+    {本接口含凸包预处理和结果规范化，$O((n+m)\log(n+m))$ 时间、$O(n+m)$ 空间。}
+    {依赖整数点和凸包；两输入坐标绝对值不超过 $5\times10^{11}$。}
+\subsubsection*{原理}
+
+Minkowski 和定义为 $A+B=\{a+b\mid a\in A,b\in B\}$。两凸多边形的边按极角合并，就是和多边形的边；同方向边同时推进，等价于将边向量相加。
+
+先各求严格凸包并转到最低、最左的顶点作为起点，边方向即可从正 x 轴附近按极角循环有序。代码用半平面和叉积比较方向，合并本身线性；最后再次取凸包以统一起点并去掉共线点，所以\textbf{整个接口不声称线性}。单点或线段输入直接枚举与另一凸包顶点的和，仍只有线性个候选。
+
+\subsubsection*{使用教程}
+\InlineCode{minkowski_sum(a,b)} 接收两组整数点，内部先分别取凸包，返回\textbf{两个凸集}的 Minkowski 和的严格逆时针凸包；不修改 a、b。任何一组为空就返回空，单点／线段也支持。输入若是非凸多边形，它会先凸化，不能当作一般非凸区域的精确求和。原坐标绝对值限制在 $5\times10^{11}$，保证和仍在统一整数几何范围内。
+
+求差集 $A-B$ 时，将第二组所有点取负后调用同一接口。两个闭凸集相交当且仅当原点属于差集；对结果调用 \InlineCode{point_in_convex}，返回值大于等于 0 表示包含接触。下例显式修改 b 以求差；若后面还要用原 b，先复制再取负。和函数每次独立执行，无其他初始化。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<IPoint> a={{0,0},{2,0},{0,2}},b={{0,0},{1,0},{1,1},{0,1}};
+auto sum=minkowski_sum(a,b);
+for(auto& p:b){p.x=-p.x;p.y=-p.y;}
+auto diff=minkowski_sum(a,b);
+int relation=point_in_convex(diff,IPoint{0,0});
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/geometry/minkowski.cpp}

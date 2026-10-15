@@ -1,0 +1,34 @@
+% Source: ACM_Templates.pdf pp. 40-66. https://cp-algorithms.com/data_structures/segment_tree.html
+\subsection{线段树：最大子段和}
+\label{ds:seg-max-subarray}
+\AlgorithmInfo
+    {单点赋值，查询区间内非空连续子段的最大和。}
+    {建树 $O(n)$；修改、查询 $O(\log n)$；空间 $O(n)$。}
+    {1 下标、非空闭区间；任意相关连续段和在 64 位范围内。}
+\subsubsection*{原理}
+节点保存总和 $sum$、最大非空前缀和 $lmax$、最大非空后缀和 $rmax$ 和最大子段和 $maxn$。合并左右节点时，最优子段要么完全在一侧，要么由左侧后缀接右侧前缀组成：
+\[
+\begin{aligned}
+ lmax&=\max(l.lmax,l.sum+r.lmax),\\
+ rmax&=\max(r.rmax,r.sum+l.rmax),\\
+ maxn&=\max(l.maxn,r.maxn,l.rmax+r.lmax).
+\end{aligned}
+\]
+叶子的四项都等于该点值，因此全为负数时也会选出一个非空子段。
+
+\subsubsection*{使用教程}
+先构造对象并填写初值数组 \InlineCode{w}，再用 \InlineCode{build(1,1,n)} 完成预处理。
+
+\InlineCode{modify(1,idx,val)} 将单点赋为新值。\InlineCode{query(1,L,R)} 返回节点，读 \InlineCode{maxn} 得到最大子段和，也可读取总和及前后缀。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+MaxSubarraySegTree seg(5);
+seg.w={0,-2,3,-1,4,-5};
+seg.build(1,1,5);
+seg.modify(1,3,2);
+long long ans=seg.query(1,2,5).maxn;
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/seg_max_subarray.cpp}
+\subsubsection*{需要注意}
+合并有方向，不能交换左右节点；不能仅凭这四项信息直接支持区间加法。

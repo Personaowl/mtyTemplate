@@ -9,7 +9,7 @@
 \subsubsection*{原理与构造}
 只保留关键点时会丢失分叉，因此还要保留它们的 LCA。将关键点与根按 DFS 序排序，补入每对相邻点的 LCA，再排序去重，就包含了需要的全部分叉点：若关键点分布在某个 LCA 的不同儿子子树内，DFS 连续性保证至少有一对相邻关键点跨过这个分界。
 
-设最终序列为 $a_1,\ldots,a_m$，按你的二次排序写法，对每对相邻点连接
+设最终序列为 $a_1,\ldots,a_m$，对每对相邻点连接
 \[
     LCA(a_i,a_{i+1})\longrightarrow a_{i+1}.
 \]
@@ -19,7 +19,7 @@
 虚树边 $p\to v$ 代表原树一段路径，权值按问题定义：距离和为 $dis_v-dis_p$，边数为 $dep_v-dep_p$，路径最小边权则需要相应的路径聚合，不能拿两个前缀最小值相减。下一节的断边示例直接使用原树根路径最小值 \InlineCode{minn[v]}，并非把它当作通用压缩边权。
 
 \subsubsection*{使用教程}
-\InlineCode{init(n)}、继承的 \InlineCode{add(u,v,w)} 后，调用 \InlineCode{prepare(root)} 预处理原树。之后每次 \InlineCode{build(keys)} 构建一棵虚树；\InlineCode{nodes} 是本轮保留点的 DFS 序列表，\InlineCode{vt[u]} 是原编号下的虚树儿子，\InlineCode{key[u]} 标记实际输入的关键点。根被自动加入不代表它自动成为关键点。
+\InlineCode{init(n)} 后用 \InlineCode{add(u,v,w)} 加无向边，每边一次、默认权值 1；\InlineCode{prepare(root)} 预处理原树，省略根取 1。之后 \InlineCode{build(keys)} 接收无占位的关键点列表，允许重复与空集，构建本轮虚树；\InlineCode{nodes} 是本轮保留点的 DFS 序列表，\InlineCode{vt[u]} 是原编号下的虚树儿子，\InlineCode{key[u]} 标记实际输入的关键点。根被自动加入不代表它自动成为关键点。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 VirtualTree g;
 g.init(5);

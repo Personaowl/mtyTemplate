@@ -1,0 +1,35 @@
+% Source: ACM_Templates.pdf, pp.120-121, original attribution 2023-05-16 retained. Bound: Jiang & Deng, https://arxiv.org/abs/1207.0063. Code preserved.
+\subsection{素数测试与 Pollard–Rho 分解}
+\label{math:prime-test}
+\AlgorithmInfo
+    {快速判断单个整数是否为素数，或返回全部质因子。}
+    {固定 9 底数测试 $O(\log n)$ 次模运算；分解常按约 $O(n^{1/4})$ 量级估计，无确定最坏界。}
+    {先定义 i64 为 long long；分解 $1\le n<3825123056546413051$，GNU \InlineCode{__int128} 扩展。}
+\subsubsection*{原理}
+对奇数 $n>2$ 写 $n-1=d2^s$（d 为奇数）。若 n 为素数，对于不被 n 整除的底数 a，必有
+\[
+ a^d\equiv1\pmod n\quad\text{或}\quad
+ a^{d2^r}\equiv-1\pmod n\quad(0\le r<s).
+\]
+Miller–Rabin 从 $a^d$ 开始反复平方；一旦某底数不满足条件，就能确定合数。固定若干底数只在相应已知范围内构成确定性测试。本节底数为前九个素数 $2,3,5,7,11,13,17,19,23$，确定性范围为严格小于
+\[
+ 3825123056546413051.
+\]
+这个上界本身是会通过这组底数的合数，\textbf{不能把本实现宣称为覆盖整个 signed 64 位范围}。n<2 会直接返回 false，偶数与小素数由现有测试逻辑处理。
+
+因式分解使用迭代 $g(x)=x^2+1\bmod n$，通过轨迹差与 n 的 gcd 找到非平凡因子；将多个差先乘起来，分批计算 gcd 以减少开销。得到因子 d 后递归处理 d 与 n/d，素数即收集，较小数直接试除；若本轮只得到 n，就换起点重试。常见的 $n^{1/4}$ 说法是启发式量级，不是素数测试本身的复杂度，也不是该固定多项式版本的确定时间保证。
+\subsubsection*{使用教程}
+在源码前写 \InlineCode{using i64=long long;}，再复制本节函数。\InlineCode{isprime(n)} 返回是否为素数；\InlineCode{factorize(n)} 返回按升序排列、包含重数的质因子数组，n=1 返回空。分解只传正数，0 和负数不属于接口；若输入带符号，先在调用处处理符号并保证取绝对值不溢出。
+
+\InlineCode{mul(a,b,m)} 用 128 位中间量计算非负数的模乘，要求 m>0；\InlineCode{power(a,b,m)} 是对应快速幂，指数非负。它们为分解提供大模数运算，不要用前面的普通 64 位乘法快速幂替代。每次判断／分解相互独立，无需初始化或清空；factorize 也受上述素数判定范围约束。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+using i64=long long;
+bool prime=isprime(1000000007LL);
+auto factors=factorize(360LL);
+i64 product=mul(123456789LL,987654321LL,1000000007LL);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/number-theory/prime_test.cpp}
+\subsubsection*{需要注意}
+与筛法的选型：大量小范围查询优先筛，少量大整数用测试／分解。分解时间依赖数的因子结构；没有找到因子前不会返回，不能当作带固定时限的黑盒。

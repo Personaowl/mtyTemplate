@@ -1,0 +1,66 @@
+% Source: daily-problems/10-13/CF1594D.cpp, two-domain expansion.
+% Generalization: cyclic k-class offsets, derived from equality of expanded nodes.
+\subsection{种类并查集：扩展域}
+\label{ds:kind-dsu}
+\AlgorithmInfo
+    {维护同类、异类及循环类别关系，加入关系时判断矛盾。}
+    {初始化时间、空间 $O(kn)$；关系合并、查询均摊 $O(k\alpha(kn))$。}
+    {原元素编号 $1\ldots n$，类别差按模 $k$ 计算，$k\ge2$；依赖普通 DSU。}
+\subsubsection*{原理}
+为每个元素建立 $k$ 个扩展点，用 $(x,t)$ 表示模 $k$ 意义下的 $c_x+t$。编号设为 $id(x,t)=x+tn$，其中 $0\le t<k$。若已知
+\[
+ c_y-c_x\equiv r\pmod k,
+\]
+便有 $c_x+(t+r)\equiv c_y+t$，所以对每个 $t$，合并 $(x,(t+r)\bmod k)$ 和 $(y,t)$。查询时检查 $(x,t)$ 与 $(y,0)$ 是否同集合；若是，则类别差为 $t$。先查已有类别差，矛盾时不执行任何新合并。
+
+二分类取 $k=2$，差 0 表示同类、差 1 表示异类，展开后就是熟悉的 $x,x+n$ 写法。食物链取 $k=3$；若规定“$x$ 吃 $y$”对应差 1，则同类为差 0，“$y$ 吃 $x$”为差 2。种类很少时扩展域直观；它也可以改为维护模 $k$ 势差的带权并查集，以节省空间。
+
+\subsubsection*{使用教程}
+同时复制普通 \InlineCode{DSU}。\InlineCode{init(n,k)} 清空并建立扩展域，省略 $k$ 时为 2；\InlineCode{merge(x,y,r)} 加入 $c_y-c_x\equiv r$，自动把负数或较大的 $r$ 归一化。返回真表示相容（已有一致关系也为真），矛盾返回假且不加入该关系。
+
+\InlineCode{query(x,y)} 返回 \InlineCode{pair<bool,int>}，第一项表示关系是否已知，第二项为 $[0,k-1]$ 中的类别差。\InlineCode{check(x,y)} 只判断关系是否已知，不表示两点同类；判断同类须查询到差 0。重新初始化会清空关系。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+KindDSU dsu;
+dsu.init(4,2);
+dsu.merge(1,2,0); // same kind
+dsu.merge(2,3,1); // different kinds
+auto [known,relation]=dsu.query(1,3);
+bool ok=dsu.merge(1,3,0);
+
+KindDSU food;
+food.init(5,3);
+food.merge(1,2,1); // 1 eats 2
+food.merge(2,3,1); // 2 eats 3
+auto [linked,r]=food.query(1,3);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/kind_dsu.cpp}
+\subsubsection*{需要注意}
+当 $k>2$ 时，“类别不同”不能唯一确定差值，不能随意用差 1 代替；本模板需要明确的循环类别关系。题目中的非法编号要在调用前排除。内部 DSU 的大小统计的是扩展点，不应当作原元素个数；合并的返回值同样表示是否相容。
+
+\subsubsection*{二分类常用写法}
+只有两类时，可以直接使用下面的专用模板，不需要循环枚举类别。为每个元素建立 $x$ 和 $x+n$ 两个点，表示该元素及其对立类别；总共初始化 $2n$ 个点。
+\[
+\begin{array}{c|c|c}
+\text{加入的关系}&\text{需要合并}&\text{矛盾条件}\\ \hline
+x,y\text{ 同类}&(x,y),\ (x+n,y+n)&find(x)=find(y+n)\\
+x,y\text{ 异类}&(x,y+n),\ (x+n,y)&find(x)=find(y)
+\end{array}
+\]
+这就是朋友／敌人、同队／异队等问题中最常用的两倍扩展域写法。每次只需常数次普通并查集操作，初始化时间、空间为 $O(n)$，关系合并和查询均摊为 $O(\alpha(n))$。
+
+复制普通 \InlineCode{DSU} 与 \InlineCode{BinaryDSU}，调用 \InlineCode{init(n)}，参数仍是原元素数。\InlineCode{merge(x,y,r)} 加入关系，$r=0$ 同类、$r=1$ 异类；相容返回真，矛盾返回假且不加入。
+
+\InlineCode{same(x,y)}、\InlineCode{different(x,y)} 分别判断已知同类、异类；都为假表示未知。\InlineCode{query(x,y)} 返回是否已知及关系 $r$，含义与通用写法相同；重新 init 清空全部关系。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+BinaryDSU dsu;
+dsu.init(5);
+dsu.merge(1,2,0); // same kind
+dsu.merge(2,3,1); // different kinds
+bool same=dsu.same(1,2),diff=dsu.different(1,3);
+auto [known,r]=dsu.query(1,4);
+bool ok=dsu.merge(1,3,0);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\CodeFile{code/data-structures/binary_dsu.cpp}

@@ -1,37 +1,77 @@
+% A4 cover: fixed page anchors keep the portrait and title independent.
+% Personal text/image paths are maintained in config/metadata.tex.
 \begin{titlepage}
+\thispagestyle{empty}
 \begin{tikzpicture}[remember picture,overlay]
-    \fill[Ink] (current page.north west) rectangle ([xshift=12mm]current page.south west);
-    \fill[Accent] ([xshift=12mm]current page.north west)
-        rectangle ([xshift=15mm]current page.south west);
-    \fill[Paper] ([xshift=-85mm]current page.north east)
-        rectangle ([yshift=-122mm]current page.north east);
-    \foreach \i in {0,...,6}{
-        \draw[Rule,line width=0.4pt]
-            ([xshift=-78mm,yshift=-28mm-\i*12mm]current page.north east)
-            -- ([xshift=-12mm,yshift=-28mm-\i*12mm]current page.north east);
-    }
-    \draw[Copper,line width=2pt]
-        ([xshift=-78mm,yshift=-43mm]current page.north east)
-        -- ([xshift=-59mm,yshift=-64mm]current page.north east)
-        -- ([xshift=-40mm,yshift=-52mm]current page.north east)
-        -- ([xshift=-21mm,yshift=-88mm]current page.north east);
+    % Narrow spine, white page, no chart or background grid.
+    \fill[Ink] (current page.north west)
+        rectangle ([xshift=7mm]current page.south west);
+    \fill[Accent] ([xshift=7mm]current page.north west)
+        rectangle ([xshift=7.8mm]current page.south west);
+
+    % Move the whole content block together; the spine and edition stay page-anchored.
+    \def\CoverBodyOffset{25mm}
+    \coordinate (CoverNW) at ([yshift=-\CoverBodyOffset]current page.north west);
+    \coordinate (CoverNE) at ([yshift=-\CoverBodyOffset]current page.north east);
+
+    \node[anchor=north west,inner sep=0pt,text=Accent,
+        font=\sffamily\bfseries\fontsize{14}{18}\selectfont]
+        at ([xshift=26mm,yshift=-26mm]CoverNW)
+        {MTY\hspace{2mm}/\hspace{2mm}NOTEBOOK};
+
+    % Original square portrait, embedded unchanged; rounded clipping only at the frame.
+    \coordinate (AvatarNW) at ([xshift=-75mm,yshift=-26mm]CoverNE);
+    \begin{scope}
+        \clip[rounded corners=1.6mm] (AvatarNW) rectangle ++(52mm,-52mm);
+        \IfFileExists{\BookAvatar}{%
+            \node[anchor=north west,inner sep=0pt] at (AvatarNW)
+                {\includegraphics[width=52mm,height=52mm]{\BookAvatar}};
+        }{}%
+    \end{scope}
+    \draw[Accent!80!Ink,line width=0.8pt,rounded corners=1.6mm]
+        (AvatarNW) rectangle ++(52mm,-52mm);
+
+    % User-supplied contest image; retain its original proportions and colors.
+    \IfFileExists{\BookContestLogo}{%
+        \node[anchor=north west,inner sep=0pt]
+            at ([xshift=-75mm,yshift=-87mm]CoverNE)
+            {\includegraphics[width=52mm]{\BookContestLogo}};
+    }{}%
+
+    % Two-line title in the upper-left; its right edge stays clear of the portrait.
+    \node[anchor=north west,inner sep=0pt,text=Ink,
+        font=\sffamily\bfseries\fontsize{44}{52}\selectfont]
+        at ([xshift=26mm,yshift=-48mm]CoverNW) {\BookTitlePrefix};
+    \node[anchor=north west,inner sep=0pt,text=Ink,
+        font=\sffamily\bfseries\fontsize{44}{52}\selectfont]
+        at ([xshift=26mm,yshift=-71mm]CoverNW) {\BookTitleMain};
+    \node[anchor=north west,inner sep=0pt,text=Muted,
+        font=\sffamily\fontsize{14}{18}\selectfont]
+        at ([xshift=26mm,yshift=-102mm]CoverNW) {\BookSubtitle};
+
+    \draw[Accent,line width=1.1pt]
+        ([xshift=26mm,yshift=-123mm]CoverNW) -- ++(42mm,0);
+    \node[anchor=north west,inner sep=0pt,text=Ink,
+        font=\sffamily\fontsize{18}{23}\selectfont]
+        at ([xshift=26mm,yshift=-136mm]CoverNW)
+        {By\enspace\textbf{\BookAuthor}};
+    \node[anchor=north west,inner sep=0pt,text=Muted]
+        at ([xshift=26mm,yshift=-154mm]CoverNW) {%
+        \begingroup
+        \hypersetup{urlcolor=CoverLink}% Use the same sans face and baseline as labels.
+        \sffamily\fontsize{14}{19}\selectfont
+        \renewcommand{\arraystretch}{1.1}%
+        \begin{tabular}{@{}>{\raggedright\arraybackslash}p{29mm}@{\hspace{6mm}}l@{}}
+            Codeforces & \href{\BookCFURL}{\BookCFID} \\[3mm]
+            GitHub & \href{\BookGitHubURL}{\BookGitHubURL}
+        \end{tabular}
+        \endgroup
+    };
+
+    \node[anchor=south east,inner sep=0pt,text=Muted,
+        font=\sffamily\fontsize{13}{17}\selectfont]
+        at ([xshift=-23mm,yshift=22mm]current page.south east)
+        {\BookVersion\hspace{3mm}\textcolor{Rule}{|}\hspace{3mm}\BookDate};
 \end{tikzpicture}
-\vspace*{17mm}
-{\sffamily\bfseries\color{Accent}\large MTY\enspace /\enspace NOTEBOOK}\par
-\vspace{42mm}
-{\fontsize{34}{44}\selectfont\sffamily\bfseries\BookTitle}\par
-\vspace{7mm}
-{\large\sffamily\color{Muted}\BookSubtitle}\par
-\vspace{16mm}
-{\color{Accent}\rule{35mm}{1.4pt}}\par
-\vspace{6mm}
-{\large 保留熟悉的码风，积累可复用的算法。}\par
-\vspace{4mm}
-{\color{Muted}说明、源码与排版分离\quad /\quad 持续维护\quad /\quad 按需打印}\par
-\vfill
-\begin{tabularx}{\linewidth}{@{}Xr@{}}
-    {\sffamily\bfseries\BookAuthor} & {\sffamily\BookVersion} \\
-    {\small\sffamily\color{Muted}\BookRepository} & {\small\sffamily\color{Muted}\BookDate}
-\end{tabularx}
-\vspace{4mm}
+\null
 \end{titlepage}

@@ -13,7 +13,7 @@
 预处理 $0,\ldots,p-1$ 的阶乘与阶乘逆元，时间 $O(p+\log p)$、空间 $O(p)$，每次查询 $O(\log_p(n+1))$。关键是预处理到 $p-1$；不是按原始的大 $n$ 建表，也不能把 $p!\equiv0$ 当成可逆数。本模板面向较小的素数 $p$，例如 $p\leq10^6$；这属于资源约束，定理本身不受此上限限制。
 
 \subsubsection*{使用教程}
-先复制快速幂与 \InlineCode{Comb}。\InlineCode{Lucas::init(p)} 只针对模数预处理，之后用 \InlineCode{C(n,k)} 查询非负 64 位参数。
+先复制快速幂与 \InlineCode{Comb}。\InlineCode{Lucas::init(p)} 指定素数模数并预处理；\InlineCode{C(n,k)} 返回 $\binom nk\bmod p$，支持非负 64 位 $n$，非法 $k$ 返回 0。固定模数可反复查询，换模数重新初始化。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Lucas lc;
 lc.init(101);
@@ -48,7 +48,7 @@ long long ans=lc.C(1000000000000LL,12345);
 其中 $s$ 为不同素因子数；不能把这份实现写成每层常数时间。模数虽可为合数，仍需足够小以存储各素数幂的表，建议 $m\leq2\times10^6$，并结合内存限制调整。
 
 \subsubsection*{使用教程}
-先复制快速幂、扩欧、逆元及第~\ref{algo:excrt}~节的 \InlineCode{ExCRT}。\InlineCode{ExLucas::init(m)} 对正模数预处理一次；\InlineCode{C(n,k)} 可反复查询，$k$ 非法或 $m=1$ 时返回 $0$。
+先复制快速幂、扩欧、逆元与 \InlineCode{ExCRT}。\InlineCode{ExLucas::init(m)} 指定正模数（允许合数）；\InlineCode{C(n,k)} 返回 $\binom nk\bmod m$，可反复查询，非法 $k$ 或 $m=1$ 时返回 0。换模数重新初始化。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 ExLucas ex;
 ex.init(72);

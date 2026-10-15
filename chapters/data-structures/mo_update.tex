@@ -1,0 +1,30 @@
+% Source: ACM_Templates.pdf pp. 40-66. pp. 57-60; corrected ordinary-Mo block indexing and repeatable time swaps.
+\subsection{带修莫队：区间不同数个数}
+\label{ds:mo-update}
+\AlgorithmInfo
+    {离线处理单点赋值和区间不同数统计。}
+    {$n,q,u$ 同阶时 $O(n^{5/3})$ 次移动，另有 $O(q\log(q+1))$ 排序；空间 $O(n+m+q+u)$。}
+    {数组 1 下标，全部初值和修改值预先离散化到 $1\ldots m$；$u$ 为修改数。}
+\subsubsection*{原理}
+查询多记录一个时间 $t$，表示此前发生的修改数量；当前状态由左右端点和时间共同决定。块长取约 $n^{2/3}$，按左块、右块、时间排序，移动空间窗口后再调整时间。
+
+每条修改保存位置和一个待交换值。时间前进或回退时，交换当前数组值与修改记录中的值；若该位置在窗口内，先删除旧值再加入新值。因此同一个操作就能完成应用与撤销，且连续多次修改同一位置也能正确回退。
+
+\subsubsection*{使用教程}
+\InlineCode{init(a,m)} 清空操作；按题目顺序调用 \InlineCode{modify(p,val)} 记录单点赋值、\InlineCode{add_query(l,r)} 记录查询，查询编号从 0 开始。\InlineCode{work()} 返回按查询加入顺序排列的答案，不把修改操作放入结果；内部复制数组和操作，可重复调用而不消耗原始记录。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+MoWithUpdate mo;
+mo.init(vector<int>{0,1,2,1,3},4);
+mo.add_query(1,4);
+mo.modify(2,4);
+int id=mo.add_query(1,3);
+mo.modify(2,1);
+mo.add_query(2,4);
+auto ans=mo.work();
+int kinds=ans[id];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/mo_update.cpp}
+\subsubsection*{需要注意}
+读入时需先收集初值和所有修改值，一起离散化后再按原顺序登记操作。此实现只适合离线可回退的点赋值；修改不是立即执行，不能中途读取 \InlineCode{a} 当作当前状态。
