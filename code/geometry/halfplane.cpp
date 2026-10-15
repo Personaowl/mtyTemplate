@@ -8,8 +8,11 @@ vector<Point> halfplane_intersection(vector<Line> a,ld B){
 	sort(a.begin(),a.end(),[&](const Line& x,const Line& y){return ang(x)<ang(y);});
 	// 单位方向的叉积判平行，使用角度阈值。
 	auto parallel=[](const Line& x,const Line& y){return fabsl(cross(x.v,y.v))<=GEO_ANG;};
-	// 判断点是否落在保留侧之外，含长度容差。
-	auto out=[](const Line& l,Point p){return l.side(p)<-GEO_EPS;};
+	// 只容纳坐标尺度下的舍入误差，不用 GEO_EPS 放宽队列的几何边界。
+	auto out=[](const Line& l,Point p){
+		ld scale=fabsl(p.x)+fabsl(p.y)+fabsl(l.p.x)+fabsl(l.p.y);
+		return l.side(p)<-2*numeric_limits<ld>::epsilon()*scale;
+	};
 	// 取队列中相邻非平行直线的交点；只在不变量保证唯一时调用。
 	auto inter=[](const Line& x,const Line& y){return line_intersection(x,y).p;};
 	deque<Line> q;
@@ -23,9 +26,19 @@ vector<Point> halfplane_intersection(vector<Line> a,ld B){
 		}
 		q.push_back(l);
 	}
-	while(q.size()>2&&out(q.front(),inter(q[q.size()-2],q.back()))) q.pop_back();
-	while(q.size()>2&&out(q.back(),inter(q[0],q[1]))) q.pop_front();
-	if(q.size()<3||parallel(q.front(),q.back())) return {};
+	// 首尾也可能近乎同向，合并后重新检查闭合处，不能直接判空。
+	while(q.size()>2){
+		if(out(q.front(),inter(q[q.size()-2],q.back()))){q.pop_back();continue;}
+		if(out(q.back(),inter(q[0],q[1]))){q.pop_front();continue;}
+		if(parallel(q.front(),q.back())){
+			if(dot(q.front().v,q.back().v)<0) return {};
+			if(q.front().side(q.back().p)>0) q.pop_front();
+			else q.pop_back();
+			continue;
+		}
+		break;
+	}
+	if(q.size()<3) return {};
 	vector<Point> p;
 	for(int i=0;i<(int)q.size();i++) p.push_back(inter(q[i],q[(i+1)%q.size()]));
 	p=clean_polygon(p);

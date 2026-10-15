@@ -258,6 +258,9 @@ void halfplane_checks(){
 		}
 		ld want=fabsl(polygon_area2(slow));
 		auto fast=halfplane_intersection(lines,20);
+		if(fabsl(fabsl(polygon_area2(fast))-want)>2e-11L*(1+want)){
+			cerr<<"HPI integer case "<<t<<'\n';for(auto h:hp) cerr<<h.a<<' '<<h.b<<' '<<h.c<<'\n';
+		}
 		near(fabsl(polygon_area2(fast)),want,2e-11L,"deque HPI vs sequential clipping");
 		require((want<=1e-16L)==fast.empty(),"HPI positive-area contract");
 		for(auto p:fast) for(auto l:lines) require(l.side(p)>=-1e-8L,"HPI all constraints");
@@ -385,6 +388,52 @@ void space_checks(){
 	near(great_circle_distance(0,0,0,1e-12L,1),1e-12L,1e-18L,"tiny spherical angle");
 }
 
+void halfplane_wrap_checks(){
+	mt19937_64 order(20261015);
+	for(ld B:{1e-6L,1.0L,1e6L}) for(ld slope:{-1e-14L,-5e-18L,-2e-18L,-1.1e-18L,-0.9e-18L,-5e-19L,0.0L,5e-19L,0.9e-18L,1.1e-18L,2e-18L,5e-18L,1e-14L}){
+		for(ld ratio:{0.5L,1.0L}) for(ld shift:{-GEO_EPS/4,0.0L,GEO_EPS/4}) for(int rot=0;rot<4;rot++){
+			auto turn=[&](Point p){for(int k=0;k<rot;k++) p={-p.y,p.x};return p;};
+			Line line(turn(Point{-B,-B*ratio+shift}),turn(Point{B,-B*ratio+shift+2*B*slope}));
+			for(int mode=0;mode<3;mode++){
+				vector<Line> a{line};
+				if(mode>=1){
+					a.push_back(line);
+					a.emplace_back(turn(Point{-B,-B*ratio}),turn(Point{B,-B*ratio}));
+				}
+				if(mode==2){
+					for(int k=1;k<4;k++){
+						Point p=line.p,v=line.v;
+						for(int j=0;j<k;j++){p={-p.y,p.x};v={-v.y,v.x};}
+						a.emplace_back(p,p+v*(2*B));
+					}
+				}
+				vector<Point> ref={{-B,-B},{B,-B},{B,B},{-B,B}};
+				// Independent edge-by-edge clipping without widening by GEO_EPS.
+				for(auto l:a){
+					vector<Point> next;
+					for(int i=0;i<(int)ref.size();i++){
+						Point p=ref[i],q=ref[(i+1)%ref.size()];
+						ld x=l.side(p),y=l.side(q);
+						if(x>=0) next.push_back(p);
+						if((x>=0)!=(y>=0)) next.push_back(p+(q-p)*(x/(x-y)));
+					}
+					ref=next;
+				}
+				ld want=fabsl(polygon_area2(ref))/2;
+				require(want>0,"HPI wrap reference has positive area");
+				for(int repeat=0;repeat<2;repeat++){
+					shuffle(a.begin(),a.end(),order);
+					auto got=halfplane_intersection(a,B);
+					if(got.size()<3) cerr<<setprecision(24)<<"HPI wrap B="<<B<<" slope="<<slope<<" shift="<<shift<<" rot="<<rot<<" mode="<<mode<<" repeat="<<repeat<<'\n';
+					require(got.size()>=3,"HPI wrap must not discard positive region");
+					ld area=fabsl(polygon_area2(got))/2;
+					require(fabsl(area-want)<=max(1e-24L,B*B*1e-8L),"HPI wrap vs sequential clipping");
+				}
+			}
+		}
+	}
+}
+
 void oracle_protocol(){
 	int type;
 	while(cin>>type){
@@ -410,6 +459,6 @@ void oracle_protocol(){
 signed main(signed argc,char**){
 	cout<<setprecision(25);
 	if(argc>1){oracle_protocol();return 0;}
-	integer_checks();real_checks();halfplane_checks();circle_area_mec_checks();space_checks();
+	integer_checks();real_checks();halfplane_checks();circle_area_mec_checks();space_checks();halfplane_wrap_checks();
 	cout<<"PASS: geometry, "<<checks<<" independent-model/adversarial checks; long double digits="<<numeric_limits<ld>::digits<<'\n';
 }
