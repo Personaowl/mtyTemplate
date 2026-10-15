@@ -1,5 +1,5 @@
 struct SPFA{
-	static constexpr long long INF=4000000000000000000LL;
+	static constexpr long long INF=4e18;
 	vector<vector<pair<int,long long>>> e;
 	vector<long long> dis;
 	void init(int n){e.assign(n+1,{});dis.clear();}

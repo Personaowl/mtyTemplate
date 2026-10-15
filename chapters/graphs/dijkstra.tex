@@ -25,3 +25,20 @@ long long ans=g.dis[3];
 \needspace{7\baselineskip}
 \subsection*{模板代码}
 \CodeFile{code/graphs/dijkstra.cpp}
+
+\subsection*{堆的另一种写法：重载结构体比较运算符}
+上面的模板用 \InlineCode{pair} 配合 \InlineCode{greater} 实现小根堆。也可以把 \InlineCode{run} 中的堆声明替换为下面的 \InlineCode{Node} 和 \InlineCode{priority_queue<Node>}，其余入堆、结构化绑定和过期判断保持一致：
+\begin{lstlisting}[style=mtycpp,numbers=none]
+struct Node{
+	long long d;
+	int u;
+	bool operator<(const Node &a)const{
+		return d>a.d;
+	}
+};
+priority_queue<Node> q;
+q.push({0,1});
+q.push({4,2});
+auto [d,u]=q.top();q.pop();
+\end{lstlisting}
+这里两次入堆只是简单数据示例；替换进模板后仍从 \InlineCode{q.push({0,s})} 开始。默认 \InlineCode{priority_queue} 是大根堆，因此比较函数写成 \InlineCode{d>a.d}，让距离较小的节点优先弹出。末尾的 \InlineCode{const} 表示比较不修改当前节点；相同距离无需按点号继续比较，也不影响正确性。

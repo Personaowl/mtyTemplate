@@ -47,7 +47,7 @@ auto r=m.pow(10);
 在 max-plus 模型中，$M_{ij}$ 是一步从 $i$ 到 $j$ 的最大收益，不可达为 $-\infty$。$M^k$ 表示\textbf{恰好}走 $k$ 步的最大收益；若要求至多 $k$ 步，必须另行建模。单位矩阵对角线为 $0$，其余为 $-\infty$。
 
 \subsection*{max-plus 模板的使用教程}
-\InlineCode{MaxMat(n)} 创建所有转移都不可达的矩阵，第二个参数为真时创建单位矩阵。普通赋值、乘法、幂接口与上面的 \InlineCode{Mat} 一致。\InlineCode{INF} 是不可达哨兵，代码在相加前跳过它；所有真实路径收益需严格位于 $(-2^{60},2^{60})$，避免与哨兵冲突并保证中间加法安全。
+\InlineCode{MaxMat(n)} 创建所有转移都不可达的矩阵，第二个参数为真时创建单位矩阵。普通赋值、乘法、幂接口与上面的 \InlineCode{Mat} 一致。\InlineCode{INF=-4e18} 是不可达哨兵，代码在相加前跳过它；所有真实路径收益需严格位于 $(-4\times10^{18},4\times10^{18})$，避免与哨兵冲突并保证中间加法安全。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 MaxMat m(2);
 m.a[1][1]=0,m.a[1][2]=5,m.a[2][2]=2;

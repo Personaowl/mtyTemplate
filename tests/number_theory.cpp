@@ -59,6 +59,8 @@ signed main(){
 	mm.a[1][1]=0,mm.a[1][2]=5,mm.a[2][2]=2;
 	auto rr=mm.pow(3);
 	require(rr.a[1][2]==9&&rr.a[2][1]==MaxMat::INF,"max-plus unreachable");
+	MaxMat wide(1);wide.a[1][1]=-3000000000000000000LL;
+	require((wide*MaxMat(1,true)).a[1][1]==wide.a[1][1],"max-plus expanded finite range");
 	auto seg=[](long long v){
 		MaxMat t(3);
 		t.a[1][1]=0,t.a[1][2]=t.a[1][3]=v;

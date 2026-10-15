@@ -25,7 +25,10 @@ jobs:
       - name: Install TeX Live
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends latexmk texlive-xetex texlive-lang-chinese texlive-latex-extra texlive-fonts-recommended lmodern
+          sudo apt-get install -y --no-install-recommends \
+            latexmk texlive-xetex texlive-lang-chinese texlive-latex-extra \
+            texlive-fonts-recommended lmodern fontconfig fonts-texgyre
+          fc-cache -f
       - name: Compile handbook
         run: |
           latexmk main.tex

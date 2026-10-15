@@ -10,6 +10,69 @@ void fixed_cases(){
 	dj.run(1);
 	require(dj.dis[3]==2&&dj.dis[4]==Dijkstra::INF,"Dijkstra parallel, zero, unreachable");
 	dj.run(4);require(dj.dis[4]==0&&dj.dis[1]==Dijkstra::INF,"Dijkstra new source");
+	ModShortestPath mp;mp.build({6,9,20});
+	require(mp.can(29)&&!mp.can(43)&&mp.dis[5]==29,"residue minimum and membership");
+	require(mp.count(0,0)==1&&mp.count(1,43)==21&&mp.count(44,100)==57,
+		"residue distinct integer counts and zero");
+	mp.build({6,10});
+	require(mp.dis[1]==ModShortestPath::INF&&!mp.can(7)&&mp.can(16)
+		&&mp.count(0,20)==7,"residue unreachable classes without coprime steps");
+	require(!mp.can(-1)&&mp.count(-5)==0&&mp.count(-10,-1)==0
+		&&mp.count(9,8)==0&&mp.count(LLONG_MIN,0)==1,"residue negative and empty intervals");
+	mp.build({7,7});
+	require(mp.count(0,100)==15&&mp.can(98)&&!mp.can(99),"residue repeated single step and rebuild");
+	mp.build({1,9});
+	require(mp.count(ModShortestPath::INF-1)==ModShortestPath::INF
+		&&mp.can(ModShortestPath::INF-1),"residue modulus one and large count");
+	mp.build({2,ModShortestPath::INF-1});
+	require(mp.dis[1]==ModShortestPath::INF-1&&mp.can(ModShortestPath::INF-1)
+		&&mp.count(ModShortestPath::INF-1)==ModShortestPath::INF/2+1,
+		"residue finite distance just below sentinel");
+	mp.build({3,ModShortestPath::INF-3});
+	require(mp.dis[1]==ModShortestPath::INF-3&&mp.dis[2]==ModShortestPath::INF
+		&&mp.count(ModShortestPath::INF-1)==ModShortestPath::INF/3+2,
+		"residue saturated path and count bound");
+	bool match=true;
+	for(auto a:vector<vector<long long>>{{4,7,9},{6,10,14}}){
+		mp.build(a);vector<bool> reach(201,false);reach[0]=true;
+		long long cnt=0;
+		for(int x=0;x<=200;x++){
+			for(auto w:a) if(w<=x&&reach[x-w]) reach[x]=true;
+			cnt+=reach[x];
+			if(mp.can(x)!=reach[x]||mp.count(x)!=cnt) match=false;
+		}
+	}
+	require(match,"residue membership and prefix counts versus small unbounded knapsack");
+	DAGDP dag;dag.init(6);
+	dag.add(2,1,2),dag.add(1,3,-5),dag.add(2,3,4),dag.add(3,4,1),dag.add(5,6,-9);
+	require(dag.build(),"Kahn multiple sources and disconnected graph");
+	vector<int> pos(7);
+	for(int i=0;i<(int)dag.ord.size();i++) pos[dag.ord[i]]=i;
+	bool ordered=true;
+	for(int u=1;u<=6;u++) for(auto [v,w]:dag.e[u]) if(pos[u]>=pos[v]) ordered=false;
+	require(ordered&&dag.build(),"topological edge ordering and rebuild");
+	auto shortest=dag.path(2),longest=dag.path(2,true),ways=dag.count(2,1000000007);
+	require(shortest[4]==-2&&longest[4]==5&&shortest[5]==DAGDP::INF
+		&&longest[5]==-DAGDP::INF,"DAG negative weights and unreachable vertices");
+	require(ways[2]==1&&ways[4]==2&&ways[5]==0&&dag.count(2,1)[4]==0,
+		"DAG path counts, empty path and modulus one");
+	dag.add(6,5);
+	require(!dag.build()&&dag.ord.empty(),"DAG disconnected cycle clears partial order");
+	dag.init(1);dag.add(1,1);
+	require(!dag.build(),"DAG self loop rejection");
+	dag.init(3);dag.add(1,2,-2),dag.add(1,2,-4),dag.add(2,3,-3);
+	require(dag.build()&&dag.path(1)[3]==-7&&dag.path(1,true)[3]==-5
+		&&dag.count(1,97)[3]==2,"DAG parallel edges and all-negative paths");
+	dag.init(64);
+	for(int u=1;u<64;u++){dag.add(u,u+1);dag.add(u,u+1);}
+	require(dag.build()&&dag.count(1,LLONG_MAX)[64]==1,"DAG modular addition beyond signed 64 bit");
+	dag.init(3);dag.add(1,2,DAGDP::INF-1),dag.add(1,3,-DAGDP::INF+1);
+	require(dag.build()&&dag.path(1)[2]==DAGDP::INF-1
+		&&dag.path(1,true)[3]==-DAGDP::INF+1,"DAG finite paths next to sentinels");
+	dag.init(3);dag.add(1,2),dag.add(2,3);dag.build();
+	vector<long long> weight={0,-5,-3,-7},dp=weight;
+	for(auto u:dag.ord) for(auto [v,w]:dag.e[u]) dp[v]=max(dp[v],dp[u]+weight[v]);
+	require(*max_element(dp.begin()+1,dp.end())==-3,"DAG arbitrary-start nonempty vertex-weight path");
 	SPFA sp;sp.init(4);
 	sp.add(1,2,-3),sp.add(2,3,2);
 	require(sp.run(1)&&sp.dis[3]==-1&&sp.dis[4]==SPFA::INF,"SPFA negative edge");

@@ -1,5 +1,5 @@
 struct DiscountPath{
-	static constexpr long long INF=4000000000000000000LL;
+	static constexpr long long INF=4e18;
 	int k;
 	vector<vector<pair<int,long long>>> e;
 	vector<vector<long long>> dis;

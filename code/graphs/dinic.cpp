@@ -1,5 +1,5 @@
 struct Dinic{
-	static constexpr long long INF=4000000000000000000LL;
+	static constexpr long long INF=4e18;
 	struct Edge{int to;long long cap;};
 	vector<Edge> e;
 	vector<vector<int>> g;

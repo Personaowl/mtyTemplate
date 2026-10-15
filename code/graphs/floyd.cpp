@@ -1,5 +1,5 @@
 struct Floyd{
-	static constexpr long long INF=4000000000000000000LL;
+	static constexpr long long INF=4e18;
 	int n;
 	vector<vector<long long>> dis;
 	void init(int n){

@@ -1,5 +1,5 @@
 struct MaxMat{
-	static constexpr long long INF=-(1LL<<60);
+	static constexpr long long INF=-4e18;
 	int n;
 	vector<vector<long long>> a;
 	MaxMat(int n,bool unit=false):n(n),

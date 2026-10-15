@@ -1,5 +1,5 @@
 struct MinCostFlow{
-	static constexpr long long INF=4000000000000000000LL;
+	static constexpr long long INF=4e18;
 	struct Edge{int to;long long cap,cost;};
 	struct Result{bool ok;long long flow;__int128 cost;};
 	vector<Edge> e;

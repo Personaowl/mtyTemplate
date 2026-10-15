@@ -7,9 +7,9 @@ import subprocess
 import tempfile
 from compile_examples import ROOT, compile_examples
 
-NAMES = ('dijkstra', 'spfa', 'floyd', 'kruskal', 'prim', 'layered_path', 'scc', 'cuts',
+NAMES = ('dijkstra', 'spfa', 'floyd', 'kruskal', 'prim', 'layered_path', 'mod_shortest_path', 'dag_dp', 'scc', 'cuts',
          'two_sat', 'difference_constraints', 'min_cycle', 'directed_cycle', 'dinic', 'min_cost_flow')
-CHAPTERS = ('dijkstra', 'spfa', 'floyd', 'mst', 'layered_path', 'scc', 'cuts', 'two_sat',
+CHAPTERS = ('dijkstra', 'spfa', 'floyd', 'mst', 'layered_path', 'mod_shortest_path', 'dag_dp', 'scc', 'cuts', 'two_sat',
             'difference_constraints', 'min_cycle', 'dinic', 'min_cost_flow', 'flow_models', 'bounded_flow')
 SOURCES = ['code/data-structures/dsu.cpp'] + [f'code/graphs/{name}.cpp' for name in NAMES]
 

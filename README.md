@@ -29,6 +29,8 @@ latexmk main.tex
 - Overleaf：选择 XeLaTeX，主文档选择 `main.tex`。
 - VS Code：可安装推荐的 LaTeX Workshop 扩展，选择“编译手册”配方。
 
+Ubuntu 精简安装需要显式安装 OpenType 字体包 `fonts-texgyre`；只安装 `texlive-fonts-recommended` 不应作为字体已齐全的保证。GitHub Actions 的安装列表包含该字体包与 `fontconfig`，安装后执行 `fc-cache -f`。若日志提示 `TeX Gyre Pagella`、`TeX Gyre Heros` 或 `TeX Gyre Cursor` 找不到，先检查这些依赖与字体缓存。
+
 ## 模板使用说明
 
 ### 怎样查阅和复用
@@ -46,6 +48,7 @@ latexmk main.tex
 - C++ 使用 Tab 缩进，左大括号同行；常见排版为 `for(int i=1;i<=n;i++){`。
 - 数据结构优先使用 `struct` 封装；局部辅助函数可使用 lambda，递归常使用 `auto &&self`。
 - 保留 `#define int long long` 配合 `signed main()` 的习惯；内存敏感模板单独说明类型。
+- 64 位正无穷使用 `static constexpr long long INF=4e18`，负无穷使用 `-INF` 或 `-4e18`；真实值需满足条目约定，不能拿不可达哨兵直接参与转移。
 
 更完整的约定见 [码风约定](docs/code-style.md)。
 
@@ -56,7 +59,7 @@ latexmk main.tex
 | 基础 | 暂不收录 PDF，保留解题框架等源文件 |
 | 数论（第二章） | 模运算、扩欧、逆元、筛法、欧拉降幂、Legendre、整除分块、组合计数、Lucas、康托、容斥、矩阵、高斯消元、CRT、线性基、博弈与 SG 状态图模板 |
 | 数据结构 | 暂不收录 PDF，保留普通并查集等源文件 |
-| 图论（第三章） | 最短路、最小生成树、分层图、SCC 与缩点、割点割边、边双、2-SAT、差分约束、最小环、最大流、费用流、最小割建模与上下界流 |
+| 图论（第三章） | 最短路（含结构体堆写法）、最小生成树、分层图、同余最短路、拓扑排序与 DAG DP、SCC 与缩点、割点割边、边双、2-SAT、差分约束、最小环、最大流、费用流、最小割建模与上下界流 |
 | 字符串（第一章） | Trie、双哈希、KMP、Z 函数与扩展 KMP、Manacher、AC 自动机 |
 | DP / 几何 | 预留目录，收录真实条目后再启用 |
 
@@ -171,6 +174,6 @@ git push origin main
 
 首次提交如提示身份信息，请自行配置 `user.name` 与 `user.email`。仓库尚未指定开源许可证，发布前请自行决定并核对引用代码的授权。
 
-推送到 `main` 或创建 PR 后，GitHub Actions 会编译手册和已收录的字符串、数论、图论模板及调用示例，不自动运行完整对拍。PDF 在对应运行的 **Artifacts → mtyTemplate-pdf** 中下载，保留 30 天。工作流尚需首次推送后在 GitHub 验证。
+推送到 `main` 或创建 PR 后，GitHub Actions 会编译手册和已收录的字符串、数论、图论模板及调用示例，不自动运行完整对拍。构建成功后，PDF 在对应运行的 **Artifacts → mtyTemplate-pdf** 中下载，保留 30 天；远程检查状态以对应提交的 Actions 运行记录为准。
 
 工作流不自动提交 PDF 或创建 Release。正式发布时可手工将 PDF 上传至 GitHub Release，并添加对应版本标签。
