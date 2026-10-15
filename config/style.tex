@@ -1,0 +1,88 @@
+\usepackage{geometry}
+\geometry{left=21mm,right=21mm,top=23mm,bottom=21mm,headheight=15pt,headsep=7mm,footskip=11mm}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{tabularx,booktabs,array}
+\usepackage{enumitem}
+\usepackage{needspace}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{bookmark}
+
+% All fonts ship with TeX Live; no dependency on Windows fonts.
+\setmainfont{TeX Gyre Pagella}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{TeX Gyre Cursor}[Scale=0.90]
+\definecolor{Ink}{HTML}{182F3A}
+\definecolor{Accent}{HTML}{087E83}
+\definecolor{Muted}{HTML}{657780}
+\definecolor{Paper}{HTML}{F3F7F7}
+\definecolor{Rule}{HTML}{D7E3E5}
+\definecolor{Copper}{HTML}{B87842}
+\definecolor{CodeComment}{HTML}{657B6C}
+\definecolor{CodeString}{HTML}{9A5F35}
+\color{Ink}
+\hypersetup{
+    unicode=true,colorlinks=true,linkcolor=Accent,urlcolor=Accent,citecolor=Accent,
+    bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=1,
+    pdftitle={\BookTitle},pdfauthor={\BookAuthor},pdfsubject={ACM / ICPC algorithm templates}
+}
+\urlstyle{tt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\linespread{1.15}
+\raggedbottom
+\setlength{\emergencystretch}{2em}
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{1}
+\setlist[itemize]{leftmargin=1.5em,itemsep=3pt,topsep=4pt,parsep=0pt}
+\setlist[enumerate]{leftmargin=1.7em,itemsep=3pt,topsep=4pt,parsep=0pt}
+\ctexset{
+    chapter={
+        name={,},number=\arabic{chapter},
+        format=\Huge\sffamily\bfseries\color{Ink},
+        numberformat=\color{Accent},aftername=\quad,
+        beforeskip=0pt,afterskip=18pt
+    },
+    section={format=\Large\sffamily\bfseries\color{Ink},beforeskip=14pt,afterskip=8pt},
+    subsection={format=\normalsize\sffamily\bfseries\color{Accent},beforeskip=10pt,afterskip=5pt}
+}
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter\quad #1}{}}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{Muted}\BookRepository}
+\fancyhead[R]{\small\sffamily\color{Muted}\nouppercase{\leftmark}}
+\fancyfoot[L]{\scriptsize\sffamily\color{Muted}\BookAuthor\enspace /\enspace \BookVersion}
+\fancyfoot[R]{\small\sffamily\color{Accent}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[L]{\scriptsize\sffamily\color{Muted}\BookRepository\enspace /\enspace \BookVersion}
+    \fancyfoot[R]{\small\sffamily\color{Accent}\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+}
+\lstdefinestyle{mtycpp}{
+    language=C++,basicstyle=\ttfamily\linespread{1}\fontsize{9}{10.8}\selectfont\color{Ink},
+    keywordstyle=\bfseries\color{Accent},commentstyle=\color{CodeComment},
+    stringstyle=\color{CodeString},identifierstyle=\color{Ink},
+    morekeywords={__int128},numbers=left,numberstyle=\tiny\color{Muted},
+    numbersep=9pt,stepnumber=1,firstnumber=1,
+    backgroundcolor=\color{Paper},frame=single,rulecolor=\color{Rule},framerule=0.35pt,
+    xleftmargin=17pt,framexleftmargin=12pt,framesep=6pt,
+    aboveskip=9pt,belowskip=10pt,tabsize=4,keepspaces=true,
+    columns=fullflexible,showstringspaces=false,showtabs=false,
+    breaklines=true,breakatwhitespace=false,breakautoindent=true,
+    postbreak=\mbox{\textcolor{Muted}{\tiny$\hookrightarrow$}\space},
+    escapeinside={(*@}{@*)},texcl=false
+}
+\lstset{style=mtycpp}
+\tcbset{
+    enhanced,sharp corners,boxrule=0.4pt,colframe=Rule,colback=Paper,
+    left=10pt,right=10pt,top=8pt,bottom=8pt,
+    before skip=8pt,after skip=10pt,fonttitle=\sffamily\bfseries,
+    coltitle=Ink,colbacktitle=Paper
+}

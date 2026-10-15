@@ -1,0 +1,51 @@
+% Source: ACM_Templates.pdf, PDF pp. 31-34.
+% Corrections and validation: docs/validation.md.
+\section{容斥原理与 DP 容斥}
+\label{math:inclusion}
+\subsection*{集合的并与补集}
+设 $S_1,\ldots,S_k$ 为有限集合，则
+\[
+    \left|\bigcup_{i=1}^kS_i\right|
+    =\sum_{\varnothing\ne T\subseteq\{1,\ldots,k\}}
+    (-1)^{|T|-1}\left|\bigcap_{i\in T}S_i\right|.
+\]
+某个元素若属于 $t$ 个集合，右边会计数 $\sum_{j=1}^t(-1)^{j-1}\binom tj=1$ 次，这说明“奇数个集合的交相加，偶数个集合的交相减”恰好去掉重复。
+
+若要求同时满足全部限制，在全集 $U$ 中定义违反第 $i$ 个限制的坏集合 $B_i$，那么合法数量为
+\[
+    |U\setminus\textstyle\bigcup_iB_i|
+    =\sum_{T\subseteq\{1,\ldots,k\}}
+    (-1)^{|T|}\left|\bigcap_{i\in T}B_i\right|,
+\]
+其中空集项为 $|U|$。由德摩根律，$|\bigcap_i S_i|=|U|-|\bigcup_i(U\setminus S_i)|$，右侧必须是各集合的补集。
+
+\subsection*{应用一：固定币值、多次询问数量上限}
+有 $k$ 种币值 $c_i$，每种最多使用 $d_i$ 枚，求 $\sum_i c_ix_i=s$ 的非负整数解个数。先只按固定币值做完全背包，得到无限使用时凑出金额 $t$ 的方案数 $f(t)$，并规定 $f(t)=0$（$t<0$）。
+
+把坏事件设为 $x_i\geq d_i+1$。选定坏事件集合 $T$ 时，先减去每种必用的 $d_i+1$ 枚硬币，其余仍为无限使用模型，因此答案为
+\[
+    \sum_{T\subseteq\{1,\ldots,k\}}(-1)^{|T|}
+    f\!\left(s-\sum_{i\in T}c_i(d_i+1)\right).
+\]
+背包先枚举币种，再从小到大枚举金额，避免把不同支付顺序重复计数。预处理到最大金额 $M$ 需要 $O(kM)$ 时间、$O(M)$ 空间；直接枚举子集每次询问 $O(k2^k)$，$k=4$ 时只需枚举少量子集。注意金额乘积和方案数的整数范围。
+
+\subsection*{应用二：稀疏障碍的网格路径}
+从 $(1,1)$ 走到 $(H,W)$，每步只能向右或向下。先将障碍点去重，若起点或终点是障碍则答案为 $0$；其余障碍按行、列字典序排序，再把终点加入末尾。
+
+点 $P=(r_1,c_1)$ 到 $Q=(r_2,c_2)$ 的无限制路径数为
+\[
+    \operatorname{Path}(P,Q)=
+    \begin{cases}
+        \displaystyle\binom{(r_2-r_1)+(c_2-c_1)}{r_2-r_1},
+        &r_2\geq r_1,\ c_2\geq c_1,\\
+        0,&\text{否则}.
+    \end{cases}
+\]
+记排序后的点为 $A_1,\ldots,A_{N+1}$，其中 $A_{N+1}$ 为终点。$f_i$ 表示从起点走到 $A_i$ 且此前不经过任何障碍的方案数，则
+\[
+    f_i=\operatorname{Path}(S,A_i)-
+    \sum_{j<i}f_j\operatorname{Path}(A_j,A_i).
+\]
+每条非法路径按它\textbf{首次碰到的障碍}唯一分类，所以扣除项互不重叠；这也是不用显式枚举障碍子集的原因。终点答案为 $f_{N+1}$。
+
+组合数预处理后转移为 $O(N^2)$，素数模数下用普通阶乘表还需 $H+W-2<p$。判断可达性时要分别检查两个坐标的差非负；不能只看它们的和。也不能因为某个总路径数取模后等于 $0$ 就跳过减法，这不代表实际没有路径。

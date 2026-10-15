@@ -1,0 +1,31 @@
+{
+  "files.encoding": "utf8",
+  "latex-workshop.latex.outDir": "%DIR%/build",
+  "latex-workshop.latex.autoBuild.run": "never",
+  "latex-workshop.latex.recipes": [
+    {
+      "name": "编译手册 (XeLaTeX + latexmk)",
+      "tools": [
+        "mty-handbook"
+      ]
+    }
+  ],
+  "latex-workshop.latex.tools": [
+    {
+      "name": "mty-handbook",
+      "command": "latexmk",
+      "args": [
+        "-cd",
+        "%WORKSPACE_FOLDER%/main.tex"
+      ]
+    }
+  ],
+  "[cpp]": {
+    "editor.insertSpaces": false,
+    "editor.tabSize": 4
+  },
+  "[latex]": {
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4
+  }
+}

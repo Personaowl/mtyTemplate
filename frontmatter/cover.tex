@@ -1,0 +1,37 @@
+\begin{titlepage}
+\begin{tikzpicture}[remember picture,overlay]
+    \fill[Ink] (current page.north west) rectangle ([xshift=12mm]current page.south west);
+    \fill[Accent] ([xshift=12mm]current page.north west)
+        rectangle ([xshift=15mm]current page.south west);
+    \fill[Paper] ([xshift=-85mm]current page.north east)
+        rectangle ([yshift=-122mm]current page.north east);
+    \foreach \i in {0,...,6}{
+        \draw[Rule,line width=0.4pt]
+            ([xshift=-78mm,yshift=-28mm-\i*12mm]current page.north east)
+            -- ([xshift=-12mm,yshift=-28mm-\i*12mm]current page.north east);
+    }
+    \draw[Copper,line width=2pt]
+        ([xshift=-78mm,yshift=-43mm]current page.north east)
+        -- ([xshift=-59mm,yshift=-64mm]current page.north east)
+        -- ([xshift=-40mm,yshift=-52mm]current page.north east)
+        -- ([xshift=-21mm,yshift=-88mm]current page.north east);
+\end{tikzpicture}
+\vspace*{17mm}
+{\sffamily\bfseries\color{Accent}\large MTY\enspace /\enspace NOTEBOOK}\par
+\vspace{42mm}
+{\fontsize{34}{44}\selectfont\sffamily\bfseries\BookTitle}\par
+\vspace{7mm}
+{\large\sffamily\color{Muted}\BookSubtitle}\par
+\vspace{16mm}
+{\color{Accent}\rule{35mm}{1.4pt}}\par
+\vspace{6mm}
+{\large 保留熟悉的码风，积累可复用的算法。}\par
+\vspace{4mm}
+{\color{Muted}说明、源码与排版分离\quad /\quad 持续维护\quad /\quad 按需打印}\par
+\vfill
+\begin{tabularx}{\linewidth}{@{}Xr@{}}
+    {\sffamily\bfseries\BookAuthor} & {\sffamily\BookVersion} \\
+    {\small\sffamily\color{Muted}\BookRepository} & {\small\sffamily\color{Muted}\BookDate}
+\end{tabularx}
+\vspace{4mm}
+\end{titlepage}

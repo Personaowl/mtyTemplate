@@ -1,0 +1,75 @@
+% Source: ACM_Templates.pdf, PDF pp. 34-35.
+% Corrections and validation: docs/validation.md.
+% Additional rules cross-check: https://sites.lsa.umich.edu/zieve/publications/
+\section{常见取石子博弈}
+\label{math:games}
+本节均为两人轮流行动、信息完全公开、双方采取最优策略，并采用“不能行动者输”的正常规则。若改为取到最后者输，以下结论不能直接使用。
+
+\subsection*{巴什博弈}
+一堆 $n$ 个石子，每次取 $1,\ldots,m$ 个，$m\geq1$。先手必败当且仅当
+\[
+    n\bmod(m+1)=0.
+\]
+若剩余数量为 $m+1$ 的倍数，当前玩家无论取多少，对方都能把本轮两人的取数补成 $m+1$；若不是倍数，可先取余数个，使对方进入必败状态。
+
+\subsection*{Nim 博弈}
+有若干堆，每步从某一堆取至少一个石子，可取完。先手必败当且仅当
+\[
+    a_1\mathbin{\oplus}a_2\mathbin{\oplus}\cdots\mathbin{\oplus}a_n=0.
+\]
+零异或局面每次只改变一堆，必然变成非零。若异或和为 $s\ne0$，选择在 $s$ 的最高非零位上为 $1$ 的某堆，将其从 $a_i$ 减至 $a_i\mathbin{\oplus}s<a_i$，便能走回零异或局面。
+
+\subsection*{威佐夫博弈}
+两堆石子，每次从一堆取任意正数个，或从两堆取相同的正数个。先令 $a\leq b$，记 $d=b-a$、$\tau=(1+\sqrt5)/2$，则先手必败当且仅当
+\[
+    a=\lfloor d\tau\rfloor.
+\]
+必败对形成 $(\lfloor d\tau\rfloor,\lfloor d\tau^2\rfloor)$，其中两项之差为 $d$；它们不会一步互相到达，而其他局面可以走到其中一对。判断只需比较公式，无需搜索整个状态图。
+
+浮点乘法在大整数附近可能把取整结果算错。若 $d\leq10^{18}$，可用 128 位整数计算 $\lfloor\sqrt{5d^2}\rfloor$（整数平方根），再用
+\[
+    \lfloor d\tau\rfloor=
+    \left\lfloor\frac{d+\lfloor\sqrt{5d^2}\rfloor}{2}\right\rfloor
+\]
+完成精确判定；计算平方前就要转换类型。
+
+\subsection*{斐波那契博弈}
+一堆 $n\geq1$ 个石子。首步可取任意正数个但不能取完，此后每次至少取一个，且至多取上一步数量的两倍；取完者胜。在这一\textbf{初始规则}下，先手必败恰为斐波那契数 $1,2,3,5,8,\ldots$。
+
+任意正整数可唯一表示为若干个不相邻的斐波那契数之和（Zeckendorf 表示）。若初始 $n$ 不是单个斐波那契数，先取走表示中的最小一项可以把对手留在受限的败势。后续状态还包含“本轮最多能取多少”，不能只凭剩余数量是否为斐波那契数判断每一步胜负。
+
+\subsection*{推广：SG 函数}
+对有限、无环、双方可选行动相同的正常规则博弈，定义
+\[
+    SG(x)=\operatorname{mex}\{SG(y):x\to y\},
+\]
+其中 $\operatorname{mex}$ 是未出现在集合中的最小非负整数，终止态为 $0$。$SG=0$ 为必败态，非零为必胜态；多个独立子游戏每次只行动其中一个时，整体 SG 值为各部分的异或。这解释了 Nim 异或判定的推广形式。
+
+\subsection*{SG 模板：有向无环状态图}
+把每种局面编号，合法行动对应有向边 $u\to v$。先做拓扑排序，再按逆序计算，保证处理 $u$ 时所有后继的 SG 值已经求出。若 $u$ 的出度为 $d$，至多出现 $d$ 个不同后继值，所以 $\operatorname{mex}\leq d$；只需标记 $0,\ldots,d$，更大的后继值不会影响答案。
+
+对 $V$ 个状态、$E$ 条转移，总时间与空间均为 $O(V+E)$。采用迭代拓扑序，无需递归搜索；状态转移若存在环，不能直接套用有限无环博弈的 SG 递推，本模板会返回失败。
+
+\subsection*{使用教程}
+\InlineCode{init(n)} 创建编号 $0,\ldots,n$ 的状态，零号状态可以使用，也可以留空。用 \InlineCode{add(u,v)} 加入一步合法转移；全部加完后调用 \InlineCode{build()}，返回真时读取 \InlineCode{sg[x]}，返回假表示状态图有环，此时不使用数组中的值。增加转移后需重新构建，新一组数据调用 \InlineCode{init} 清空。
+
+例如每次可取 $1,3,4$ 个石子，直接用剩余数量作为状态编号；$0$ 无出边，是终止局面。下面预处理到 $7$，再判断三堆石子的组合局面。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+SG game;
+game.init(7);
+vector<int> step={1,3,4};
+for(int x=1;x<=7;x++){
+    for(auto d:step) if(x>=d) game.add(x,x-d);
+}
+if(game.build()){
+    vector<int> a={2,5,7};
+    int res=0;
+    for(auto x:a) res^=game.sg[x];
+    bool win=res!=0;
+}
+\end{lstlisting}
+多堆异或要求各堆的规则彼此独立、每步只改变其中一堆。若一次行动会将一堆分成多个独立子游戏，则该行动的后继值应为各部分 SG 的异或，不能把每个部分分别当作一条普通出边。
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/number-theory/sg.cpp}

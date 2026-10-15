@@ -1,0 +1,49 @@
+% Source: ACM_Templates.pdf, PDF pp. 15-17.
+% Corrections and validation: docs/validation.md.
+\section{欧拉函数与指数降幂}
+\label{algo:euler}
+\AlgorithmInfo
+    {计算欧拉函数，并处理指数以十进制字符串给出的模幂。}
+    {单点欧拉函数 $O(\sqrt m)$；长度为 $L$ 的指数处理共 $O(\sqrt m+L+\log m)$。}
+    {$m\geq1$；模幂模板要求 $m\leq2\times10^9$，指数串为非空非负十进制数。}
+
+\subsection*{欧拉函数}
+$\varphi(n)$ 表示 $1\leq x\leq n$ 中与 $n$ 互质的整数个数，约定 $\varphi(1)=1$。若 $n=\prod_i p_i^{\alpha_i}$，排除每个素因子的倍数，按容斥得到
+\[
+    \varphi(n)=n\prod_{p\mid n}\left(1-\frac1p\right)
+    =\prod_i p_i^{\alpha_i-1}(p_i-1).
+\]
+因此 $\varphi(p)=p-1$、$\varphi(p^k)=p^{k-1}(p-1)$；若 $\gcd(a,b)=1$，则 $\varphi(ab)=\varphi(a)\varphi(b)$，称为积性。批量预处理直接使用第~\ref{algo:sieve}~节的线性筛。
+
+\subsection*{欧拉定理与费马小定理}
+若 $m\geq2$ 且 $\gcd(a,m)=1$，乘以 $a$ 会把模 $m$ 的可逆剩余类重新排列。比较这些剩余类的乘积并约去可逆因子，得到
+\[
+    a^{\varphi(m)}\equiv1\pmod m.
+\]
+于是 $a^b\equiv a^{b\bmod\varphi(m)}\pmod m$。当 $m$ 为素数时，便是费马小定理。
+
+\subsection*{不互质时的扩展降幂}
+不满足互质条件时，不能无条件把指数直接取模。对 $m\geq2$、$b\geq0$，可使用
+\[
+    a^b\equiv
+    \begin{cases}
+        a^b,&b<\varphi(m),\\
+        a^{\,b\bmod\varphi(m)+\varphi(m)},&b\geq\varphi(m)
+    \end{cases}\pmod m.
+\]
+可以把 $m$ 分解为素数幂理解：与 $a$ 互质的部分按欧拉周期循环；与 $a$ 不互质的部分，在指数足够大后被对应素数幂整除。加回 $\varphi(m)$ 保证降幂后的指数仍处在这一范围，最后由中国剩余定理合并。
+
+读取大指数时同时维护 $b\bmod\varphi(m)$，以及截断值 $\min(b,\varphi(m))$，后者只用于判断是否达到阈值。不能仅凭余数判断原指数大小，也不能对所有小指数都加周期。
+
+\subsection*{使用教程}
+先复制快速幂。\InlineCode{phi(n)} 处理单个正整数；\InlineCode{pow_decimal(a,b,m)} 接收原始指数串，可带前导零，无需先转成整数。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+long long t=phi(36);
+long long ans=pow_decimal(6,"100000000000000000000",1000);
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/number-theory/euler.cpp}
+
+$m=1$ 时结果恒为 $0$，实现同样支持；指数为零仍按快速幂的约定处理。试除法求单点欧拉函数的输入可使用正的 64 位整数，但接近上限时复杂度不适合实际运行。

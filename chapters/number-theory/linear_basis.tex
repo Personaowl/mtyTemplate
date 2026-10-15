@@ -1,0 +1,40 @@
+% Source: ACM_Templates.pdf, PDF pp. 38-39.
+% Corrections and validation: docs/validation.md.
+\section{异或线性基}
+\label{algo:linear-basis}
+\AlgorithmInfo
+    {维护整数的异或张成空间，判断可表示性、求最大异或和与不同非空子集异或值的第 $k$ 小。}
+    {插入、判定、最大值 $O(B)$；当前第 $k$ 小查询 $O(B^2)$，空间 $O(B)$。}
+    {取 $B=60$，所有数均在 $[0,2^{61})$；第 $k$ 小从 $1$ 开始，不计重复数值。}
+
+\subsection*{原理：把每一位看作一个坐标}
+整数异或相当于 $\mathbb F_2$ 上的向量加法。维护 $d_i$ 的最高非零位为 $i$：插入一个数时从高位到低位消去，遇到空主元位就存入；若最终消成 $0$，它可由已有基向量表示，不增加秩。
+
+设秩为 $r$，允许空子集时共有 $2^r$ 个不同异或值。\InlineCode{zero} 记录是否存在\textbf{非空}子集异或为 $0$，可由任意一次插入消成 $0$ 判定，包括直接插入数字 $0$。空子集本来就能得到 $0$，不能用这一事实代替非空判定。
+
+求最大值时从高到低尝试异或 $d_i$，若能变大就接受；最高不同位决定大小，故贪心成立。
+
+\subsection*{第 $k$ 小为什么还要消元}
+普通插入得到的基向量仍可能含有更低的主元位。先用低位主元消去高位基向量中的这些位，再按主元位从低到高排列成 $v_0,\ldots,v_{r-1}$。此时把一个从 $0$ 开始的二进制编号 $z$ 映射为
+\[
+    \bigoplus_{i:\,z_i=1}v_i,
+\]
+得到的值按编号递增，才可以用它做第 $k$ 小查询。
+
+本接口只考虑非空子集产生的不同数值：若 \InlineCode{zero} 为真，$0$ 应是第一小，令编号为 $k-1$；否则排除空子集的零值，直接使用编号 $k$。编号达到 $2^r$ 则不存在该项。为了允许查询后继续插入，本实现每次在副本上做简化，因此单次 $O(B^2)$；大量查询可将简化后的向量缓存，插入后使缓存失效。
+
+\subsection*{使用教程}
+构造后直接插入，\InlineCode{init()} 清空。\InlineCode{insert(x)} 返回是否增加秩；\InlineCode{contain(x)} 判断是否在张成空间中，包含允许空子集得到的 $0$。\InlineCode{query_max()} 求最大子集异或和；带参数时求该值与种子异或后的最大值。\InlineCode{kth(k)} 按上述非空、不同数值的约定查询，不存在时返回 $-1$。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Basis lb;
+lb.insert(3),lb.insert(5),lb.insert(6);
+bool ok=lb.contain(7);
+auto best=lb.query_max();
+long long val=lb.kth(2);
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/number-theory/linear_basis.cpp}
+
+按子集个数排序、允许重复值的第 $k$ 小是另一个问题，不能直接套用此接口。若扩大位宽，还需同步处理有符号返回值和 $2^r$ 的移位范围；当前最多 $61$ 个主元，避免移位到类型宽度。

@@ -1,0 +1,18 @@
+% Source: daily-problems/8-19/CF1253D.cpp; see docs/validation.md.
+\section{并查集}
+\label{algo:dsu}
+\AlgorithmMeta
+    {维护无向连通关系，支持集合合并、连通性判断和集合大小查询。}
+    {初始化 $O(n)$，均摊单次操作 $O(\alpha(n))$，空间 $O(n)$。}
+    {节点编号 $1\ldots n$；路径压缩与按大小合并；不支持撤销。}
+    {已进行重复初始化、边界检查与随机对拍，记录见 \InlineCode{docs/validation.md}。}
+
+\subsection*{接口与调用}
+\InlineCode{DSU dsu;dsu.init(n);} 初始化；\InlineCode{merge(x,y)} 在实际合并时返回真；\InlineCode{check(x,y)} 判断连通；\InlineCode{size(x)} 查询所在集合大小。
+
+\CodeFile{code/data-structures/dsu.cpp}
+
+\begin{Pitfalls}
+    \item \InlineCode{init(n)} 可以重复调用，会重置父节点和集合大小。
+    \item \InlineCode{sz} 只在根节点处表示集合大小，请通过 \InlineCode{size(x)} 查询。
+\end{Pitfalls}

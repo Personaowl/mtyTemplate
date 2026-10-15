@@ -1,0 +1,60 @@
+% Source: ACM_Templates.pdf, PDF pp. 19-20, 37.
+% Corrections and validation: docs/validation.md.
+\section{裴蜀定理、扩欧与线性同余}
+\label{algo:exgcd}
+\AlgorithmInfo
+    {求最大公约数及裴蜀系数，进而解整数不定方程和线性同余方程。}
+    {扩欧时间与递归空间均为 $O(\log(\max(|a|,|b|)+1))$。}
+    {$a,b$ 不全为 $0$，$|a|,|b|<2^{63}$；特解放大时另行检查整数范围。}
+
+\subsection*{原理：裴蜀定理}
+令 $d=\gcd(a,b)>0$。存在整数 $x,y$ 使 $ax+by=d$，并且 $a,b$ 的所有整数线性组合恰好是 $d$ 的倍数。因此
+\[
+    ax+by=c\text{ 有整数解}\quad\Longleftrightarrow\quad d\mid c.
+\]
+多元形式同样成立：$\sum_i a_ix_i=c$ 有整数解，当且仅当 $\gcd(a_1,\ldots,a_n)\mid c$，其中系数不全为 $0$。
+
+\subsection*{扩展欧几里得的回代}
+由 $\gcd(a,b)=\gcd(b,a\bmod b)$，设下一层满足
+\[
+    bx_1+(a\bmod b)y_1=d.
+\]
+写成 $a=q b+(a\bmod b)$，得到
+\[
+    x=y_1,\qquad y=x_1-qy_1.
+\]
+对非负系数 $q=\lfloor a/b\rfloor$；代码支持负数，使用 C++ 的截断除法和配套余数，等式仍然成立。递归到 $b=0$ 时令 $x=\operatorname{sgn}(a),y=0$，保证返回正的最大公约数。
+
+若扩欧得到 $ax_0+by_0=d$，则原方程的一组特解为
+\[
+    x_p=x_0\frac cd,\qquad y_p=y_0\frac cd,
+\]
+所有整数解为
+\[
+    x=x_p+\frac bd t,\qquad y=y_p-\frac ad t,\qquad t\in\mathbb Z.
+\]
+若 $b\ne0$，把 $x_p$ 对 $|b|/d$ 归一化可得到最小非负的 $x$，再由原方程求对应 $y$；这不保证 $y$ 也非负。若要求两者非负，需要分别对参数 $t$ 建立上下界并取交集。
+
+\subsection*{线性同余方程}
+$ax\equiv c\pmod m$ 等价于 $ax+my=c$。令 $d=\gcd(a,m)$：若 $d\nmid c$ 无解；否则由扩欧求特解，再对 $m/d$ 归一化。通解为
+\[
+    x\equiv x_0\frac cd\pmod{m/d}.
+\]
+在 $[0,m-1]$ 内恰有 $d$ 个不同解，相邻解相差 $m/d$。
+
+\subsection*{使用教程}
+\InlineCode{exgcd(a,b,x,y)} 返回 $d$，通过引用写回满足 $ax+by=d$ 的系数。求一般方程时先判断整除，再放大特解。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+long long a=18,b=30,c=12,x,y;
+long long d=exgcd(a,b,x,y);
+if(c%d==0){
+    __int128 xp=(__int128)x*(c/d);
+    __int128 yp=(__int128)y*(c/d);
+}
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/number-theory/exgcd.cpp}
+
+若 $a=b=0$，应单独判断：$c=0$ 时任意整数对均为解，否则无解，不调用本模板。$b=0,a\ne0$ 时，直接判断 $a\mid c$，固定 $x=c/a$，而 $y$ 任意。

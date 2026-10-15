@@ -1,0 +1,29 @@
+% Source: ACM_Templates.pdf, PDF pp. 10-11, KMP/Code01_KMP.
+% Validation and changes: docs/validation.md; scripts/check_strings.py.
+\section{KMP：单模式串匹配}
+\label{algo:kmp}
+\AlgorithmInfo
+    {找出模式串 $t$ 在文本串 $s$ 中的所有出现位置，允许重叠。}
+    {时间 $O(n+m)$；额外空间 $O(m+k)$，$k$ 为匹配次数。}
+    {传入普通字符串，返回从 1 开始的位置列表；无匹配时返回空列表。}
+
+\subsection*{原理}
+前缀函数 $\pi_i$ 表示前 $i$ 个字符的最长相等真前缀、真后缀的长度。例如 \InlineCode{ababa} 的 $\pi_5=3$，对应 \InlineCode{aba}。
+
+匹配时，$j$ 表示已经匹配的模式串长度。若下一个字符失配，就令 $j=\pi_j$，保留已经确定相同的部分，而不让文本指针回退。完整匹配后同样回退到 $\pi_m$，因此不会漏掉重叠出现。
+
+\subsection*{使用教程}
+\InlineCode{kmp(s,t)} 无需预处理，直接返回模式串在文本中的所有匹配起点。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+string s="ababa",t="aba";
+auto pos=kmp(s,t);
+\end{lstlisting}
+如果只需要第一次出现，结果为空时取 $-1$，否则取 \InlineCode{pos[0]}。
+
+只需前缀函数时调用 \InlineCode{prefix_function(t)}，返回大小为 $m+1$ 的数组，\InlineCode{pi[i]} 对应长度为 $i$ 的前缀，\InlineCode{pi[0]} 保留为 $0$。
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/strings/kmp.cpp}
+
+本模板把空模式串视为在文本的全部 $n+1$ 个间隙匹配，返回 $1\ldots n+1$。普通非空模式串无需额外处理。

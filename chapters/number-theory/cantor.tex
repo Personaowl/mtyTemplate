@@ -1,0 +1,28 @@
+% Source: ACM_Templates.pdf, PDF pp. 18-19.
+% Corrections and validation: docs/validation.md.
+\section{康托展开：排列的字典序排名}
+\label{algo:cantor}
+\AlgorithmInfo
+    {计算 $1,\ldots,n$ 排列的字典序排名，对指定模数取模。}
+    {时间 $O(n\log n)$，空间 $O(n)$。}
+    {传入从 1 开始的排列数组；排名从 1 开始，$1\leq mod\leq2\times10^9$。}
+
+\subsection*{原理}
+固定前 $i-1$ 位，若第 $i$ 位换成某个尚未使用且比 $a_i$ 小的数字，后面的 $n-i$ 位可任意排列，贡献 $(n-i)!$ 个更小的排列。记可选的小数字个数为 $c_i$，则从 $0$ 开始的排名是
+\[
+    R_0=\sum_{i=1}^n c_i(n-i)!,\qquad R_1=R_0+1.
+\]
+树状数组初始标记所有数字都可用，前缀和查询 $c_i$，随后删去 $a_i$，因此复杂度为 $O(n\log n)$。每项和最后的 $+1$ 都取模，返回的是排名余数，不是完整的大整数排名。
+
+逆康托展开的思路相反：给定合法的从 $0$ 开始排名，用 $(n-i)!$ 依次取商，选择当前未使用元素中的第 $c_i+1$ 小，再对阶乘取余。完整排名需要足够大的整数类型；取模后的排名不能反推出原排列。
+
+\subsection*{使用教程}
+数组第 $0$ 项占位，后面必须恰为 $1,\ldots,n$ 的一个排列。\InlineCode{cantor_rank(a,mod)} 无需外部初始化，返回从 $1$ 开始的排名对模数的余数；重复元素或普通离散化数组不能直接套用。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<int> a={0,3,1,4,2};
+long long rank=cantor_rank(a,998244353);
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/number-theory/cantor.cpp}

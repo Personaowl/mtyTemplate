@@ -1,0 +1,40 @@
+% Source: ACM_Templates.pdf, PDF pp. 14-16.
+% Corrections and validation: docs/validation.md.
+\section{素数筛与质因数奇偶哈希}
+\label{algo:sieve}
+\AlgorithmInfo
+    {预处理素数、最小质因子和欧拉函数；可扩展为质因数指数奇偶性的随机指纹。}
+    {线性筛时间、空间 $O(n)$；构造哈希数组另需时间、空间 $O(n)$。}
+    {$0\leq n<2^{31}-1$，实际受内存限制；$0,1$ 均不视为素数。}
+
+\subsection*{埃氏筛}
+按从小到大的顺序枚举未标记的 $p$，它一定为素数，再标记其倍数。可从 $p^2$ 开始，因为小于 $p^2$ 的合数倍数已被更小素因子标记。总复杂度 $O(n\log\log n)$，空间 $O(n)$。实现中只在 $p\leq n/p$ 时计算 $p^2$，避免乘法溢出。
+
+\subsection*{线性筛为何只标记一次}
+枚举 $i$，再按升序枚举素数 $p$，标记 $ip$；遇到第一个整除 $i$ 的 $p$ 后停止。这样只使用 $p\leq\operatorname{minp}(i)$ 的组合。
+
+对任意合数 $v$，令 $p=\operatorname{minp}(v)$、$i=v/p$，必有 $p\leq\operatorname{minp}(i)$，所以它会被生成。反过来，每次生成 $ip$ 时 $p$ 恰为其最小质因子，因而同一合数不会由其他组合重复生成。总时间为 $O(n)$。
+
+同时维护欧拉函数：若 $p\mid i$，则 $\varphi(ip)=p\varphi(i)$；否则 $\varphi(ip)=(p-1)\varphi(i)$。两种情况分别对应增加已有质因子的指数、加入一个新的质因子。
+
+\subsection*{质因数奇偶哈希}
+给每个素数 $p$ 分配一个 64 位随机数 $w_p$，定义
+\[
+    h(x)=\bigoplus_{p:\,v_p(x)\text{ 为奇数}}w_p.
+\]
+因为异或两次会抵消，有 $h(ab)=h(a)\mathbin{\oplus}h(b)$。若 $ab$ 为完全平方数，其指纹一定为 $0$；指纹为 $0$ 则仍可能是碰撞，不能作为确定性证明。这里记录的是质因数指数的奇偶性，不是整数的唯一编码。
+
+\subsection*{使用教程}
+先 \InlineCode{init(n)}。\InlineCode{primes} 为升序素数表，从 $0$ 开始；当 $x\geq2$ 时，\InlineCode{minp[x]==x} 表示素数。反复除以 \InlineCode{minp[x]} 可分解 $x\leq n$。需要随机指纹时再调用 \InlineCode{prime_xor(seed)}，比较的指纹必须来自同一组随机权值。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Sieve sv;
+sv.init(100);
+int p=sv.minp[84];
+long long val=sv.phi[36];
+auto h=sv.prime_xor(20261015);
+auto tag=h[12]^h[3];
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/number-theory/sieve.cpp}

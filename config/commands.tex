@@ -1,0 +1,35 @@
+% A small public interface shared by every algorithm entry.
+\newcommand{\AlgorithmMeta}[4]{%
+    \begin{tcolorbox}
+    \small
+    \begin{tabularx}{\linewidth}{@{}>{\bfseries}p{3.4em}X@{}}
+        用途 & #1 \\
+        复杂度 & #2 \\
+        约定 & #3 \\
+        校验 & #4
+    \end{tabularx}
+    \end{tcolorbox}
+}
+\newcommand{\CodeFile}[1]{%
+    \par\needspace{5\baselineskip}
+    {\scriptsize\sffamily\color{Muted}SOURCE\enspace\texttt{\detokenize{#1}}}\par
+    \lstinputlisting[style=mtycpp]{#1}
+}
+\newenvironment{Pitfalls}{%
+    \begin{tcolorbox}[title={边界与易错点}]
+    \small\begin{itemize}
+}{\end{itemize}\end{tcolorbox}}
+\newcommand{\InlineCode}[1]{\texttt{\detokenize{#1}}}
+\newcommand{\ChapterIntro}[1]{{\color{Muted}#1}\par\vspace{3pt}}
+
+% Compact algorithm header; principles and examples live in each entry.
+\newcommand{\AlgorithmInfo}[3]{%
+    \begin{tcolorbox}
+    \small
+    \begin{tabularx}{\linewidth}{@{}>{\bfseries}p{3.4em}X@{}}
+        用途 & #1 \\
+        复杂度 & #2 \\
+        约定 & #3
+    \end{tabularx}
+    \end{tcolorbox}
+}

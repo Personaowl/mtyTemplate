@@ -1,0 +1,82 @@
+% Source: ACM_Templates.pdf, PDF pp. 28-29.
+% Corrections and validation: docs/validation.md.
+\section{组合数、多重集排列与卡特兰数}
+\label{algo:comb}
+\AlgorithmInfo
+    {组合计数的常用公式与素数模数下的组合数查询。}
+    {阶乘预处理 $O(N+\log p)$，查询 $O(1)$，空间 $O(N)$。}
+    {公式按整数理解；代码要求 $p$ 为素数、$0\leq N<p\leq2\times10^9$。}
+
+\subsection*{组合数与常用恒等式}
+从 $n$ 个不同元素中选 $k$ 个，不计顺序：
+\[
+    \binom nk=\frac{n!}{k!(n-k)!},\qquad 0\leq k\leq n.
+\]
+约定 $n\geq0$ 时，$k<0$ 或 $k>n$ 的组合数为 $0$，且 $\binom00=1$。以下恒等式分别来自补集选择、按某个元素是否被选分类和二项式展开；递推式要求 $n\geq1$：
+\begin{align*}
+    \binom nk&=\binom n{n-k},&
+    \binom nk&=\binom{n-1}k+\binom{n-1}{k-1},\\
+    \sum_{k=0}^n\binom nk&=2^n.
+\end{align*}
+当 $n\geq1$ 时，常用的吸收恒等式可避免除法：
+\[
+    k\binom nk=n\binom{n-1}{k-1}.
+\]
+写成 $\binom nk=(n/k)\binom{n-1}{k-1}$ 只适用于 $k>0$，而且取模后还要求 $k$ 可逆。若模数任意、$n$ 较小，可用只做加法的杨辉三角，时间、空间均为 $O(n^2)$。
+
+\subsection*{范德蒙恒等式}
+设 $m,n,r$ 为非负整数，则
+\[
+    \sum_{k=0}^r\binom mk\binom n{r-k}=\binom{m+n}r.
+\]
+将 $m+n$ 个不同元素分成大小分别为 $m,n$ 的两组。总共选 $r$ 个，直接计数是右边；若先枚举从第一组选择 $k$ 个，再从第二组选择 $r-k$ 个，各种情况互不重叠且覆盖全部选择，得到左边。
+
+真正有贡献的范围为 $\max(0,r-n)\leq k\leq\min(m,r)$；借助越界组合数为 $0$ 的约定，可以统一写成上式。它适合把“枚举两组各选多少”的求和化成一次组合数查询。取模后恒等式仍成立，但组合数的求法需满足相应模数条件。
+
+常见变形为
+\begin{align*}
+    \sum_{k=0}^n\binom nk^2&=\binom{2n}n,\\
+    \sum_{k=0}^{\min(m,n)}\binom mk\binom nk&=\binom{m+n}n,\\
+    \sum_{k=0}^r k\binom mk\binom n{r-k}
+        &=m\binom{m+n-1}{r-1}\quad(m,r\geq1).
+\end{align*}
+前两式使用对称性 $\binom nk=\binom n{n-k}$ 后套用原式；第三式先用吸收恒等式 $k\binom mk=m\binom{m-1}{k-1}$，再换元求和。
+
+若有 $t$ 组、各组大小为 $n_1,\ldots,n_t$，同样按各组选择数量分类，得到多组形式
+\[
+    \sum_{k_1+\cdots+k_t=r}\prod_{i=1}^t\binom{n_i}{k_i}
+    =\binom{n_1+\cdots+n_t}r,
+\]
+其中所有 $k_i\geq0$。计算时先识别“总共选择 $r$ 个”的整体模型，可避免逐层枚举各组数量。
+
+\subsection*{多重集排列}
+总共 $n$ 个元素，其中第 $i$ 种有 $n_i$ 个不可区分副本，$\sum_i n_i=n$，不同排列数为
+\[
+    \frac{n!}{\prod_i n_i!}.
+\]
+可先把每个副本看作不同元素得到 $n!$，再除去各类内部互换造成的重复。取模时不能直接整除；使用阶乘逆元仍要求所有分母可逆。
+
+\subsection*{卡特兰数}
+$C_n$ 可计数 $n$ 对合法括号、长度 $2n$ 且不跌到横轴下方的括号路径，以及 $n$ 个节点的二叉树形态。初值 $C_0=1$：
+\begin{align*}
+    C_n&=\frac1{n+1}\binom{2n}n
+        =\binom{2n}n-\binom{2n}{n+1},\\
+    C_n&=\sum_{i=0}^{n-1}C_iC_{n-1-i}\quad(n\geq1),\\
+    (n+1)C_n&=2(2n-1)C_{n-1}\quad(n\geq1).
+\end{align*}
+卷积递推来自按根节点的左子树大小分类；组合数之差来自将首次越界的路径反射，与非法路径建立双射。前几项为 $1,1,2,5,14,42,132$。
+
+按第一或第三式取模时，需要 $n+1$ 可逆。组合数之差不涉及该除法，但每个组合数本身仍需选用适合模数的算法；不能在阶乘已被模数整除时直接求逆。
+
+\subsection*{使用教程}
+先复制快速幂。\InlineCode{Comb::init(N,p)} 预处理到 $N$，之后 \InlineCode{C(n,k)} 查询，合法的 $n$ 不得超过 $N$；越界的 $k$ 返回 $0$。修改模数时重新初始化。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Comb cb;
+cb.init(100,998244353);
+long long ways=cb.C(10,3);
+long long catalan=(cb.C(20,10)-cb.C(20,11)+cb.mod)%cb.mod;
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/number-theory/comb.cpp}

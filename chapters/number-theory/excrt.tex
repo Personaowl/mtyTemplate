@@ -1,0 +1,48 @@
+% Source: ACM_Templates.pdf, PDF pp. 37-38.
+% Corrections and validation: docs/validation.md.
+\section{中国剩余定理与扩展 CRT}
+\label{algo:excrt}
+\AlgorithmInfo
+    {合并同余方程 $x\equiv r_i\pmod{m_i}$，模数可以不互质。}
+    {每次合并一次扩欧，时间 $O(\log\max(M,m_i))$；只维护当前余数和模数。}
+    {所有模数为正，输入为 64 位；合并后的最小公倍数须不超过 \InlineCode{LLONG_MAX}。}
+
+\subsection*{两两互质时的 CRT}
+若 $m_i$ 两两互质，令 $M=\prod_i m_i$、$M_i=M/m_i$，则
+\[
+    x\equiv\sum_i r_iM_i(M_i^{-1}\bmod m_i)\pmod M.
+\]
+$M_i$ 在模 $m_i$ 下可逆，且对应项在其余模数下为零，因此该式同时满足所有方程，解在模 $M$ 意义下唯一。
+
+\subsection*{不互质时逐个合并}
+已经得到 $x\equiv R\pmod M$，新方程为 $x\equiv b\pmod n$。令 $x=R+Mt$，转化为
+\[
+    Mt\equiv b-R\pmod n.
+\]
+设 $d=\gcd(M,n)$。若 $d\nmid(b-R)$，两式矛盾；否则扩欧得到 $Mu+nv=d$，有
+\[
+    t_0\equiv u\frac{b-R}{d}\pmod{n/d}.
+\]
+合并为
+\[
+    M'=M\frac nd,\qquad R'=(R+Mt_0)\bmod M'.
+\]
+初始 $R=0,M=1$，依次处理即可。归一化后 $R$ 是最小非负解；若题目要最小正解且 $R=0$，答案应为最终模数 $M$。
+
+\subsection*{使用教程}
+先复制扩欧。\InlineCode{merge(b,n)} 的参数顺序为“余数、模数”；返回 $1$ 表示成功，$0$ 表示无解，$-1$ 表示合并模数超出 64 位范围。失败时保留合并前状态，应停止并按状态处理；成功后读取 \InlineCode{r,m}。\InlineCode{init()} 可清空复用。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+ExCRT crt;
+int status=crt.merge(2,6);
+if(status==1) status=crt.merge(5,9);
+if(status==1){
+    long long ans=crt.r,period=crt.m;
+}
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/number-theory/excrt.cpp}
+
+\subsection*{需要注意}
+模乘用 128 位只保护中间计算，最终最小公倍数也可能超过 64 位，所以模板显式区分无解与溢出。若题目保证模数乘积范围，可直接使用；否则需要大整数或其他题目特定处理。模数为 $1$ 的方程恒成立，模板支持。

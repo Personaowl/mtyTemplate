@@ -1,0 +1,40 @@
+name: Build handbook
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: handbook-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Install TeX Live
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends latexmk texlive-xetex texlive-lang-chinese texlive-latex-extra texlive-fonts-recommended lmodern
+      - name: Compile handbook
+        run: |
+          latexmk main.tex
+      - name: Compile reusable code and usage examples
+        run: python3 scripts/check_code.py
+      - name: Upload PDF
+        uses: actions/upload-artifact@v7
+        with:
+          name: mtyTemplate-pdf
+          path: build/main.pdf
+          if-no-files-found: error
+          retention-days: 30

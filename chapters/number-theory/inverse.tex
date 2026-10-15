@@ -1,0 +1,39 @@
+% Source: ACM_Templates.pdf, PDF pp. 13-14.
+% Corrections and validation: docs/validation.md.
+\section{乘法逆元}
+\label{algo:inverse}
+\AlgorithmInfo
+    {把模意义下的除法转为乘法，支持单个逆元与连续整数的逆元表。}
+    {单个扩欧逆元 $O(\log m)$；费马逆元 $O(\log p)$；线性预处理 $O(n)$。}
+    {模数至少为 $2$；线性表要求 $p$ 为素数且 $0\leq n<p$。}
+
+\subsection*{定义与存在条件}
+若 $ax\equiv1\pmod m$，称 $x$ 是 $a$ 模 $m$ 的乘法逆元。由裴蜀定理，逆元存在当且仅当 $\gcd(a,m)=1$，并在模 $m$ 意义下唯一。需要计算 $b/a\pmod m$ 时，只有逆元存在才可写成 $b\,a^{-1}\bmod m$。
+
+\subsection*{三种求法}
+\textbf{费马小定理：}若 $p$ 为素数且 $a\not\equiv0\pmod p$，则 $a^{p-1}\equiv1\pmod p$，所以
+\[
+    a^{-1}\equiv a^{p-2}\pmod p.
+\]
+用快速幂计算即可。合数模数不能直接套用指数 $m-2$。
+
+\textbf{扩展欧几里得：}求 $ax+my=1$，把得到的 $x$ 归一化到 $[0,m-1]$；此法也适用于合数模数。若最大公约数不为 $1$，应报告不存在逆元。
+
+\textbf{线性递推：}写 $p=qi+r$。模 $p$ 下有 $r\equiv-qi$；当 $p$ 为素数且 $1<i<p$ 时，$i,r$ 均可逆，因此
+\[
+    \operatorname{inv}[1]=1,\qquad
+    \operatorname{inv}[i]=(p-\lfloor p/i\rfloor)\operatorname{inv}[p\bmod i]\bmod p.
+\]
+因为 $p\bmod i<i$，可按 $i$ 递增计算。这里得到的是整数的逆元，阶乘逆元则满足 $(i!)^{-1}=((i-1)!)^{-1}\operatorname{inv}[i]$。
+
+\subsection*{使用教程}
+先复制第~\ref{algo:exgcd}~节的扩欧。\InlineCode{inv_mod(a,m)} 无逆元时返回 $-1$；\InlineCode{inverse_table(n,p)} 返回从 $1$ 到 $n$ 的逆元，第 $0$ 项不用。费马求法直接调用第~\ref{algo:qpow}~节的快速幂。以下实现的模数上限为 $2\times10^9$。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+long long x=inv_mod(3,10);
+long long y=qpow(3,1000000007-2,1000000007);
+auto inv=inverse_table(10,998244353);
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/number-theory/inverse.cpp}

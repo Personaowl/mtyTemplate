@@ -1,0 +1,35 @@
+% Source: ACM_Templates.pdf, PDF pp. 21.
+% Corrections and validation: docs/validation.md.
+\section{整除分块}
+\label{algo:division-blocks}
+\AlgorithmInfo
+    {合并整除商相同的连续区间，加速带有 $\lfloor k/i\rfloor$ 的求和。}
+    {至多 $O(\min(n,\sqrt k+1))$ 个非零商区间，额外空间 $O(1)$。}
+    {$n,k\geq0$ 且不超过 $10^{18}$；示例函数的答案使用 \InlineCode{__int128}。}
+
+\subsection*{原理}
+当前左端点为 $l$，令 $v=\lfloor k/l\rfloor>0$。从 $l$ 开始，商仍为 $v$ 的最大右端点为
+\[
+    r=\min\left(n,\left\lfloor\frac{k}{v}\right\rfloor\right).
+\]
+一次处理 $[l,r]$，再令 $l=r+1$。当 $i\leq\sqrt k$ 时位置数至多 $\sqrt k$；当 $i>\sqrt k$ 时非零商的种数至多 $\sqrt k$，所以区间总数为根号量级。
+
+若求 $\sum_{i=1}^n f(i)\lfloor k/i\rfloor$，记 $F$ 为 $f$ 的前缀和，则这一段的贡献为 $v(F(r)-F(l-1))$。两个整除商同时出现时，分别求两个右端点并取最小值，保证它们都不变。若商为零，剩余贡献需要根据原式处理，不能继续计算 $k/v$。
+
+\subsection*{应用：余数和}
+由 $k\bmod i=k-i\lfloor k/i\rfloor$，有
+\[
+    \sum_{i=1}^n(k\bmod i)=nk-
+    \sum_{i=1}^n i\left\lfloor\frac ki\right\rfloor.
+\]
+每段减去 $v(l+r)(r-l+1)/2$。当 $i>k$ 时商为零，无需再扣除；初始 $nk$ 已经包含这些项。中间乘积先转成 128 位，不能乘完后才转换。
+
+\subsection*{使用教程}
+\InlineCode{remainder_sum(n,k)} 返回上述余数和，调用者按需要输出或进一步取模。其他求和只需复用分块区间并替换段贡献。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+__int128 ans=remainder_sum(100,37);
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/number-theory/division_blocks.cpp}

@@ -1,0 +1,19 @@
+# All build products live here.
+/build/
+/work/
+__pycache__/
+# Editor and OS state.
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.synctex.gz
+# Catch accidental root-level LaTeX output; keep other PDFs (e.g. figures).
+/main.pdf
+*.aux
+*.log
+*.toc
+*.out
+*.fls
+*.fdb_latexmk
+*.xdv

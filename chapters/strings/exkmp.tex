@@ -1,0 +1,30 @@
+% Source: ACM_Templates.pdf, PDF pp. 9-10, extended KMP/Z algorithm.
+% Validation and changes: docs/validation.md; scripts/check_strings.py.
+\section{Z 函数与扩展 KMP}
+\label{algo:exkmp}
+\AlgorithmInfo
+    {求每个后缀与整个模式串的最长公共前缀长度，可用于匹配和前缀比较。}
+    {Z 函数时间、空间 $O(m)$；扩展 KMP 时间、空间 $O(n+m)$。}
+    {返回数组从 1 开始；$z_1=m$，$e_i$ 对应文本从第 $i$ 位开始的后缀。}
+
+\subsection*{原理}
+$z_i$ 是 $t[i\ldots m]$ 与 $t$ 的最长公共前缀长度。维护当前匹配到最右的区间 $[l,r]$，区间内容与模式串前缀相同。当 $i\leq r$ 时，可以先复用
+\[
+    z_i\gets\min(r-i+1,z_{i-l+1}),
+\]
+再向右暴力扩展；只有越过已有右边界的比较会增加总工作量，所以整体是线性的。
+
+扩展 KMP 用同样的区间复用思想，计算 $e_i=\operatorname{LCP}(s[i\ldots n],t)$，只是复用的 $z$ 数组来自模式串 $t$。
+
+\subsection*{使用教程}
+单个字符串用 \InlineCode{z_function(t)}；比较文本与模式串用 \InlineCode{exkmp(s,t)}，后者会自行预处理模式串。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+string s="ababa",t="aba";
+auto z=z_function(t);
+auto e=exkmp(s,t);
+\end{lstlisting}
+\InlineCode{z[i]} 是模式串第 $i$ 个后缀与自身的最长公共前缀长度；\InlineCode{e[i]} 是文本第 $i$ 个后缀与模式串的最长公共前缀长度。若 \InlineCode{e[i]==t.size()}，说明模式串在位置 $i$ 完整出现。空模式串与任意后缀的最长公共前缀长度为 $0$。
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/strings/exkmp.cpp}

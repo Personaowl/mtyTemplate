@@ -1,0 +1,18 @@
+\section{解题框架}
+\label{algo:solution}
+\AlgorithmMeta
+    {常规 C++17 题目的程序入口。}
+    {由 \InlineCode{solve()} 中的算法决定。}
+    {默认单组数据；多组数据时读取 \InlineCode{T}。}
+    {已进行 C++17 编译与空输入运行检查。}
+
+\subsection*{使用方式}
+将题目逻辑写入 \InlineCode{solve()}。需要多组数据时，将主函数中的 \InlineCode{int T=1;} 改为 \InlineCode{int T;cin>>T;}。
+
+\CodeFile{code/basics/solution.cpp}
+
+\begin{Pitfalls}
+    \item \InlineCode{int} 宏会影响数组、容器元素和结构体字段的内存大小；大规模图或 Trie 模板按需使用普通 \InlineCode{int}。
+    \item 多组数据时清空全局状态；局部 \InlineCode{vector} 随每次调用重新构造。
+    \item 交互题按题意显式刷新输出；这里的 \InlineCode{endl} 是换行字符。
+\end{Pitfalls}
