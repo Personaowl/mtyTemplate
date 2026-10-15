@@ -1,0 +1,13 @@
+% Source: ACM_Templates.pdf, PDF pp. 80-95; rooted conventions consolidated here.
+\subsection{树、选根与 DFS 序}
+\label{math:tree-basics}
+连通无向图为树当且仅当它无环，此时有 $n-1$ 条边，任意两点间的简单路径唯一。对同一棵无根树选不同的根，不改变两点路径、直径、中心或重心，但会改变父亲、深度、子树和 LCA。
+
+选根后，记父亲为 $fa_u$、子树大小为 $sz_u$，根的深度为 1，0 号点表示不存在的父亲。DFS 第一次进入 $u$ 时赋予 $dfn_u$，离开其整棵子树时记录 $out_u$，则
+\[
+    v\in subtree(u)\iff dfn_u\le dfn_v\le out_u,
+    \qquad out_u=dfn_u+sz_u-1.
+\]
+这使子树对应一个连续区间；普通路径通常不连续，需要 LCA、差分或树链剖分进一步处理。\InlineCode{rk[dfn[u]]=u} 将序列位置映射回顶点。
+
+这里的 DFS 序只在首次进入顶点时记录，共 $n$ 项。第~\ref{tree:rmq-lca}~节的欧拉序在每次从子节点返回时还会记录父节点，共 $2n-1$ 项，两者的用途和下标不能混用。树的 DFS 可以只排除父亲；若输入实际上含环或重边构成的环，不能直接套用这一前提。

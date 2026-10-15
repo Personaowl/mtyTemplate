@@ -1,0 +1,24 @@
+% Source: ACM_Templates.pdf, PDF pp. 80-81.
+\subsection{树的直径}
+\label{tree:diameter}
+\AlgorithmInfo
+    {求非负边权树的一条直径、直径端点与路径。}
+    {时间、空间 $O(n)$；递归深度最坏 $O(n)$。}
+    {非空连通树，边权非负，默认权重为 1；任意简单路径长度小于 $4\times10^{18}$。}
+\subsubsection*{原理}
+直径是树上最长简单路径。从任意点出发找到最远点 $A$，再从 $A$ 找最远点 $B$，$A$ 到 $B$ 就是一条直径。树上路径唯一，DFS 累加边权即可，不需要 Dijkstra。
+
+\subsubsection*{使用教程}
+\InlineCode{init(n)}、\InlineCode{add(u,v,w)} 加无向边，\InlineCode{build()} 后读取 \InlineCode{diameter}、\InlineCode{a,b}、\InlineCode{path}。\InlineCode{path} 按 $A\to B$ 排列，\InlineCode{da,db} 分别为到两端点的距离。重复构建会重新计算，\InlineCode{center} 的含义见第~\ref{tree:center}~节。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+TreeMetrics g;
+g.init(4);
+g.add(1,2,3),g.add(2,3,2),g.add(2,4,4);
+g.build();
+long long len=g.diameter;
+auto path=g.path;
+\end{lstlisting}
+两次最远点法要求边权非负；负权树的最长非空路径应改用树形 DP，并明确是否允许空路径。单点树的直径为 0，路径仅含该顶点。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/trees/metrics.cpp}

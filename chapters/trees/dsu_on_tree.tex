@@ -1,0 +1,26 @@
+% Source: ACM_Templates.pdf, PDF pp. 93-95; generalized from task-specific counters.
+\subsection{树上启发式合并：DSU on tree}
+\label{tree:dsu-on-tree}
+\AlgorithmInfo
+    {离线求每个子树的统计信息，示例为子树内不同颜色数。}
+    {每次加点、删点为 $O(1)$ 时，总时间 $O(n\log n)$，空间 $O(n+m)$。}
+    {先复制 HLD；颜色为 $1\ldots m$ 的整数，数组从 1 开始，原树连通。}
+\subsubsection*{原理}
+按子树大小选重儿子。递归处理所有轻儿子并清空它们的贡献，接着处理重儿子并保留其贡献；再逐个加入轻子树和当前点，此时容器恰好包含当前整棵子树，可以记录答案。若父层不希望保留当前子树，则在返回前统一删除它。
+
+每个点只有经过轻边时才被重复加入或删除，轻边经过次数为 $O(\log n)$，因此在单点增删常数时间的前提下总复杂度为 $O(n\log n)$。它与普通并查集的合并不是同一种接口，也不能把这里按子树大小选的重儿子改成按高度选择的长儿子。
+
+模板借用 HLD 的父亲、重儿子和子树区间，递归控制保留顺序；按 DFS 序扫描子树来增删颜色计数。\InlineCode{eval} 维护频次数组与当前不同颜色数，只在完整子树合并后记录 \InlineCode{ans[u]}。
+\subsubsection*{使用教程}
+\InlineCode{init(n,m)} 后加边，\InlineCode{run(color,root)} 返回各子树的不同颜色数，每次运行重建剖分并清空统计。颜色范围较大时，先离散化到 $1\ldots m$。改成其他统计时，需要同时改 \InlineCode{eval}、清理状态和记录答案的位置，保持加点与删点互为逆操作。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+DSUOnTree g;
+g.init(5,3);
+g.add(1,2),g.add(1,3),g.add(2,4),g.add(2,5);
+vector<int> color={0,1,2,1,3,2};
+auto ans=g.run(color,1);
+int distinct=ans[2];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/trees/dsu_on_tree.cpp}

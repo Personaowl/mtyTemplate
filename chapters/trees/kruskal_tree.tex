@@ -1,0 +1,34 @@
+% Source: ACM_Templates.pdf, PDF pp. 91-93.
+\subsection{Kruskal 重构树与阈值连通性}
+\label{tree:kruskal-tree}
+\AlgorithmInfo
+    {把无向图按边权逐步连通的过程建成森林，查询最小瓶颈及阈值连通块大小。}
+    {建树含排序与倍增为 $O(m\log(m+2)+n\log n)$，查询 $O(\log n)$；空间 $O(m+n\log n)$。}
+    {先复制普通 DSU 与 TreeLCA；原图允许不连通、重边、自环及负权，原顶点从 1 开始。}
+\subsubsection*{原理}
+将原顶点作为叶子，按边权从小到大枚举。若一条权为 $w$ 的边连接两个不同连通块，新建权值为 $w$ 的父节点，把两个块当前的树根作为其儿子，再合并连通块。每次成功合并增加一个点，重构森林至多有 $2n-1$ 个节点；原图不连通时，分别保留各块的树根。
+
+原图中 $u,v$ 第一次连通时的阈值，就是它们在重构树上的 LCA 权值，也等于
+\[
+    \min_{P:u\leadsto v}\ \max_{e\in P}w_e.
+\]
+从叶子向上，合并节点权值单调不减，所以给定阈值 $x$，可倍增到最高的、合并权不超过 $x$ 的祖先，该节点包含的原叶子数就是阈值连通块大小。并查集代表元与重构树根分开维护，不能把并查集按大小合并后的代表元直接当作新建父节点。
+\subsubsection*{使用教程}
+\InlineCode{add(u,v,w)} 每条原图无向边只加一次，\InlineCode{build()} 内部排序并构建全部连通块的倍增表。
+
+\InlineCode{bottleneck(u,v)} 返回 \InlineCode{pair<bool,long long>}，首项为假表示原图不连通；$u=v$ 约定返回真和 0，表示空路径，不拿叶子的占位权值参与瓶颈比较。
+
+\InlineCode{component(u,x)} 返回阈值连通块对应的重构节点，\InlineCode{size(u,x)} 返回其中的原顶点数。\InlineCode{tot} 为总节点数，\InlineCode{roots} 为森林根，\InlineCode{val} 仅在新建合并节点上有意义，\InlineCode{sz} 统计原叶子数。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+KruskalTree g;
+g.init(4);
+g.add(1,2,3),g.add(2,3,5),g.add(1,3,8);
+g.build();
+auto [connected,limit]=g.bottleneck(1,3);
+int component=g.component(1,4),count=g.size(1,4);
+auto roots=g.roots;
+\end{lstlisting}
+这里排序使用真实输入边权；若问题以加边时间为权，需要显式传入时间。相同权值产生的二叉结构可能不同，但瓶颈值与阈值连通关系一致。没有连接不同块的边时，仅保留原顶点。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/trees/kruskal_tree.cpp}

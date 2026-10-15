@@ -1,0 +1,26 @@
+\chapter{树}
+\ChapterIntro{顶点默认从 1 开始，DFS 采用递归。先区分无根性质与选根后的父子关系；除明确支持森林的接口外，输入须为非空、连通、无环的树，无向边只添加一次。本章只整理树的结构、查询与离线计算，路径区间维护的数据结构另行收录。}
+\begin{AlgorithmGroups}
+\section{基本性质与代表节点}
+\input{chapters/trees/basics}
+\input{chapters/trees/diameter}
+\input{chapters/trees/center}
+\input{chapters/trees/centroid}
+\section{祖先查询与树上差分}
+\input{chapters/trees/lca}
+\input{chapters/trees/rmq_lca}
+\input{chapters/trees/hld_lca}
+\input{chapters/trees/difference}
+\section{树链剖分与边化点}
+\input{chapters/trees/hld}
+\input{chapters/trees/long_chain}
+\input{chapters/trees/edge_to_vertex}
+\section{虚树}
+\input{chapters/trees/virtual_tree}
+\input{chapters/trees/virtual_cut}
+\section{树的重构}
+\input{chapters/trees/cartesian}
+\input{chapters/trees/kruskal_tree}
+\section{子树离线统计}
+\input{chapters/trees/dsu_on_tree}
+\end{AlgorithmGroups}

@@ -1,0 +1,25 @@
+% Source: ACM_Templates.pdf, PDF pp. 88-91, including the user's min-heap variant.
+\subsection{笛卡尔树}
+\label{tree:cartesian}
+\AlgorithmInfo
+    {把序列下标顺序与区间最值层次合并成一棵二叉树。}
+    {建树时间、空间 $O(n)$。}
+    {数组从 1 开始，第 0 项占位；默认小根堆，可切换大根堆；相等值优先保留较小下标。}
+\subsubsection*{原理}
+笛卡尔树的中序遍历是原序列下标顺序，节点权值满足堆序。小根堆下，每个区间的最小值成为对应子树的根；值相等时规定较小下标优先，得到确定结构。
+
+按下标从左到右插入，用单调栈维护已建树的最右链。插入 $i$ 时，不断弹出比它差的栈顶；最后弹出的整棵子树成为 $i$ 的左子树，剩余栈顶的右儿子改为 $i$。每个点只入栈、出栈一次，因此总时间线性。这里的单调栈用于维护构造不变量，不是模拟树遍历的调用栈。
+
+对区间 $[l,r]$，小根笛卡尔树中下标 $l,r$ 的 LCA 对应区间最小值位置。建树本身不包含 LCA 预处理；需要该查询时可将左右儿子转为邻接关系，再接本章的 LCA 模板。
+\subsubsection*{使用教程}
+\InlineCode{build(a)} 建小根堆；第二个参数为假时建大根堆。\InlineCode{root} 为根，\InlineCode{l,r,fa} 为左右儿子与父亲，0 表示不存在；\InlineCode{a={0}} 表示空序列，根为 0。重复构建会清空结果。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+CartesianTree g;
+vector<long long> a={0,3,1,1,4,2};
+g.build(a);
+int root=g.root,left=g.l[root],right=g.r[root];
+g.build(a,false);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/trees/cartesian.cpp}

@@ -1,0 +1,28 @@
+% Supplement: https://cp-algorithms.com/graph/hld.html
+\subsection{树剖求 LCA}
+\label{tree:hld-lca}
+\AlgorithmInfo
+    {利用重链剖分查询最近公共祖先，可与路径区间拆分共用预处理。}
+    {预处理 $O(n)$，每次查询 $O(\log n)$，空间 $O(n)$。}
+    {非空连通树，指定根；复用第~\ref{tree:hld}~节的 \InlineCode{HLD} 封装。}
+\subsubsection*{原理}
+重链剖分为每个点记录父亲 $fa$、深度 $dep$ 和所在链的链顶 $top$。查询 $u,v$ 时，若链顶不同，总让\textbf{链顶更深}的一侧跳到该链顶的父亲，即令 $u=fa_{top_u}$；若另一侧的链顶更深，先交换 $u,v$。
+
+这一步不会越过 LCA：若较深的链顶是另一点的祖先，那么另一点所在链的链顶只能与它相同，或比它更深，均与当前选择矛盾。因此可以跳过当前点到链顶的整段。每次跳跃越过一条轻边，而每点到根至多有 $O(\log n)$ 条轻边，故查询复杂度为 $O(\log n)$。
+
+两点进入同一条链后，深度较小的点就是 LCA。注意比较的是\textbf{链顶深度}，不能只比较当前点深度；同链时直接返回较浅点，也不必继续上跳。
+
+倍增法与树剖的 LCA 查询都是 $O(\log n)$：倍增法适合还需要第 $k$ 级祖先等跳跃操作的场景，树剖预处理和空间均为 $O(n)$，适合同时需要路径区间的场景。大量静态 LCA 查询也可使用第~\ref{tree:rmq-lca}~节的欧拉序 RMQ，将查询降至 $O(1)$。
+
+\subsubsection*{使用教程}
+复制第~\ref{tree:hld}~节的 \InlineCode{HLD}，依次调用 \InlineCode{init(n)}、\InlineCode{add(u,v)} 和 \InlineCode{build(root)}，随后用 \InlineCode{lca(u,v)} 查询。预处理不依赖线段树，查询支持两点相同或一方为另一方祖先。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+HLD g;
+g.init(5);
+g.add(1,2),g.add(1,3),g.add(2,4),g.add(2,5);
+g.build(1);
+int p=g.lca(4,3);
+int q=g.lca(2,4);
+\end{lstlisting}
+\subsubsection*{模板代码}
+\InlineCode{HLD::lca(u,v)} 与两次 DFS 的完整实现统一放在第~\ref{tree:hld}~节。

@@ -1,0 +1,33 @@
+% Source: user-provided minn / vis virtual-tree minimum-cut DP.
+\subsection{虚树 DP：断边隔离根与关键点}
+\label{tree:virtual-cut}
+\AlgorithmInfo
+    {以最小边权代价删除若干边，使固定根与所有关键点不连通。}
+    {虚树构造后 DP 为 $O(k)$；总复杂度与上一节构建一致。}
+    {先复制 TreeLCA 与 VirtualTree；边权非负，有限最优答案小于 $4\times10^{18}$；关键点含根时返回 $-1$。}
+\subsubsection*{原理}
+预处理 $minn_u$ 为根到 $u$ 路径上的最小边权，根处为正无穷。在虚树上递归，令 $f_u$ 表示这一分支需要支付的代价：
+\[
+    f_u=\begin{cases}
+        minn_u,&u\text{ 是关键点},\\
+        \min(minn_u,\sum_{v\in child(u)}f_v),&u\text{ 不是关键点}.
+    \end{cases}
+\]
+可以在根到 $u$ 的路径上切一条最便宜的边，一次隔离整个分支；也可以分别处理儿子分支。若 $u$ 本身为关键点，仅切更下方的边不能隔离它，必须选择前一种方式，递归也可直接停止。
+
+$minn$ 取到的最小边可能在当前虚树边的上方，但这不会造成最终答案偏小：若某个孩子的代价选择了公共祖先上方的切边，父层的 $minn$ 不大于这份代价，父层会选择统一切断而非重复累计它；非负性保证其余孩子贡献不会让总和变小。这解释了这里可使用全局根路径最小值，而不是每条压缩边的局部最小值。
+
+空关键点集的答案应为 0。递推中非关键叶子的儿子和为 0，自然得到 0；不能把所有叶子都直接返回 \InlineCode{minn}，否则只剩根的虚树会返回正无穷。关键点含根时无法通过删边隔离根与自身，单独返回 $-1$。
+\subsubsection*{使用教程}
+预处理原树一次后，直接调用 \InlineCode{virtual_cut(g,keys)}；函数内部建立虚树，支持多轮不同关键点、重复点和空集合。它保留构建结果到下一轮清理，计算 DP 不破坏虚树。儿子代价先用 128 位累加，避免中间和溢出。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+VirtualTree g;
+g.init(5);
+g.add(1,2,3),g.add(1,3,8),g.add(2,4,5),g.add(2,5,2);
+g.prepare(1);
+long long ans=virtual_cut(g,vector<int>{3,4});
+long long empty=virtual_cut(g,vector<int>{});
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/trees/virtual_cut.cpp}

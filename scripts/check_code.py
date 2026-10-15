@@ -101,6 +101,7 @@ if __name__ == '__main__':
     from check_strings import check as check_strings
     from check_number_theory import check as check_number_theory
     from check_graphs import check as check_graphs
+    from check_trees import check as check_trees
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--full', action='store_true', help='also run the existing behavioral regression')
     args = parser.parse_args()
@@ -108,5 +109,6 @@ if __name__ == '__main__':
         check_strings(Path(directory), full=args.full)
         check_number_theory(Path(directory), smoke=args.full)
         check_graphs(Path(directory), smoke=args.full)
+        check_trees(Path(directory), smoke=args.full)
         if args.full:
             check(Path(directory))

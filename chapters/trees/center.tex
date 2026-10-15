@@ -1,0 +1,27 @@
+% Supplement: https://oi-wiki.org/graph/tree-center/
+\subsection{树的中心}
+\label{tree:center}
+\AlgorithmInfo
+    {寻找使最远距离最小的顶点，用于最小化最大通信距离等问题。}
+    {复用直径端点与距离，整体 $O(n)$ 时间、空间。}
+    {本模板把中心限制在原树顶点，使用非负边权；复用第~\ref{tree:diameter}~节源码。}
+\subsubsection*{原理}
+树的中心是使\textbf{到最远顶点的距离最小}的顶点。设一条直径的两端为 $A,B$，对任意顶点 $u$ 都有
+\[
+    \max_v dist(u,v)=\max\{dist(u,A),dist(u,B)\}.
+\]
+因此在求直径后，再从 $B$ 遍历一次，记录到两端点的距离；枚举各点，取右侧表达式最小的所有顶点即可。
+
+对每条边长度均为 1 的树，中心就是直径的中间一个或两个顶点；直径边数 $D$ 为偶数时一个，为奇数时两个。带权时不能按路径顶点下标直接取中间，需比较真实距离；允许零权边时，中心数量可能超过两个。
+
+本模板只返回原树顶点；若题目允许选边的内部，直径中点也可能位于边上。树的中心优化\textbf{最大距离}；下一节的重心优化删除顶点后的\textbf{最大连通块点数}。
+
+\subsubsection*{使用教程}
+\InlineCode{TreeMetrics::build()} 同时求出所有中心，直接读取 \InlineCode{center}；源码见第~\ref{tree:diameter}~节。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+TreeMetrics g;
+g.init(4);
+g.add(1,2),g.add(2,3),g.add(3,4);
+g.build();
+auto centers=g.center;
+\end{lstlisting}

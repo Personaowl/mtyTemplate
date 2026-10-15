@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
-NAMES = ('trie', 'hash', 'kmp', 'exkmp', 'manacher', 'ac_automaton')
+NAMES = ('trie', 'hash_single', 'hash_overflow', 'hash', 'kmp', 'exkmp', 'manacher', 'ac_automaton')
 
 
 def usage_source():
@@ -45,10 +45,12 @@ def check(temp, full=False):
         if widened:
             args.insert(1, '-DMTY_INT64')
         subprocess.run(args, check=True, timeout=90)
-        print(f'PASS: compiled and linked 6 string templates and their documented calls ({mode})', flush=True)
+        print(f'PASS: compiled and linked {len(NAMES)} string templates and their documented calls ({mode})', flush=True)
     if not full:
         print('Compile only; behavioral regression skipped. Use --full when needed.', flush=True)
         return
+    from check_hash import check as check_hash
+    check_hash(temp)
     for widened in (False, True):
         exe = temp / ('strings64' if widened else 'strings32')
         if os.name == 'nt':

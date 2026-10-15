@@ -1,0 +1,30 @@
+% Supplement: https://cp-algorithms.com/string/string-hashing.html
+\subsection{字符串单哈希}
+\label{algo:string-hash-single}
+\AlgorithmInfo
+    {用一个模数维护字符串哈希，快速比较任意子串。}
+    {预处理时间、空间均为 $O(n)$；每次区间查询或比较 $O(1)$。}
+    {传入原字符串，查询为从 1 开始的闭区间；空区间返回 0。}
+\subsubsection*{原理}
+将字符串看作以 $B$ 为底的多项式，维护前缀哈希 $h_i$ 和幂 $p_i=B^i$。字符编码为 $c_i$，有
+\[
+    h_i=(h_{i-1}B+c_i)\bmod M,\qquad
+    H(l,r)=(h_r-h_{l-1}p_{r-l+1})\bmod M.
+\]
+前缀 $[1,l-1]$ 在 $h_r$ 中被多乘了 $r-l+1$ 次底数，将其减去即可得到子串哈希，无需逆元。模板取 $B=131$、$M=10^9+7$，字符按无符号字节加 1 编码，避免零字符对前导位置没有贡献。
+
+单哈希只存一组前缀与幂，写法较短；双哈希同时维护两组参数，比较时要求两个结果均相同，以降低碰撞风险。
+\subsubsection*{使用教程}
+先调用 \InlineCode{init(s)}，再用 \InlineCode{query(l,r)} 获取区间哈希，或用 \InlineCode{same(l1,r1,l2,r2)} 比较同一字符串内的两个子串。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+SingleHash ha;
+ha.init("ababa");
+long long h=ha.query(1,3);
+bool ok=ha.same(1,3,3,5);
+\end{lstlisting}
+不同字符串分别建立对象，先确认区间长度相同，再比较 \InlineCode{query} 的返回值。\InlineCode{init} 可重复调用；非空区间须满足 $1\le l\le r\le n$。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/strings/hash_single.cpp}
+\subsubsection*{需要注意}
+相同哈希不保证字符串相同；大量比较或存在针对性数据时优先考虑双哈希。取模的减法须加 \InlineCode{mod} 后归一化；当前参数的乘积可用 \InlineCode{long long} 保存，修改模数时须重新检查乘法范围。

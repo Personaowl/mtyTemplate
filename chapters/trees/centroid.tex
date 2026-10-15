@@ -1,0 +1,26 @@
+% Source: ACM_Templates.pdf, PDF p. 81.
+\subsection{树的重心}
+\label{tree:centroid}
+\AlgorithmInfo
+    {找删除后最大连通块点数最小的顶点，用于平衡划分、点分治等。}
+    {时间、空间 $O(n)$；递归深度最坏 $O(n)$。}
+    {按顶点个数计算，非空连通树；无向边只添加一次。}
+\subsubsection*{原理}
+任意选根，删除 $u$ 后的连通块由各儿子子树，以及大小为 $n-sz_u$ 的父亲方向部分构成。因此
+\[
+    balance_u=\max\left(n-sz_u,\ \max_{v\text{ 为 }u\text{ 的儿子}}sz_v\right).
+\]
+重心等价于 $balance_u\le n/2$。若有大于一半的连通块，向它移动会改善最坏大小；不存在这样的块时已经平衡。树至少有一个重心，至多两个，两个重心一定相邻；这里是等点权计数，不是带点权重心。
+\subsubsection*{使用教程}
+\InlineCode{build(root)} 后，\InlineCode{centroid} 为全部重心，\InlineCode{balance[u]} 为删除 $u$ 后的最大块大小，\InlineCode{sz[u]} 为当前根下的子树大小。选根不改变重心集合。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+TreeCentroid g;
+g.init(4);
+g.add(1,2),g.add(2,3),g.add(3,4);
+g.build(1);
+auto centroid=g.centroid;
+int largest=g.balance[2];
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/trees/centroid.cpp}

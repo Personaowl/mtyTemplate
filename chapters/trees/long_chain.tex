@@ -1,0 +1,30 @@
+% Supplement: long-chain ladders for level ancestors; own implementation.
+\subsection{长链剖分与常数时间第 k 级祖先}
+\label{tree:long-chain}
+\AlgorithmInfo
+    {按向下深度剖分长链，为深度相关 DP 提供结构，并查询第 $k$ 级祖先。}
+    {本实现含倍增预处理，时间、空间 $O(n\log n)$；额外链表共 $O(n)$，单次跳祖先 $O(1)$。}
+    {先复制 TreeLCA；非空连通树；$k=0$ 返回自身，负数或越过根返回 0。}
+\subsubsection*{原理与重链的区别}
+记 $len_u$ 为从 $u$ 出发向下的最长路径顶点数，叶子为 1。每次选择 $len_v$ 最大的儿子延续长链，而不是按子树大小选择。两种剖分的取舍不同：重链用于保证路径经过的链数为 $O(\log n)$；长链用于按深度继承状态，不能直接把重链的跳链复杂度证明照搬过来。
+
+每个顶点属于一条长链，所以所有链的长度之和为 $n$。对链顶 $t$，建立两份长 $len_t$ 的表：\InlineCode{down[t][i]} 是从链顶向下的第 $i$ 个点，\InlineCode{up[t][i]} 是链顶向上的第 $i$ 级祖先；两表下标 0 都是 $t$。这些表总共只占线性空间。
+
+查询 $u$ 的第 $k>0$ 级祖先时，令 $j=\lfloor\log_2 k\rfloor$，先用一次倍增跳到 $v=fa_{u,j}$，还需跳 $r=k-2^j<2^j$ 步。$v$ 下方存在距离 $2^j$ 的原顶点 $u$，所以 $v$ 所在长链的链顶 $t$ 满足 $len_t\ge2^j+1$，剩余距离必在扩展链表内。
+
+令 $d=dep_v-dep_t-r$，若 $d\ge0$，答案为 \InlineCode{down[t][d]}；否则为 \InlineCode{up[t][-d]}。预先求出所有整数的对数后，查询只需一次倍增索引和一次链表索引。
+
+长链也常用于按相对深度存储的子树 DP：优先继承长儿子的状态，轻儿子再合并；具体总复杂度取决于状态和合并方式，本节不把所有深度 DP 都笼统视为线性。
+\subsubsection*{使用教程}
+\InlineCode{build(root)} 内部完成倍增与长链构建。\InlineCode{son,len,top} 是长儿子、向下长度和链顶，\InlineCode{jump(u,k)} 查询祖先；\InlineCode{tr} 保存对应的 TreeLCA，可继续查询 LCA。这里只提供剖分和祖先查询，不包含区间维护。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+LongChain g;
+g.init(5);
+g.add(1,2),g.add(2,3),g.add(3,4),g.add(1,5);
+g.build(1);
+int ancestor=g.jump(4,2);
+int p=g.tr.lca(4,5);
+\end{lstlisting}
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/trees/long_chain.cpp}

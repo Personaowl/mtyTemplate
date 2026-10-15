@@ -1,0 +1,31 @@
+% Source: user's edge-mode HLD request; parent-edge and subdivision conventions.
+\subsection{边化点：父边下放与插点}
+\label{tree:edge-to-vertex}
+\subsubsection*{将父边存到较深端点}
+选根后，每条边 $(fa_u,u)$ 与非根顶点 $u$ 一一对应，把该边的权值放在 \InlineCode{dfn[u]}。这样沿用顶点序号就能维护边信息，不必真的增加顶点；根没有父边，其位置存放操作的单位元，例如求和为 0、取最小值为正无穷。
+
+路径 $u\to v$ 的边对应路径顶点中\textbf{除去 LCA}的各点。重链跨链时，链顶的父边仍在原路径上，要保留链顶位置；最后同链的那一段才把较浅端的序号加 1。\InlineCode{HLD::path(u,v,true)} 已完成这些处理，$u=v$ 时返回空列表。
+
+若查询子树内的所有边，不包含子树根连向其父亲的边，区间为
+\[
+    [dfn_u+1,\ dfn_u+sz_u-1].
+\]
+若题目还包含子树根的父边，就从 $dfn_u$ 开始；整体根的占位值仍需单独理解。
+\subsubsection*{使用示例}
+先复制 HLD。输入边权可与无权邻接结构分开保存，构建后再确定较深端点；换根后必须重新映射。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+HLD g;
+g.init(4);
+vector<tuple<int,int,long long>> edges={{1,2,3},{2,3,5},{2,4,7}};
+for(auto [u,v,w]:edges) g.add(u,v);
+g.build(1);
+vector<long long> base(5,0);
+for(auto [u,v,w]:edges){
+	int child=g.fa[u]==v?u:v;
+	base[g.dfn[child]]=w;
+}
+auto parts=g.path(3,4,true);
+auto [l,r]=g.subtree(2,true);
+\end{lstlisting}
+\subsubsection*{真正插入边节点}
+另一个含义是把原边 $(u,v)$ 改为 $u\to x_e\to v$，新节点 $x_e$ 保存边权，原顶点保存单位元。原树有 $n$ 个点时，插点后有 $2n-1$ 个点，仍然是一棵树。它适用于必须把点和边统一作为节点操作的结构；这里的点数、路径长度和层数均已改变，不能再把新树的无权距离当作原边数。

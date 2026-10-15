@@ -61,7 +61,8 @@ Ubuntu 精简安装需要显式安装 OpenType 字体包 `fonts-texgyre`；只�
 | 数论（第二章） | 分为模运算与同余方程、素数／数论函数与求和、组合计数、矩阵与线性代数、博弈论五组；保留定理条件、推导及配套模板 |
 | 数据结构 | 暂不收录 PDF，保留普通并查集等源文件 |
 | 图论（第三章） | 分为最短路与约束、最小生成树、拓扑排序与 DAG、连通性与 2-SAT、二分图与匹配、网络流六组；收录递归 Tarjan、匈牙利、网络流匹配、最小点覆盖、EK、递归 Dinic、费用流及上下界流等 |
-| 字符串（第一章） | 分为字典结构与多模式匹配、字符串比较与单模式匹配、回文三组；收录 Trie、AC 自动机、双哈希、KMP、Z 函数与扩展 KMP、Manacher |
+| 树（第四章） | 基本性质与代表节点、祖先查询与树上差分、树链剖分与边化点、虚树、树的重构、子树离线统计六组；含中心、重心、重链、长链、虚树断边 DP、笛卡尔树、Kruskal 重构树及 DSU on tree，不含线段树维护 |
+| 字符串（第一章） | 分为字典结构与多模式匹配、字符串比较与单模式匹配、回文三组；收录 Trie、AC 自动机、单模数哈希、自然溢出哈希、双哈希、KMP、Z 函数与扩展 KMP、Manacher |
 | DP / 几何 | 预留目录，收录真实条目后再启用 |
 
 ## 目录与文件职责
@@ -81,6 +82,7 @@ mtyTemplate/
 │   ├── number-theory/        # 数论及相关数学主题（第二章）
 │   ├── data-structures/      # 数据结构（暂不收录 PDF）
 │   ├── graphs/               # 图论（第三章）
+│   ├── trees/                # 树（第四章）
 │   ├── strings/              # 字符串算法
 │   ├── dp/                   # 动态规划（预留）
 │   └── geometry/             # 计算几何（预留）
@@ -106,7 +108,9 @@ mtyTemplate/
 
 有代码的算法由 `.tex` 说明和唯一 `.cpp` 源码组成，纯原理条目仅维护 `.tex`。新增代码后同步相应编译检查的源码依赖顺序和条目清单，保证调用示例也参与编译。分类 `index.tex` 只负责分类标题与条目顺序，`chapters/contents.tex` 只负责分类顺序。
 
-当前三章统一按“章 → 主题分组 → 算法条目”组织：`index.tex` 的 `AlgorithmGroups` 环境内用 `\section` 建立主题，条目标题用 `\subsection`，原理和使用教程等内部标题用 `\subsubsection*`。目录与书签展示到算法层，编号如 `3.6.2`；分组样式集中在 `config/style.tex`。字符串分三组、数论分五组、图论分六组。新增条目先放入合适主题，后续章节可复用同样层级。
+当前四章统一按“章 → 主题分组 → 算法条目”组织：`index.tex` 的 `AlgorithmGroups` 环境内用 `\section` 建立主题，条目标题用 `\subsection`，原理和使用教程等内部标题用 `\subsubsection*`。目录与书签展示到算法层，编号如 `3.6.2`；分组样式集中在 `config/style.tex`。字符串分三组、数论分五组、图论分六组、树分六组。新增条目先放入合适主题，后续章节可复用同样层级。
+
+树章的依赖按条目说明复制：差分、长链、虚树共用 `TreeLCA`，虚树断边 DP 再依赖 `VirtualTree`；Kruskal 重构树依赖普通并查集与 `TreeLCA`；树上启发式合并复用 `HLD` 的子树区间。LCA 分组包含倍增、欧拉序 RMQ 和树剖求法；树剖 LCA 直接调用 `HLD::lca`，无需线段树。重链剖分只输出区间及方向，线段树维护统一留给数据结构章节。通用虚树构造不绑定某个 DP，切换题目时按压缩路径需要保留的信息另写转移。
 
 ### 统一条目接口
 
@@ -154,7 +158,9 @@ mtyTemplate/
 3. 纯文字、排版调整只编译 PDF。删除断言等不改变合法输入逻辑的修改做编译与核对即可，沿用此前的行为验证记录。
 4. 新实现、关键逻辑变化或发现疑点时，先补查相关边界或相关算法；确需完整回归时，手动运行 `python scripts/check_code.py --full`。只运行字符串完整回归可用 `python scripts/check_strings.py --full`。保留测试方便定位问题，日常构建不自动执行。
 
-`python scripts/check_strings.py` 只编译字符串；`python scripts/check_number_theory.py` 只编译数论；`python scripts/check_graphs.py` 只编译图论（含并查集依赖）。这些分类检查默认都不运行行为检查。新整理数论的少量固定边界与修正回归可手动运行 `python scripts/check_number_theory.py --smoke`，不枚举随机数据；完整回归入口 `--full` 也会包含这些固定检查。图论可手动运行 `python scripts/check_graphs.py --smoke` 检查固定边界，或用 `--audit` 在固定用例之外核对极小规模的独立模型；这些都不在日常编译中自动执行。既有验证范围与实际执行记录见 [校验记录](docs/validation.md)。
+`python scripts/check_strings.py` 只编译字符串；`python scripts/check_number_theory.py` 只编译数论；`python scripts/check_graphs.py` 只编译图论；`python scripts/check_trees.py` 只编译树。分类检查会补齐所需依赖，默认都不运行行为检查。数论的固定边界可手动运行 `python scripts/check_number_theory.py --smoke`；图论与树可分别用相应脚本的 `--smoke` 检查固定边界，或用 `--audit` 核对极小规模独立模型；这些不在日常编译中自动执行。完整回归入口 `python scripts/check_code.py --full` 包含固定检查，不自动跑图论或树的小模型。既有验证范围与实际执行记录见 [校验记录](docs/validation.md)。
+
+单模数与自然溢出哈希的专项检查可手动运行 `python scripts/check_hash.py`，覆盖空串、重复初始化、不同位置的子串、高位字节及 64 位回绕；自然溢出结果与 128 位显式取模计算比较。该检查也包含在字符串 `--full` 中，默认编译流程不执行。
 
 ### 构建与清理
 
@@ -177,6 +183,6 @@ git push origin main
 
 首次提交如提示身份信息，请自行配置 `user.name` 与 `user.email`。仓库尚未指定开源许可证，发布前请自行决定并核对引用代码的授权。
 
-推送到 `main` 或创建 PR 后，GitHub Actions 会编译手册和已收录的字符串、数论、图论模板及调用示例，不自动运行完整对拍。构建成功后，PDF 在对应运行的 **Artifacts → mtyTemplate-pdf** 中下载，保留 30 天；远程检查状态以对应提交的 Actions 运行记录为准。
+推送到 `main` 或创建 PR 后，GitHub Actions 会编译手册和已收录的字符串、数论、图论、树模板及调用示例，不自动运行完整对拍。构建成功后，PDF 在对应运行的 **Artifacts → mtyTemplate-pdf** 中下载，保留 30 天；远程检查状态以对应提交的 Actions 运行记录为准。
 
 工作流不自动提交 PDF 或创建 Release。正式发布时可手工将 PDF 上传至 GitHub Release，并添加对应版本标签。
