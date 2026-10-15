@@ -1,4 +1,5 @@
 % Source: Independent classification/area formulas; KACTL CircleIntersection.h (Simon Lindholm, CC0).
+% Stable triangle area: W. Kahan, https://people.eecs.berkeley.edu/~wkahan/Triangle.pdf ; small-angle segment series derived from sin(2t).
 \subsection{圆与直线、圆与圆的交点及交面积}
 \label{geo:circle}
 \AlgorithmInfo
@@ -13,9 +14,11 @@
 \[
  x=\frac{d^2+r_1^2-r_2^2}{2d},\qquad h=\sqrt{r_1^2-x^2}.
 \]
-交点沿垂直方向偏移 ±h。零半径视为点，先处理；正半径同心等半径圆有无限交点。容差内按相切分类时直接沿单位圆心方向构造圆周点，避免在圆心很近、半径较大时放大交点公式的误差。
+交点沿垂直方向偏移 ±h。实现不直接用大圆的 $r_1^2-x^2$ 求 h：大小圆半径悬殊时，两项几乎相等，会丢失小圆的信息。改由边长 $r_1,r_2,d$ 构成的三角形面积 $\Delta$ 求 $h=2\Delta/d$，用重排海伦公式减少消减；两侧投影距离分别计算，并从较小圆心构造公共弦中点。
 
-圆盘交面积先处理相离与包含；两点交时为两扇形减三角形，使用 $atan2(h,x)$ 和 $atan2(h,d-x)$ 保留钝角，面积为 $r_1^2atan2(h,x)+r_2^2atan2(h,d-x)-dh$。面积函数按实际连续公式计算，不把一条 EPS 宽的小月牙直接当成零面积。
+零半径视为点，先处理；正半径同心等半径圆有无限交点。容差内按相切分类时直接沿单位圆心方向构造圆周点，避免在圆心很近、半径较大时放大交点公式的误差。
+
+圆盘交面积先处理相离与包含；两点交时累加两个圆弓形。每侧用 $\theta=atan2(h,x)$ 保留钝角，弓形面积为 $r^2(\theta-\sin\theta\cos\theta)$。小角时两项几乎抵消，代码改用从 $2\theta^3/3$ 开始的展开式，避免小月牙面积丢失。面积函数按连续公式计算，不用 EPS 直接抹去小月牙。
 
 \subsubsection*{使用教程}
 \InlineCode{Circle{Point{x,y},r}} 表示圆心和半径，普通几何运算要求 $r\ge0$，允许点圆；$r<0$ 仅是空覆盖圆的无效标记，不可直接交给本节运算。
@@ -25,6 +28,8 @@
 \InlineCode{circle_intersection(a,b)} 返回 cnt 和交点数组 p：cnt=-1 为正半径圆重合、无限交点，此时 p 为空；cnt=0/1/2 为对应有限交点数，只有大于 0 时才取 p 中元素。同位置的两个点圆返回一个点。近相切／重合按本章容差分类，不依赖交点排列顺序。
 
 \InlineCode{circle_overlap(a,b)} 返回两个闭圆盘公共面积，为非负 ld；相离／外切为 0，包含时是较小圆盘面积。不要将圆周交点为空理解成圆盘交面积为 0。所有调用相互独立，不修改两圆或直线。
+
+\InlineCode{circle_chord(r,s,d)} 是两接口共用的辅助计算，返回第一、第二圆心到公共弦的有向距离 x、y 及半弦长 h；只有已确认两点相交时才能调用，不能用它判断相交类型。通常直接使用上面的圆接口即可。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Circle a{Point{0,0},2},b{Point{3,0},2};
 auto hit=circle_intersection(a,b);

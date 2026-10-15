@@ -17,6 +17,8 @@
 \InlineCode{projection(q,f)} 返回 q 到平面的垂足。\InlineCode{line_plane(a,b,f)} 将不同点 a、b 视为无限直线，返回 kind=0 平行无交、1 唯一交点、2 整条直线在平面内；只有 kind=1 时读取 p。若题目是线段与平面，还须另检查该点在线段范围内。
 
 \InlineCode{space_line_distance(a,b,c,d)} 返回空间两条无限直线 ab、cd 的非负最短距离，支持平行、相交和异面；某一对端点重合时按点处理，两对都重合时为点点距离。它不是两条闭线段的距离。以上接口直接调用，不建立共享状态或修改输入。
+
+线面与两直线的平行判定使用 GEO\_ANG；低于角度阈值时按平行处理。近乎平行的无限直线可能在极远处相交，这种情况对方向误差敏感，不能把容差下的分类当作精确结论。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Plane f(Point3{0,0,1},Point3{0,0,1});
 auto hit=line_plane(Point3{0,0,0},Point3{1,1,2},f);

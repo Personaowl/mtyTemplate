@@ -477,6 +477,91 @@ void halfplane_wrap_checks(){
 	}
 }
 
+void geometry_transform_checks(){
+	// Exact integer answers survive large translations, integer scaling and rotations.
+	for(int test=0;test<100;test++){
+		vector<IPoint> base;
+		for(int i=0;i<25;i++) base.push_back({rd(-30,30),rd(-30,30)});
+		auto h=convex_hull(base);I128 dia=0,closest=(I128)1<<120;
+		for(int i=0;i<(int)base.size();i++) for(int j=0;j<i;j++){
+			dia=max(dia,dist2(base[i],base[j]));closest=min(closest,dist2(base[i],base[j]));
+		}
+		ld width=hull_min_width(h);
+		for(long long scale:{1LL,1000000000LL}) for(int turn=0;turn<4;turn++){
+			auto change=[&](IPoint a){
+				for(int j=0;j<turn;j++) a={-a.y,a.x};
+				return IPoint{a.x*scale+900000000000LL,a.y*scale-900000000000LL};
+			};
+			vector<IPoint> p;for(auto a:base) p.push_back(change(a));
+			auto q=convex_hull(p);
+			require(closest_pair2(p)==closest*scale*scale,"large integer closest exact");
+			require(hull_diameter2(q)==dia*scale*scale,"large integer diameter exact");
+			near(hull_min_width(q),width*scale,1e-15L,"large integer width scales");
+			for(int j=0;j<50;j++){
+				IPoint a{rd(-40,40),rd(-40,40)};
+				require(point_in_convex(q,change(a))==point_in_polygon(h,a),"large integer fan vs winding");
+			}
+		}
+	}
+	// Analytic rectangle area, including aspect ratio 1e12; all constraints shuffled.
+	for(ld len:{1e-6L,1.0L,1e6L}) for(ld width:{1e-6L,1.0L}){
+		if(width>len) continue;
+		for(int angle=0;angle<180;angle++){
+			ld theta=angle*GEO_PI/180;Point u{cosl(theta),sinl(theta)},v=perp(u);
+			vector<Point> p={u*(-len)+v*(-width),u*len+v*(-width),u*len+v*width,u*(-len)+v*width};
+			vector<Line> a;
+			for(int i=0;i<4;i++) a.emplace_back(p[i],p[(i+1)%4]);
+			for(int rep=0;rep<3;rep++){
+				shuffle(a.begin(),a.end(),rng);auto q=halfplane_intersection(a,len*3);
+				ld got=fabsl(polygon_area2(q))/2,want=4*len*width;
+				require(!q.empty()&&fabsl(got-want)<=want*2e-6L,"rotated thin HPI rectangle analytic area");
+			}
+		}
+	}
+	for(ld scale:{1e-6L,1.0L,1e6L}) for(int t=0;t<500;t++){
+		ld ang=(ld)rd(0,100000)*GEO_PI/50000;
+		Point u{cosl(ang),sinl(ang)},v=perp(u);
+		for(bool inner:{false,true}){
+			Circle a{{0,0},scale},b{u*(inner?2*scale:scale),scale/2};
+			auto h=circle_tangents(a,b,inner);
+			require(h.lines.size()==2,"scaled inner/outer tangent count");
+			for(auto z:h.lines){
+				require(fabsl(distance(z.a,a.o)-a.r)<=4e-10L,"scaled tangent radius a");
+				require(fabsl(distance(z.b,b.o)-b.r)<=4e-10L,"scaled tangent radius b");
+				require(fabsl(cross(z.b-z.a,z.dir))<=4e-10L,"scaled tangent contact line");
+			}
+		}
+		auto outer=circumcircle(Point{0,0},u*scale,v*scale);
+		require(outer.has_value(),"scaled triangle circle exists");
+		near(outer->r,scale/sqrtl(2),1e-14L,"rotated triangle circumradius");
+	}
+}
+void space_conditioning_checks(){
+	for(int t=0;t<700;t++){
+		Point3 a{(ld)rd(-100000,100000),(ld)rd(-100000,100000),(ld)rd(-100000,100000)};
+		Point3 b{(ld)rd(-100000,100000),(ld)rd(-100000,100000),(ld)rd(-100000,100000)};
+		Point3 c{(ld)rd(-100000,100000),(ld)rd(-100000,100000),(ld)rd(-100000,100000)};
+		I128 ax=a.x,ay=a.y,az=a.z,bx=b.x,by=b.y,bz=b.z,cx=c.x,cy=c.y,cz=c.z;
+		I128 exact=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);
+		require(triple(a,b,c)==(ld)exact,"3D triple product vs exact integer determinant");
+		Point3 n{(ld)rd(-10,10),(ld)rd(-10,10),(ld)rd(-10,10)};
+		Point3 v{(ld)rd(-10,10),(ld)rd(-10,10),(ld)rd(-10,10)};
+		if(length(n)==0||length(v)==0||dot(n,v)==0) continue;
+		Plane f(a,n);
+		Point3 p=projection(b,f);
+		near(f.side(p),0,2e-9L,"3D projection on arbitrary plane");
+		near(length(cross(b-p,f.n)),0,2e-9L,"3D projection normal direction");
+		for(ld scale:{1e-6L,1.0L,1e3L}){
+			auto hit=line_plane(a+v*(2*scale),a-v*(3*scale),f);
+			require(hit.kind==1,"3D known line-plane intersection exists");
+			near(length(hit.p-a),0,2e-8L,"3D line-plane known intersection at varied scales");
+			Point3 normal=cross(n,v);ld z=length(normal);
+			if(z==0) continue;
+			Point3 u=a+normal*(scale/z);
+			near(space_line_distance(a,a+n,u,u+v),scale,2e-9L,"3D skew-line analytic separation");
+		}
+	}
+}
 void oracle_protocol(){
 	int type;
 	while(cin>>type){
@@ -492,10 +577,22 @@ void oracle_protocol(){
 			int n;cin>>n;vector<Point> p(n);for(auto& q:p) cin>>q.x>>q.y;
 			auto c=minimum_circle(p,1234567);cout<<c.o.x<<' '<<c.o.y<<' '<<c.r<<'\n';
 		}
-		else if(type==3){
+		else if(type==3||type==5){
 			int n;ld B;cin>>n>>B;vector<Line> lines;
 			while(n--){HP h;cin>>h.a>>h.b>>h.c;lines.push_back(hp_line(h));}
-			auto p=halfplane_intersection(lines,B);cout<<fabsl(polygon_area2(p))/2<<'\n';
+			vector<Point> p;
+			if(type==3) p=halfplane_intersection(lines,B);
+			else{
+				p={{-B,-B},{B,-B},{B,B},{-B,B}};
+				for(auto l:lines) p=cut_polygon(p,l);
+			}
+			cout<<fabsl(polygon_area2(p))/2<<'\n';
+		}
+		else if(type==4){
+			Circle a,b;cin>>a.o.x>>a.o.y>>a.r>>b.o.x>>b.o.y>>b.r;
+			auto hit=circle_intersection(a,b);cout<<hit.cnt;
+			for(auto p:hit.p) cout<<' '<<p.x<<' '<<p.y;
+			cout<<'\n';
 		}
 	}
 }
@@ -503,5 +600,6 @@ signed main(signed argc,char**){
 	cout<<setprecision(25);
 	if(argc>1){oracle_protocol();return 0;}
 	integer_checks();real_checks();halfplane_checks();circle_area_mec_checks();space_checks();halfplane_wrap_checks();circle_polygon_tangent_checks();
+	geometry_transform_checks();space_conditioning_checks();
 	cout<<"PASS: geometry, "<<checks<<" independent-model/adversarial checks; long double digits="<<numeric_limits<ld>::digits<<'\n';
 }
