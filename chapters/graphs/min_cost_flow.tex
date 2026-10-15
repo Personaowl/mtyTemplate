@@ -1,0 +1,45 @@
+% Source: ACM_Templates.pdf, PDF pp. 77-80; potential-based shortest augmenting paths.
+% Review and validation: docs/validation.md.
+\section{最小费用流与最小费用最大流}
+\label{algo:min-cost-flow}
+\AlgorithmInfo
+    {在指定流量上限内，先尽量增广流量，再使该流量的总费用最小。}
+    {初始势能 $O(nm)$；若增广 $A$ 次，后续为 $O(A(n+m)\log(m+2))$。}
+    {容量非负；允许负费用边，但初始正残量图须无负费用环；费用计算使用 128 位。}
+
+\subsection*{残量费用与最短增广路}
+边容量为 $c$、单位费用为 $w$，正向流量增加 $f$ 会增加费用 $fw$。反向残量边的单位费用必须是 $-w$，用于撤销时扣回费用，不能设成零或仍为 $w$。
+
+在当前流量已为最小费用的前提下，每次沿最小费用的残量源汇路径增广，可保持新流量下的费用最优。停止于无法增广时得到最小费用最大流；若只需要 $F$ 单位流，设置上限为 $F$，并检查实际流量是否达到它。费用为负不改变“先最大流量”的目标顺序。
+
+\subsection*{势能为什么能配合 Dijkstra}
+维护势能 $h$，令边的重标费用为
+\[
+    w'_{uv}=w_{uv}+h_u-h_v.
+\]
+若对所有可用边有 $h_v\leq h_u+w_{uv}$，则 $w'\geq0$；对同一对端点，各路径费用只差固定值，最短路选择不变。
+
+初始把所有势能设为零，用全图 Bellman--Ford 建立可行势能并检查负环。随后对残量网络用 Dijkstra 求重标距离 $d$，对可达点更新 $h_v\gets h_v+d_v$，再沿前驱边增广。对路径上的反向新残量边，更新后重标费用为零，因此可以继续使用 Dijkstra。
+
+后续每轮只需保证源点可达部分的重标费用非负，不可达点保留原势能。一次运行中，新生成的反向边只连接原本可达的顶点，不会让不可达部分突然变得可达；因此不会把未经保证的负重标边带入 Dijkstra。
+
+一次增广可推送路径瓶颈容量，不是固定推一单位。但增广次数仍可能依赖流量规模，不能只写成与流量无关的 $O(m\log n)$。
+
+\subsection*{使用教程}
+\InlineCode{add(u,v,cap,cost)} 加一条容量边。\InlineCode{flow(s,t,limit)} 返回包含 \InlineCode{ok,flow,cost} 的结果，其中流量和费用都是本次额外增加的量，残量图会被修改。\InlineCode{ok=false} 表示当前初始残量图存在负费用环，此次没有推流；不等价于网络无可行流，也不等价于费用无界，而是超出该模板的适用条件。
+
+顶点从 $1$ 开始，$s\ne t$，容量与上限不超过 $4\times10^{18}$；边费用使用 64 位且不能取 \InlineCode{LLONG_MIN}，避免反向费用取负溢出。总费用和累加中间量须能用有符号 128 位表示。\InlineCode{cost} 为 128 位，按需要格式化输出，不要直接缩窄为 64 位。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+MinCostFlow g;
+g.init(4);
+g.add(1,2,2,-3),g.add(2,4,2,5);
+g.add(1,3,1,1),g.add(3,4,1,2);
+auto res=g.flow(1,4,2);
+if(res.ok&&res.flow==2){__int128 cost=res.cost;}
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/graphs/min_cost_flow.cpp}
+
+负费用环即使容量有限，也可能通过循环流降低费用；这种更一般的问题需要消圈等方法，不能删除负环或忽略警告后继续套本实现。初始网络为分层匹配图等 DAG 时，即使有负费用边也不会形成负环。

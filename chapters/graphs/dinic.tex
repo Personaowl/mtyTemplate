@@ -1,0 +1,41 @@
+% Source: Supplement: residual network and Dinic blocking flow; https://cp-algorithms.com/graph/dinic.html
+% Review and validation: docs/validation.md.
+\section{网络流基础、Dinic 与最小割}
+\label{algo:dinic}
+\AlgorithmInfo
+    {求有向容量网络的最大流，并在残量图上恢复最小割。}
+    {一般图时间 $O(n^2m)$，空间 $O(n+m)$；二分匹配的单位网络可达 $O(m\sqrt n)$。}
+    {容量为非负 64 位整数；本次增广上限默认 $4\times10^{18}$；源汇不同。}
+
+\subsection*{流量、残量边与撤销}
+每条边有容量 $c$ 与流量 $f$，满足 $0\leq f\leq c$；除源点 $s$、汇点 $t$ 外，每点流入等于流出。增广并非只能增加之前的选择：对原边 $u\to v$，残量图保留容量 $c-f$ 的正向边和容量 $f$ 的反向边，允许后续调整或撤销已有流量。
+
+每次 \InlineCode{add} 都建立独立的正反边对，编号为 $id,id\mathbin{\oplus}1$。反向残量边不是另一条原图边；若原图还含 $v\to u$，应再独立加一对。该结构天然支持平行边与自环，不会因邻接下标相同混淆反向边。
+
+\subsection*{Dinic 的分层与阻塞流}
+每轮只沿正残量边 BFS，得到层数 $dep$，再沿 $dep_v=dep_u+1$ 的边推流。阻塞流使当前层次图的每条源汇路径至少有一条饱和边；下一轮汇点的最短层数严格增加，所以轮数小于 $n$。
+
+当前弧指针 \InlineCode{cur[u]} 记住未排除的出边，避免在同一轮中反复扫描无效边。本模板用显式路径栈寻找增广路，遇到走不通的点时回退并推进父节点的当前弧，与沿层次图递归推流对应，但不会消耗深层调用栈。一次阻塞流的保守上界为 $O(nm)$。
+
+\subsection*{最大流与最小割}
+满增广后从 $s$ 出发，沿正残量边可达的点集为 $S$，其余为 $T$。原图从 $S$ 到 $T$ 的边均已饱和，反向跨割流量为零，割容量等于最大流。这既是最大流最小割定理的构造，也可用于恢复割边和验证答案。
+
+\subsection*{使用教程}
+\InlineCode{init(n)} 后用 \InlineCode{add(u,v,c)} 加有向容量边，返回正向边编号。\InlineCode{flow(s,t,limit)} 返回\textbf{本次额外增广量}并修改残量容量；省略上限时最多增广 \InlineCode{INF}。重复调用会从当前残量图继续，而不是重算原图。
+
+初始反向容量为零时，原边净流量为 \InlineCode{e[id^1].cap}；\InlineCode{reachable(s)} 返回正残量可达标记。仅在真正跑满最大流后，可据此解释最小割；达到人为限制就停止时不保证是最小割。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Dinic g;
+g.init(4);
+int id=g.add(1,2,3);
+g.add(1,3,2),g.add(2,4,2),g.add(3,4,3),g.add(2,3,1);
+long long ans=g.flow(1,4);
+auto side=g.reachable(1);
+long long used=g.e[id^1].cap;
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/graphs/dinic.cpp}
+
+若题目最大流可能超过默认上限，需按数据范围调整上限并保证累加不溢出。无向容量边通常加两条原始有向边，每条都带自己的零容量反向残量边；不要把反向残量边直接初始化为原图容量后仍按普通有向边的流量含义读取。

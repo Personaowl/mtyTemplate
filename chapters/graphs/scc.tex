@@ -1,0 +1,39 @@
+% Source: ACM_Templates.pdf, PDF pp. 71-74; iterative Tarjan traversal.
+% Review and validation: docs/validation.md.
+\section{Tarjan 强连通分量与缩点}
+\label{algo:scc}
+\AlgorithmInfo
+    {划分有向图中的强连通分量，并构造缩点后的 DAG。}
+    {划分、缩点均为 $O(n+m)$ 时间，空间 $O(n+m)$。}
+    {顶点与分量从 1 开始；支持自环、重边和不连通图。}
+
+\subsection*{原理}
+同一强连通分量内的点两两可达。Tarjan 维护发现时间 $dfn_u$、能回到的最早栈内位置 $low_u$，以及尚未归属某个分量的点栈。
+
+搜索树边 $u\to v$ 完成后，用 $low_v$ 更新 $low_u$；遇到已发现且仍在点栈内的 $v$，用 $dfn_v$ 更新。已经分配到某个 SCC 的点不能再用来降低当前 $low$。若 $low_u=dfn_u$，从点栈弹到 $u$ 为止，这些点恰好形成一个 SCC。
+
+模板用显式调用栈和每个点的出边游标模拟 DFS，保留“进入、处理子节点、返回回代”的顺序，避免长链造成递归栈溢出。这里的调用栈与 SCC 点栈作用不同，不能混用。
+
+\subsection*{缩点与 DAG 上的计算}
+将分量内部的边忽略，其余边按分量编号连接，得到有向无环图；若缩点图仍有环，环上各点本应属于同一个 SCC，矛盾。模板按弹栈顺序编号，因此跨分量边满足
+\[
+    bel_u>bel_v\qquad(u\to v,\ bel_u\ne bel_v).
+\]
+从大到小枚举分量编号就是一种拓扑序。\InlineCode{dag()} 保留平行边以维持线性复杂度；求入度时要按相同边集计数，若题目需要按不同邻点计数，再自行去重。
+
+例如在每个分量内能收集所有点权时，先求分量点权和 $w$。若路径可从任意分量开始，初始化 $dp_u=w_u$，再按拓扑序转移 $dp_v\gets\max(dp_v,dp_u+w_v)$。这样也支持负点权，不能把 $dp=0$ 当成未访问标记。若限定起点，则其余状态初始化为负无穷。
+
+\subsection*{使用教程}
+\InlineCode{init(n)} 后逐条 \InlineCode{add(u,v)}；\InlineCode{build()} 返回分量个数，\InlineCode{bel[u]} 是所属分量，\InlineCode{sz[c]} 是分量大小。构建后可调用 \InlineCode{dag()}，新增边后需重新构建。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+SCC g;
+g.init(4);
+g.add(1,2),g.add(2,1),g.add(2,3),g.add(3,4);
+int cnt=g.build();
+bool same=g.bel[1]==g.bel[2];
+auto dag=g.dag();
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/graphs/scc.cpp}

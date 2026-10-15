@@ -1,0 +1,43 @@
+% Source: Supplement: Floyd invariant and cycle decomposition.
+% Review and validation: docs/validation.md.
+\section{最小环：无向图与有向图}
+\label{algo:min-cycle}
+\subsection*{无向图：在 Floyd 更新之前枚举最高编号点}
+本节边权非负。考虑至少含三个不同顶点的简单环，设其编号最大的点是 $k$，环上与它相邻的两个点为 $i,j<k$。去掉 $k$ 后剩余路径只经过编号小于 $k$ 的内部点，因此可在 Floyd 的第 $k$ 轮更新\textbf{之前}枚举
+\[
+    ans\gets\min(ans,d_{ij}+w_{ik}+w_{kj}),\qquad i<j<k.
+\]
+$w$ 必须保留原始最小边权，不能被全源最短路覆盖；$d$ 则逐轮更新。若先更新 $d$ 再计算候选，路径可能已经经过 $k$，会重复使用它并产生错误答案。时间 $O(n^3)$、空间 $O(n^2)$。
+
+\subsection*{使用教程：自环、重边与环的定义}
+\InlineCode{MinCycle::init(n)} 默认把自环视为一边环、两条不同平行边视为二边环，并单独取这些候选的最小值。\InlineCode{init(n,false)} 则只计算至少三个不同顶点的环。按题目定义选择；不能将同一条无向边走两个方向当作二边环。
+
+无向边只 \InlineCode{add} 一次，\InlineCode{run()} 不修改原图，返回最小环权；无环时为 \InlineCode{INF}。边权、有限路径与答案均需小于 $4\times10^{18}$，候选加法先用 128 位计算。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+MinCycle g;
+g.init(3,false);
+g.add(1,2,2),g.add(2,3,3),g.add(3,1,4);
+long long ans=g.run();
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/graphs/min_cycle.cpp}
+
+\subsection*{有向图：一条边加返回路径}
+对每条原始有向边 $u\to v$，用全源最短路求 $v\to u$ 的最短返回路径，取
+\[
+    ans=\min_{(u,v,w)\in E}(w+dis_{vu}).
+\]
+非负权下，任意闭走都能分解出不更长的简单环，而最小环去掉任意一条边也提供候选，故全局最小值正确。这里反向弧是另一条有向边；两点间互为反向的两条边可以成环。保留原始边表，正权自环也能通过 $dis_{uu}=0$ 被计算。
+
+\subsection*{使用教程}
+先复制 Floyd。\InlineCode{directed_min_cycle(n,e)} 的边表元素为 \InlineCode{tuple<int,int,long long>}，依次为起点、终点、非负边权；无环返回 \InlineCode{Floyd::INF}。时间 $O(n^3+m)$、空间 $O(n^2+m)$；此接口不处理负权最小环。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+vector<tuple<int,int,long long>> e={{1,2,2},{2,3,3},{3,1,4}};
+long long ans=directed_min_cycle(3,e);
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/graphs/directed_cycle.cpp}

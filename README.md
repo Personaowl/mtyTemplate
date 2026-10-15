@@ -56,7 +56,7 @@ latexmk main.tex
 | 基础 | 暂不收录 PDF，保留解题框架等源文件 |
 | 数论（第二章） | 模运算、扩欧、逆元、筛法、欧拉降幂、Legendre、整除分块、组合计数、Lucas、康托、容斥、矩阵、高斯消元、CRT、线性基、博弈与 SG 状态图模板 |
 | 数据结构 | 暂不收录 PDF，保留普通并查集等源文件 |
-| 图论与树 | 预留目录；后续补充最短路、LCA、虚树 |
+| 图论（第三章） | 最短路、最小生成树、分层图、SCC 与缩点、割点割边、边双、2-SAT、差分约束、最小环、最大流、费用流、最小割建模与上下界流 |
 | 字符串（第一章） | Trie、双哈希、KMP、Z 函数与扩展 KMP、Manacher、AC 自动机 |
 | DP / 几何 | 预留目录，收录真实条目后再启用 |
 
@@ -76,7 +76,7 @@ mtyTemplate/
 │   ├── basics/               # 基础（暂不收录 PDF）
 │   ├── number-theory/        # 数论及相关数学主题（第二章）
 │   ├── data-structures/      # 数据结构（暂不收录 PDF）
-│   ├── graphs/               # 图论与树（预留）
+│   ├── graphs/               # 图论（第三章）
 │   ├── strings/              # 字符串算法
 │   ├── dp/                   # 动态规划（预留）
 │   └── geometry/             # 计算几何（预留）
@@ -144,11 +144,11 @@ mtyTemplate/
 默认采用“编译 + 代码核对”的流程，不在每次整理后重复对拍。每份模板仍必须核对实现与原理的一致性、关键不变量和边界；发现疑点先解决，再收录：
 
 1. 新整理的实现优先参考已有通过验证的代码或可靠来源，保留出处。逐项核对状态含义、转移、下标、边界、整数范围、初始化及多测清理；核对实现是否满足算法不变量，不能以结构相似或编译通过代替逻辑审查。
-2. 代码或调用示例变动后，运行 `python scripts/check_code.py`。当前会直接读取第一章、第二章中 24 份模板源码及 LaTeX 中的 24 组调用示例，分别在普通 `int` 和 `#define int long long` 下编译、链接，不执行对拍。
+2. 代码或调用示例变动后，运行 `python scripts/check_code.py`。当前会直接读取已收录章节的模板源码及 LaTeX 调用示例，并补齐其声明的基础依赖，分别在普通 `int` 和 `#define int long long` 下编译、链接，不执行对拍。
 3. 纯文字、排版调整只编译 PDF。删除断言等不改变合法输入逻辑的修改做编译与核对即可，沿用此前的行为验证记录。
 4. 新实现、关键逻辑变化或发现疑点时，先补查相关边界或相关算法；确需完整回归时，手动运行 `python scripts/check_code.py --full`。只运行字符串完整回归可用 `python scripts/check_strings.py --full`。保留测试方便定位问题，日常构建不自动执行。
 
-`python scripts/check_strings.py` 只编译字符串；`python scripts/check_number_theory.py` 只编译数论。两者默认都不运行行为检查。新整理数论的少量固定边界与修正回归可手动运行 `python scripts/check_number_theory.py --smoke`，不枚举随机数据；完整回归入口 `--full` 也会包含这些固定检查。既有完整对拍范围与本次执行记录见 [校验记录](docs/validation.md)。
+`python scripts/check_strings.py` 只编译字符串；`python scripts/check_number_theory.py` 只编译数论；`python scripts/check_graphs.py` 只编译图论（含并查集依赖）。这些分类检查默认都不运行行为检查。新整理数论的少量固定边界与修正回归可手动运行 `python scripts/check_number_theory.py --smoke`，不枚举随机数据；完整回归入口 `--full` 也会包含这些固定检查。图论可手动运行 `python scripts/check_graphs.py --smoke` 检查固定边界，或用 `--audit` 在固定用例之外核对极小规模的独立模型；这些都不在日常编译中自动执行。既有验证范围与实际执行记录见 [校验记录](docs/validation.md)。
 
 ### 构建与清理
 
@@ -171,6 +171,6 @@ git push origin main
 
 首次提交如提示身份信息，请自行配置 `user.name` 与 `user.email`。仓库尚未指定开源许可证，发布前请自行决定并核对引用代码的授权。
 
-推送到 `main` 或创建 PR 后，GitHub Actions 会编译手册和已收录的字符串、数论模板及调用示例，不自动运行完整对拍。PDF 在对应运行的 **Artifacts → mtyTemplate-pdf** 中下载，保留 30 天。工作流尚需首次推送后在 GitHub 验证。
+推送到 `main` 或创建 PR 后，GitHub Actions 会编译手册和已收录的字符串、数论、图论模板及调用示例，不自动运行完整对拍。PDF 在对应运行的 **Artifacts → mtyTemplate-pdf** 中下载，保留 30 天。工作流尚需首次推送后在 GitHub 验证。
 
 工作流不自动提交 PDF 或创建 Release。正式发布时可手工将 PDF 上传至 GitHub Release，并添加对应版本标签。

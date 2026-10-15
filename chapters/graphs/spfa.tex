@@ -1,0 +1,35 @@
+% Source: ACM_Templates.pdf, PDF pp. 67-68; Bellman-Ford relaxation invariant.
+% Review and validation: docs/validation.md.
+\section{负权最短路、SPFA 与负环}
+\label{algo:spfa}
+\AlgorithmInfo
+    {处理含负边的单源最短路，或检查整个图是否有负环。}
+    {SPFA 最坏时间 $O(nm)$，空间 $O(n+m)$；不保证接近线性。}
+    {顶点从 1 开始；无负环时，所有有限最短距离绝对值小于 $4\times10^{18}$。}
+
+\subsection*{原理}
+Bellman--Ford 反复扫描边并松弛：若不存在源点可达负环，最短路可取为至多 $n-1$ 条边的简单路径，做 $n-1$ 轮便足够；第 $n$ 轮仍能松弛则存在可达负环。它适合需要明确轮数和稳定复杂度的场景。
+
+SPFA 将刚被改善的顶点放入队列，只扫描可能继续改善其他距离的出边，并用队列标记避免重复排队。本模板在每次成功松弛时记录当前候选路径的边数
+\[
+    len_v=len_u+1.
+\]
+若达到 $n$，候选路径必有重复顶点；能让距离严格改善的重复部分包含负环，因而停止。这里的 $len$ 是路径边数，不是未经说明的入队次数。
+
+从单个源点开始，只能发现该源点可达的负环。若要检查全图，相当于增加超级源点，向每个点连零权边；实现直接把所有点的初始距离设为零并全部入队，仍按原图 $n$ 个顶点判定。
+
+\subsection*{使用教程}
+\InlineCode{run(s)} 的 $s\geq1$ 时求单源最短路；\InlineCode{run()} 或传 $0$ 时做全图检测。返回真才可读取 \InlineCode{dis}；返回假表示对应范围内存在负环，距离数组会清空。无向负边会形成可反复往返的负权闭走，应按最短路负环处理。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+SPFA g;
+g.init(3);
+g.add(1,2,-2),g.add(2,3,5);
+bool ok=g.run(1);
+if(ok){long long ans=g.dis[3];}
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsection*{模板代码}
+\CodeFile{code/graphs/spfa.cpp}
+
+松弛中的临时距离使用 128 位，避免负环尚未被判出时发生 64 位下溢。图中没有负环仍不代表性能好；非负权优先使用 Dijkstra，不把 SPFA 的经验速度当作复杂度保证。
