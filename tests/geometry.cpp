@@ -367,6 +367,49 @@ void circle_area_mec_checks(){
 	vector<Point> concave={{-3,-3},{3,-3},{3,-1},{-1,-1},{-1,3},{-3,3}};
 	near(circle_polygon_area(Circle{{-1,-1},2},concave),integration_model(Circle{{-1,-1},2},concave),8e-7L,"concave circle polygon integration");
 }
+void circle_polygon_tangent_checks(){
+	// Independent analytic area of the part of a disk on x<=cut.
+	auto cap_area=[](ld cut,ld r){
+		if(cut<=-r) return 0.0L;
+		if(cut>=r) return GEO_PI*r*r;
+		ld t=cut/r;
+		return r*r*(asinl(t)+GEO_PI/2+t*sqrtl((1-t)*(1+t)));
+	};
+	for(ld r:{1e-6L,1e-3L,1.0L,1e3L}) for(ld far:{2.0L,1e3L,1e6L}){
+		ld B=max(2*r,far);
+		for(ld t:{-1.000001L,-1.0L,-0.999999L,-0.9L,-0.1L,0.0L,0.1L,0.9L,0.999999L,1.0L,1.000001L}){
+			ld x=t*r,want=cap_area(x,r);
+			vector<Point> p={{-B,-B},{x,-B},{x,B},{-B,B}};
+			for(int rot=0;rot<4;rot++){
+				for(int orientation=0;orientation<2;orientation++){
+					ld got=circle_polygon_area({{0,0},r},p);
+					require(isfinite(got)&&fabsl(got-want)<=2e-9L*r*r+1e-19L,"circle-polygon analytic disk cap, tangency and crossing");
+					reverse(p.begin(),p.end());
+				}
+				for(auto& v:p) v=perp(v);
+			}
+		}
+	}
+	// Arbitrary angles expose rounding on both sides of tangency; the projection
+	// must be a split even if the computed squared intersection height is negative.
+	for(ld r:{1e-6L,1.0L,1e3L}) for(ld len:{2.0L,1e3L}){
+		ld B=max(len,2*r);
+		for(int i=0;i<720;i++){
+			ld theta=i*GEO_PI/360;
+			Point normal={cosl(theta),sinl(theta)},along=perp(normal);
+			Point a=normal*r-along*B,b=normal*r+along*B;
+			for(int side:{-1,1}){
+				vector<Point> p={a,b,b+normal*(side*2*B),a+normal*(side*2*B)};
+				ld want=side==1?0:GEO_PI*r*r;
+				for(int orientation=0;orientation<2;orientation++){
+					ld got=circle_polygon_area({{0,0},r},p);
+					require(isfinite(got)&&fabsl(got-want)<=1e-8L*r*r+1e-19L,"circle-polygon rotated tangent rectangle, inside and outside");
+					reverse(p.begin(),p.end());
+				}
+			}
+		}
+	}
+}
 void space_checks(){
 	Point3 a{0,0,0},b{1,0,0},c{0,1,0},d{0,0,1};
 	vector<array<Point3,3>> faces={{a,c,b},{a,b,d},{a,d,c},{b,c,d}};
@@ -459,6 +502,6 @@ void oracle_protocol(){
 signed main(signed argc,char**){
 	cout<<setprecision(25);
 	if(argc>1){oracle_protocol();return 0;}
-	integer_checks();real_checks();halfplane_checks();circle_area_mec_checks();space_checks();halfplane_wrap_checks();
+	integer_checks();real_checks();halfplane_checks();circle_area_mec_checks();space_checks();halfplane_wrap_checks();circle_polygon_tangent_checks();
 	cout<<"PASS: geometry, "<<checks<<" independent-model/adversarial checks; long double digits="<<numeric_limits<ld>::digits<<'\n';
 }

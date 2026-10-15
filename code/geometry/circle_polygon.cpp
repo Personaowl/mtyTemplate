@@ -8,6 +8,8 @@ ld circle_polygon_area(const Circle& c,const vector<Point>& p){
 		ld z=norm2(d);if(z==0) continue;
 		vector<ld> ts{0,1};
 		ld t=-dot(a,d)/z,h2=r2-cross(a,d)*cross(a,d)/z;
+		// 投影点也分段，避免相切中点或其舍入误差将整边误判为圆内。
+		if(t>0&&t<1) ts.push_back(t);
 		if(h2>0){
 			ld h=sqrtl(h2/z);
 			if(t-h>0&&t-h<1) ts.push_back(t-h);
@@ -16,7 +18,7 @@ ld circle_polygon_area(const Circle& c,const vector<Point>& p){
 		sort(ts.begin(),ts.end());
 		for(int j=1;j<(int)ts.size();j++){
 			Point u=a+d*ts[j-1],v=a+d*ts[j],mid=a+d*((ts[j-1]+ts[j])/2);
-			ld val=norm2(mid)<=r2?cross(u,v)/2:r2*atan2l(cross(u,v),dot(u,v))/2;
+			ld val=norm2(mid)<r2?cross(u,v)/2:r2*atan2l(cross(u,v),dot(u,v))/2;
 			ld y=val-err,s=ans+y;err=(s-ans)-y;ans=s;
 		}
 	}
