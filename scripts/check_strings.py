@@ -18,7 +18,7 @@ def usage_source():
     for name in NAMES:
         source.append(f'#include "code/strings/{name}.cpp"')
         tex = (ROOT / f'chapters/strings/{name}.tex').read_text(encoding='utf-8')
-        tutorial = tex.split(r'\subsection*{使用教程}', 1)[1].split(r'\needspace', 1)[0]
+        tutorial = re.split(r'\\sub(?:sub)?section\*\{使用教程\}', tex, maxsplit=1)[1].split(r'\needspace', 1)[0]
         examples = re.findall(r'\\begin\{lstlisting\}(?:\[[^\]]*\])?\s*\n(.*?)\\end\{lstlisting\}',
                               tutorial, flags=re.S)
         if not examples:

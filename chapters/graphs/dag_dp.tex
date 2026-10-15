@@ -1,20 +1,20 @@
 % Reference: https://cp-algorithms.com/graph/topological-sort.html
 % Kahn implementation and DAG recurrences independently reviewed in docs/validation.md.
-\section{拓扑排序与 DAG 上 DP}
+\subsection{拓扑排序与 DAG 上 DP}
 \label{algo:dag-dp}
 \AlgorithmInfo
     {求有向图的拓扑序、判断有无环；在 DAG 上计算最短路、最长路与路径数。}
     {拓扑排序和每次 DP 均为 $O(n+m)$ 时间；图占 $O(n+m)$ 空间，辅助空间 $O(n)$。}
     {顶点从 1 开始，$n\ge1$；边权可负，所有路径权和严格位于 $(-4\times10^{18},4\times10^{18})$；计数模数为正且不超过有符号 64 位上限。}
 
-\subsection*{拓扑排序：按依赖关系确定顺序}
+\subsubsection*{拓扑排序：按依赖关系确定顺序}
 拓扑序要求每条边 $u\to v$ 中，$u$ 都排在 $v$ 前面。它存在当且仅当有向图无环；顺序不一定唯一。
 
 Kahn 算法维护剩余入度：先将所有入度为 0 的点入队，每次取出一个点加入拓扑序，并删除它的所有出边；某个后继入度减到 0 时再入队。一个点出队时，它的所有前驱均已处理，因此符合拓扑序的要求。
 
 若最后处理的点数少于 $n$，剩余点中每个点都有剩余前驱，沿前驱追溯必然遇到环。判环要检查整个图，不能只从某一个起点搜索。重边需要分别统计入度、分别删除；自环会使构建失败。模板复制入度进行处理，所以可以重复构建。
 
-\subsection*{DAG 上 DP：沿拓扑序转移}
+\subsubsection*{DAG 上 DP：沿拓扑序转移}
 将边 $u\to v$ 理解为“$v$ 的状态依赖 $u$”。按拓扑序处理时，所有进入 $u$ 的贡献已经汇总完，可以把 $u$ 的最终状态传给后继。每条边只处理一次，因此即使存在负权，最短路与最长路仍可在线性时间内求出。
 
 \begin{center}
@@ -33,7 +33,7 @@ Kahn 算法维护剩余入度：先将所有入度为 0 的点入队，每次取
 
 若状态依赖的是后继，例如“从 $u$ 出发到终点的最优值”，应逆拓扑序处理。拓扑序只负责依赖顺序，状态含义和初始化仍需按题意确定。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 \InlineCode{init(n)} 后用 \InlineCode{add(u,v,w)} 加有向边，省略边权时取 1。\InlineCode{build()} 成功后，\InlineCode{ord} 是完整拓扑序；失败表示存在环，并清空 \InlineCode{ord}，此时不能调用 DP。新增边后必须重新构建。
 
 \InlineCode{path(s)} 返回从 $s$ 出发的最短距离，\InlineCode{path(s,true)} 返回最长距离，不可达分别用 \InlineCode{INF}、\InlineCode{-INF} 表示。\InlineCode{count(s,mod)} 返回各点的路径数，结果已取模；每次调用都会重新初始化 DP，不影响拓扑序。
@@ -49,7 +49,7 @@ if(g.build()){
 }
 \end{lstlisting}
 
-\subsection*{点权 DP 与缩点后的应用}
+\subsubsection*{点权 DP 与缩点后的应用}
 若每个点有权值 $w_u$，从任意点开始且至少选一个点的最大路径权，应初始化 $dp_u=w_u$，再转移 $dp_v\gets\max(dp_v,dp_u+w_v)$。所有权值均为负时，也会保留合法的负数答案，不能统一初始化为 0。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 DAGDP g;
@@ -68,5 +68,5 @@ if(g.build()){
 第~\ref{algo:scc}~节的 SCC 缩点图一定是 DAG，可在分量上做相同转移。把分量内点权求和之前，必须确认题意允许在分量内收集所有这些点权；缩点不自动保证这一条件。若统计路径数，还要确认保留平行边是否符合计数含义。
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/graphs/dag_dp.cpp}

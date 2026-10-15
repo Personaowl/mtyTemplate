@@ -36,8 +36,8 @@
 \linespread{1.15}
 \raggedbottom
 \setlength{\emergencystretch}{2em}
-\setcounter{tocdepth}{1}
-\setcounter{secnumdepth}{1}
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{2}
 \setlist[itemize]{leftmargin=1.5em,itemsep=3pt,topsep=4pt,parsep=0pt}
 \setlist[enumerate]{leftmargin=1.7em,itemsep=3pt,topsep=4pt,parsep=0pt}
 \ctexset{
@@ -50,6 +50,13 @@
     section={format=\Large\sffamily\bfseries\color{Ink},beforeskip=14pt,afterskip=8pt},
     subsection={format=\normalsize\sffamily\bfseries\color{Accent},beforeskip=10pt,afterskip=5pt}
 }
+% For grouped chapters: section = topic, subsection = algorithm.
+\newenvironment{AlgorithmGroups}{%
+    \ctexset{
+        subsection={format=\large\sffamily\bfseries\color{Accent}},
+        subsubsection={format=\normalsize\sffamily\bfseries\color{Ink},beforeskip=10pt,afterskip=5pt}
+    }%
+}{}
 \renewcommand{\chaptermark}[1]{\markboth{\thechapter\quad #1}{}}
 \pagestyle{fancy}
 \fancyhf{}

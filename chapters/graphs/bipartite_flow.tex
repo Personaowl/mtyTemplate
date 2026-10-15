@@ -1,0 +1,41 @@
+% Reference model: matching as an integral unit-capacity flow and Konig's theorem.
+% Validation: docs/validation.md.
+\subsection{网络流求二分图匹配与最小点覆盖}
+\label{algo:bipartite-flow}
+\AlgorithmInfo
+    {用 Dinic 求二分图最大匹配，恢复匹配边、最小点覆盖，并得到最大独立集大小。}
+    {设 $V=n_L+n_R+2$、$E=m+n_L+n_R$；时间 $O(E\sqrt V)$，空间 $O(V+E)$。}
+    {左右点分别从 1 编号；仅加合法的左右配对。先复制第~\ref{algo:dinic}~节 Dinic，再复制本封装。}
+
+\subsubsection*{建图与匹配恢复}
+新建源点 $S$ 和汇点 $T$，连 $S\to L_u$、$L_u\to R_v$、$R_v\to T$，容量全部为 1。源边和汇边限制每个点最多被选一次；匹配边上传送 1 单位流就表示选择这组配对。
+
+每组匹配可以送出等量的整数流；反过来，整数最大流中每个左右点最多经过 1 单位流，恰好给出一个匹配。因此最大流量等于最大匹配数。单位容量网络有整数最优流，Dinic 按整数推流即可得到它。
+
+记录每条配对边的正向编号 $id$，满增广后 \InlineCode{e[id^1].cap==1} 表示这条边被选中。左右编号在网络中映射为 $u$、$n_L+v$，避免两侧原本相同的编号冲突。重边不影响最大匹配数。
+
+\subsubsection*{最小点覆盖与最大独立集}
+点覆盖要求每条边至少有一个端点被选中。跑完最大流后，从 $S$ 沿正残量边可达的点集记为 $Z$，则
+\[
+    C=(L\setminus Z)\cup(R\cap Z)
+\]
+是最小点覆盖。若存在左点可达、右点不可达的未覆盖边，未选中的配对边会直接使右点可达；若该边已被选中，可达左点的匹配右点也必可达，同样矛盾。对每条匹配边恰选一个端点，而未匹配点不被选入，故覆盖大小等于最大匹配数，这也是二分图的 K\H{o}nig 定理。
+
+最小点覆盖的补集是最大独立集，大小为 $n_L+n_R-|M|$。这些匹配数与点覆盖数的等式依赖二分图条件。
+
+\subsubsection*{使用教程}
+\InlineCode{init(nL,nR)}、\InlineCode{add(u,v)} 与匈牙利模板使用同样的编号。\InlineCode{solve()} 内部重新建立网络并跑满最大流，返回匹配数；\InlineCode{ans} 为左右点编号对，\InlineCode{coverL}、\InlineCode{coverR} 分别为最小点覆盖在两侧选中的编号。重复求解会重新计算，支持新增配对后再求解。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+FlowMatching g;
+g.init(3,2);
+g.add(1,1),g.add(2,1),g.add(2,2),g.add(3,2);
+int ans=g.solve();
+auto matching=g.ans;
+auto coverL=g.coverL,coverR=g.coverR;
+int independent=3+2-ans;
+\end{lstlisting}
+普通无权一对一匹配可选较短的匈牙利模板；需要点容量、多重分配或与其他网络限制组合时，按这里的建图继续扩展。容量变化后须重新解释匹配与点覆盖含义，不能直接沿用本封装的单位匹配结论。
+
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/graphs/bipartite_flow.cpp}

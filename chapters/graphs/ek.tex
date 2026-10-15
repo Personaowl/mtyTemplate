@@ -1,0 +1,30 @@
+% Reference: https://cp-algorithms.com/graph/edmonds_karp.html
+% Validation: docs/validation.md.
+\subsection{Edmonds--Karp（EK）最大流}
+\label{algo:ek}
+\AlgorithmInfo
+    {通过 BFS 增广求最大流，满增广后可恢复最小割。}
+    {一般图时间 $O(nm^2)$，空间 $O(n+m)$。}
+    {顶点从 1 开始；容量非负，源汇不同；默认增广上限为 $4\times10^{18}$。}
+
+\subsubsection*{原理}
+在残量网络中用 BFS 求从 $s$ 到 $t$ 的最少边数路径，并记录每个点的前驱\textbf{边编号}。找到汇点后，沿前驱回溯取得瓶颈容量，再对整条路径执行正向减、反向加；找不到汇点即无法继续增广。
+
+选择最短增广路后，源点到各点的残量最短层数不会下降。同一条有向残量边再次成为饱和的瓶颈边，期间必须被反向增广，其起点层数至少增加 2；每条边至多发生 $O(n)$ 次，所以总增广次数为 $O(nm)$，每次 BFS 为 $O(m)$，得到 $O(nm^2)$ 的一般界。
+
+\subsubsection*{使用教程}
+\InlineCode{init(n)} 后用 \InlineCode{add(u,v,c)} 加原始有向容量边，返回正向边编号。\InlineCode{flow(s,t)} 求本次可增加的最大流，第三个参数可指定上限；\InlineCode{reachable(s)} 得到正残量可达点集。残量修改、重复调用和最小割的条件与第~\ref{math:flow-basics}~节一致。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+EK g;
+g.init(4);
+int id=g.add(1,2,3);
+g.add(1,3,2),g.add(2,4,2),g.add(3,4,3),g.add(2,3,1);
+long long ans=g.flow(1,4);
+long long used=g.e[id^1].cap;
+auto side=g.reachable(1);
+\end{lstlisting}
+容量和或最终流量可能超过默认上限时，应按数据范围调整，并保证所有累加不溢出。只求少量额外流时可指定较小上限；达到该上限不代表网络已满增广。
+
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/graphs/ek.cpp}

@@ -1,18 +1,18 @@
 % Source: ACM_Templates.pdf, PDF pp. 5-7, Trie/swk and Trie/wxf.
 % Validation and changes: docs/validation.md; scripts/check_strings.py.
-\section{Trie：字典树}
+\subsection{Trie：字典树}
 \label{algo:trie}
 \AlgorithmInfo
     {维护字符串集合，支持重复插入、完整串计数、前缀计数和删除一次。}
     {单次操作 $O(|s|)$；空间 $O(\Sigma L)$，$L$ 为历史插入总长度，$\Sigma=62$。}
     {支持数字、大小写英文字母，区分大小写；构造时已初始化。}
 
-\subsection*{原理}
+\subsubsection*{原理}
 从根节点出发，每条边代表一个字符，同一前缀共用一条路径。节点的 \InlineCode{cnt} 记录经过该前缀的字符串数量，\InlineCode{ed} 记录恰好在这里结束的数量。因此，完整串查询取终点的 \InlineCode{ed}，前缀查询取终点的 \InlineCode{cnt}。
 
 插入时沿途加一；删除时先确认完整串存在，再沿途减一。重复串分别计数，删除仅移除其中一次。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 定义 \InlineCode{Trie tr;} 后即可操作；\InlineCode{tr.init()} 可清空并复用。\InlineCode{insert(s)} 插入一次，\InlineCode{query(s)} 查询完整串数量，\InlineCode{prefix(s)} 查询以前缀开头的字符串数量；\InlineCode{erase(s)} 删除一次，返回是否删除成功。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Trie tr;
@@ -25,8 +25,8 @@ bool ok=tr.erase("abc");
 空前缀的计数是当前字符串总数；空字符串也可以插入和查询。
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/strings/trie.cpp}
 
-\subsection*{需要注意}
+\subsubsection*{需要注意}
 删除只减少计数，不回收节点；大量不同字符串反复插入、删除时，空间按历史建点量计算。子节点索引用 \InlineCode{int32_t}，避免被 \InlineCode{int} 宏扩大。若题目只有小写字母，可将 \InlineCode{SIG} 改为 $26$，并将 \InlineCode{get} 改为返回 \InlineCode{c-'a'} 以节省空间。

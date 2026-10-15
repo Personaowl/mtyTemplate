@@ -73,6 +73,33 @@ void fixed_cases(){
 	vector<long long> weight={0,-5,-3,-7},dp=weight;
 	for(auto u:dag.ord) for(auto [v,w]:dag.e[u]) dp[v]=max(dp[v],dp[u]+weight[v]);
 	require(*max_element(dp.begin()+1,dp.end())==-3,"DAG arbitrary-start nonempty vertex-weight path");
+	Bipartite bp;bp.init(5);
+	bp.add(1,2),bp.add(2,3),bp.add(3,4),bp.add(4,1),bp.add(1,2);
+	require(bp.build()&&bp.col[1]!=bp.col[2]&&bp.col[5]!=0&&bp.build(),
+		"bipartite even cycle, parallel edge, isolate and rebuild");
+	bp.init(5);bp.add(1,2),bp.add(3,4),bp.add(4,5),bp.add(5,3);
+	require(!bp.build()&&bp.col.empty(),"bipartite disconnected odd cycle");
+	bp.init(1);bp.add(1,1);require(!bp.build(),"bipartite self loop");
+	Hungarian hu;hu.init(2,2);
+	hu.add(1,1),hu.add(1,2),hu.add(2,1),hu.add(1,1);
+	require(hu.solve()==2&&hu.ml[1]==2&&hu.ml[2]==1&&hu.mr[1]==2,
+		"Hungarian recursive reassignment and duplicate edge");
+	require(hu.solve()==2,"Hungarian solve resets matching and timestamps");
+	hu.init(3,1);hu.add(1,1),hu.add(2,1),hu.add(3,1);
+	require(hu.solve()==1,"Hungarian one right vertex");
+	hu.init(0,3);require(hu.solve()==0,"Hungarian empty left side");
+	hu.init(3,0);require(hu.solve()==0,"Hungarian empty right side");
+	FlowMatching fm;fm.init(2,2);
+	fm.add(1,1),fm.add(1,2),fm.add(2,1),fm.add(1,1);
+	require(fm.solve()==2&&fm.ans.size()==2&&fm.coverL.size()+fm.coverR.size()==2,
+		"flow matching and minimum cover");
+	require(fm.solve()==2,"flow matching repeated solve rebuilds residual network");
+	fm.init(2,2);fm.add(1,1);fm.solve();fm.add(2,2);
+	require(fm.solve()==2,"flow matching new edges after solve");
+	fm.init(0,3);
+	require(fm.solve()==0&&fm.coverL.empty()&&fm.coverR.empty(),"flow matching empty side");
+	fm.init(2,2);
+	require(fm.solve()==0&&fm.coverL.empty()&&fm.coverR.empty(),"flow matching no edges");
 	SPFA sp;sp.init(4);
 	sp.add(1,2,-3),sp.add(2,3,2);
 	require(sp.run(1)&&sp.dis[3]==-1&&sp.dis[4]==SPFA::INF,"SPFA negative edge");
@@ -141,6 +168,20 @@ void fixed_cases(){
 	auto side=di.reachable(1);long long cut=0;
 	for(auto [u,v,c]:raw) if(side[u]&&!side[v]) cut+=c;
 	require(cut==23&&!side[6],"minimum cut recovery");
+	EK ek;ek.init(6);
+	for(auto [u,v,c]:raw) ek.add(u,v,c);
+	require(ek.flow(1,6)==23,"EK classic maximum flow");
+	auto ek_side=ek.reachable(1);long long ek_cut=0;
+	for(auto [u,v,c]:raw) if(ek_side[u]&&!ek_side[v]) ek_cut+=c;
+	require(ek_cut==23&&!ek_side[6],"EK minimum cut recovery");
+	ek.init(6);ek.add(5,1,1),ek.add(5,2,1),ek.add(1,3,1),ek.add(1,4,1);
+	ek.add(2,3,1),ek.add(3,6,1),ek.add(4,6,1);
+	require(ek.flow(5,6)==2,"EK reverse residual rerouting");
+	ek.init(3);ek.add(1,1,100),ek.add(1,2,2),ek.add(1,2,3),ek.add(2,1,7),ek.add(2,3,4);
+	require(ek.flow(1,3,2)==2&&ek.flow(1,3)==2&&ek.flow(1,3)==0,
+		"EK parallel, self, opposite edges, limit and continuation");
+	ek.init(2);ek.add(1,2,EK::INF-1);
+	require(ek.flow(1,2)==EK::INF-1,"EK 64-bit capacity");
 	di.init(3);di.add(1,1,100),di.add(1,2,2),di.add(1,2,3),di.add(2,1,7),di.add(2,3,4);
 	require(di.flow(1,3,2)==2&&di.flow(1,3)==2&&di.flow(1,3)==0,"limited and repeated max flow");
 	MinCostFlow mf;mf.init(4);
@@ -161,16 +202,16 @@ void fixed_cases(){
 	di.init(5);int a=di.add(1,2,2),c=di.add(2,3,2),d=di.add(3,1,2);
 	di.add(4,2,1),di.add(1,5,1);
 	require(di.flow(4,5)==1&&di.e[a^1].cap==0&&di.e[c^1].cap==1&&di.e[d^1].cap==1,"lower-bound circulation restoration");
-	const int N=100000;
+	const int N=1000;
 	sc.init(N);cu.init(N);di.init(N);
 	for(int u=1;u<N;u++){sc.add(u,u+1);cu.add(u,u+1);di.add(u,u+1,1);}
-	require(sc.build()==N&&sc.bel[1]>sc.bel[N],"iterative SCC long chain");
+	require(sc.build()==N&&sc.bel[1]>sc.bel[N],"recursive SCC chain");
 	cu.build();
 	int cuts=0,bridges=0;
 	for(int u=1;u<=N;u++) cuts+=cu.cut[u];
 	for(auto v:cu.bridge) bridges+=v;
-	require(cuts==N-2&&bridges==N-1,"iterative cuts long chain");
-	require(di.flow(1,N)==1,"iterative Dinic long chain");
+	require(cuts==N-2&&bridges==N-1,"recursive cuts chain");
+	require(di.flow(1,N)==1,"recursive Dinic chain");
 }
 
 int components(int n,const vector<pair<int,int>> &edges,int vertex=-1,int edge=-1){
@@ -197,11 +238,11 @@ void tiny_audit(){
 		if(u<v) undirected.push_back({u,v});
 	}
 	for(int mask=0;mask<(1<<(int)directed.size());mask++){
-		SCC g;g.init(4);Dinic f;f.init(4);
+		SCC g;g.init(4);Dinic f;f.init(4);EK ek;ek.init(4);
 		bool reach[5][5]={};
 		for(int u=1;u<=4;u++) reach[u][u]=true;
 		for(int j=0;j<(int)directed.size();j++) if(mask>>j&1){
-			auto [u,v]=directed[j];g.add(u,v);f.add(u,v,1);reach[u][v]=true;
+			auto [u,v]=directed[j];g.add(u,v);f.add(u,v,1);ek.add(u,v,1);reach[u][v]=true;
 		}
 		for(int k=1;k<=4;k++) for(int u=1;u<=4;u++) for(int v=1;v<=4;v++)
 			reach[u][v]=reach[u][v]||(reach[u][k]&&reach[k][v]);
@@ -217,7 +258,7 @@ void tiny_audit(){
 			}
 			best=min(best,cost);
 		}
-		require(f.flow(1,4)==best,"tiny flow versus enumerated cuts");
+		require(f.flow(1,4)==best&&ek.flow(1,4)==best,"tiny Dinic and EK versus enumerated cuts");
 	}
 	for(int mask=0;mask<(1<<(int)undirected.size());mask++){
 		Cuts g;g.init(4);MinCycle cycle;cycle.init(4,false);
@@ -232,6 +273,15 @@ void tiny_audit(){
 		for(int u=1;u<=4;u++) ok&=g.cut[u]==(components(4,edges,u)>count);
 		for(int j=0;j<(int)edges.size();j++) ok&=g.bridge[j]==(components(4,edges,-1,j)>count);
 		require(ok,"tiny cuts versus deleting vertices and edges");
+		Bipartite bp;bp.init(4);
+		for(auto [u,v]:edges) bp.add(u,v);
+		bool colorable=false;
+		for(int color=0;color<16;color++){
+			bool valid=true;
+			for(auto [u,v]:edges) valid&=((color>>(u-1)&1)!=(color>>(v-1)&1));
+			colorable|=valid;
+		}
+		require(bp.build()==colorable,"tiny bipartite test versus all color assignments");
 		long long best=MinCycle::INF;
 		vector<int> p={1,2,3,4};
 		do{
@@ -246,6 +296,36 @@ void tiny_audit(){
 			}
 		}while(next_permutation(p.begin(),p.end()));
 		require(cycle.run()==best,"tiny minimum cycle versus vertex permutations");
+	}
+	for(int mask=0;mask<512;mask++){
+		Hungarian hu;hu.init(3,3);FlowMatching fm;fm.init(3,3);
+		bool edge[4][4]={};
+		for(int u=1;u<=3;u++) for(int v=1;v<=3;v++) if(mask>>((u-1)*3+v-1)&1){
+			edge[u][v]=true;hu.add(u,v);fm.add(u,v);
+		}
+		auto brute=[&](auto &&self,int u,int used)->int{
+			if(u==4) return 0;
+			int ans=self(self,u+1,used);
+			for(int v=1;v<=3;v++) if(edge[u][v]&&!(used>>(v-1)&1)){
+				ans=max(ans,1+self(self,u+1,used|(1<<(v-1))));
+			}
+			return ans;
+		};
+		int best=brute(brute,1,0);
+		require(hu.solve()==best&&fm.solve()==best,"tiny matching versus enumerated assignments");
+		bool usedL[4]={},usedR[4]={},coverL[4]={},coverR[4]={},ok=true;
+		for(auto [u,v]:fm.ans){
+			ok&=edge[u][v]&&!usedL[u]&&!usedR[v];usedL[u]=usedR[v]=true;
+		}
+		bool right[4]={};int count=0;
+		for(int u=1;u<=3;u++) if(hu.ml[u]){
+			int v=hu.ml[u];ok&=edge[u][v]&&!right[v]&&hu.mr[v]==u;right[v]=true;count++;
+		}
+		for(auto u:fm.coverL) coverL[u]=true;
+		for(auto v:fm.coverR) coverR[v]=true;
+		for(int u=1;u<=3;u++) for(int v=1;v<=3;v++) if(edge[u][v]) ok&=coverL[u]||coverR[v];
+		ok&=count==best&&(int)fm.ans.size()==best&&(int)(fm.coverL.size()+fm.coverR.size())==best;
+		require(ok,"tiny matching reconstruction and minimum vertex cover");
 	}
 	vector<pair<int,int>> clauses;
 	for(int a=0;a<4;a++) for(int b=a;b<4;b++) clauses.push_back({a,b});

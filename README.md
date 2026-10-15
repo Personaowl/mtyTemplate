@@ -47,6 +47,7 @@ Ubuntu 精简安装需要显式安装 OpenType 字体包 `fonts-texgyre`；只�
 - 使用简短竞赛命名，如 `fa,sz,dep,dfn,vis,tot,ans,res`。
 - C++ 使用 Tab 缩进，左大括号同行；常见排版为 `for(int i=1;i<=n;i++){`。
 - 数据结构优先使用 `struct` 封装；局部辅助函数可使用 lambda，递归常使用 `auto &&self`。
+- 图／树的 DFS 与 Dinic 推流采用递归，不用显式栈模拟调用；Tarjan 的分量点栈、BFS 与拓扑排序的队列按算法保留。
 - 保留 `#define int long long` 配合 `signed main()` 的习惯；内存敏感模板单独说明类型。
 - 64 位正无穷使用 `static constexpr long long INF=4e18`，负无穷使用 `-INF` 或 `-4e18`；真实值需满足条目约定，不能拿不可达哨兵直接参与转移。
 
@@ -57,10 +58,10 @@ Ubuntu 精简安装需要显式安装 OpenType 字体包 `fonts-texgyre`；只�
 | 分类 | 当前内容 / 后续方向 |
 | --- | --- |
 | 基础 | 暂不收录 PDF，保留解题框架等源文件 |
-| 数论（第二章） | 模运算、扩欧、逆元、筛法、欧拉降幂、Legendre、整除分块、组合计数、Lucas、康托、容斥、矩阵、高斯消元、CRT、线性基、博弈与 SG 状态图模板 |
+| 数论（第二章） | 分为模运算与同余方程、素数／数论函数与求和、组合计数、矩阵与线性代数、博弈论五组；保留定理条件、推导及配套模板 |
 | 数据结构 | 暂不收录 PDF，保留普通并查集等源文件 |
-| 图论（第三章） | 最短路（含结构体堆写法）、最小生成树、分层图、同余最短路、拓扑排序与 DAG DP、SCC 与缩点、割点割边、边双、2-SAT、差分约束、最小环、最大流、费用流、最小割建模与上下界流 |
-| 字符串（第一章） | Trie、双哈希、KMP、Z 函数与扩展 KMP、Manacher、AC 自动机 |
+| 图论（第三章） | 分为最短路与约束、最小生成树、拓扑排序与 DAG、连通性与 2-SAT、二分图与匹配、网络流六组；收录递归 Tarjan、匈牙利、网络流匹配、最小点覆盖、EK、递归 Dinic、费用流及上下界流等 |
+| 字符串（第一章） | 分为字典结构与多模式匹配、字符串比较与单模式匹配、回文三组；收录 Trie、AC 自动机、双哈希、KMP、Z 函数与扩展 KMP、Manacher |
 | DP / 几何 | 预留目录，收录真实条目后再启用 |
 
 ## 目录与文件职责
@@ -105,21 +106,23 @@ mtyTemplate/
 
 有代码的算法由 `.tex` 说明和唯一 `.cpp` 源码组成，纯原理条目仅维护 `.tex`。新增代码后同步相应编译检查的源码依赖顺序和条目清单，保证调用示例也参与编译。分类 `index.tex` 只负责分类标题与条目顺序，`chapters/contents.tex` 只负责分类顺序。
 
+当前三章统一按“章 → 主题分组 → 算法条目”组织：`index.tex` 的 `AlgorithmGroups` 环境内用 `\section` 建立主题，条目标题用 `\subsection`，原理和使用教程等内部标题用 `\subsubsection*`。目录与书签展示到算法层，编号如 `3.6.2`；分组样式集中在 `config/style.tex`。字符串分三组、数论分五组、图论分六组。新增条目先放入合适主题，后续章节可复用同样层级。
+
 ### 统一条目接口
 
 ```tex
-\section{算法名称}
+\subsection{算法名称}
 \label{algo:unique-name}
 \AlgorithmInfo{用途}{时间与空间复杂度}{参数前提与下标}
 
-\subsection*{原理}
+\subsubsection*{原理}
 简要说明核心思路，必要时给出公式。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 说明初始化、调用顺序和返回值含义，给一组简单数据演示调用，不列预期输出。
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/category/name.cpp}
 
 % 有特殊注意事项时再补充一小段。

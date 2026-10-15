@@ -1,9 +1,9 @@
 % Source: ACM_Templates.pdf, PDF pp. 29-31.
 % Corrections and validation: docs/validation.md.
 % Additional reference: https://cp-algorithms.com/combinatorics/binomial-coefficients.html
-\section{Lucas 与扩展 Lucas}
+\subsection{Lucas 与扩展 Lucas}
 \label{algo:lucas}
-\subsection*{Lucas 定理：素数模数}
+\subsubsection*{Lucas 定理：素数模数}
 当 $p$ 为素数，将 $n,k$ 写成 $p$ 进制：$n=\sum n_ip^i$、$k=\sum k_ip^i$，则
 \[
     \binom nk\equiv\prod_i\binom{n_i}{k_i}\pmod p.
@@ -12,7 +12,7 @@
 
 预处理 $0,\ldots,p-1$ 的阶乘与阶乘逆元，时间 $O(p+\log p)$、空间 $O(p)$，每次查询 $O(\log_p(n+1))$。关键是预处理到 $p-1$；不是按原始的大 $n$ 建表，也不能把 $p!\equiv0$ 当成可逆数。本模板面向较小的素数 $p$，例如 $p\leq10^6$；这属于资源约束，定理本身不受此上限限制。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 先复制快速幂与 \InlineCode{Comb}。\InlineCode{Lucas::init(p)} 只针对模数预处理，之后用 \InlineCode{C(n,k)} 查询非负 64 位参数。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Lucas lc;
@@ -21,10 +21,10 @@ long long ans=lc.C(1000000000000LL,12345);
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/number-theory/lucas.cpp}
 
-\subsection*{扩展 Lucas：任意小模数}
+\subsubsection*{扩展 Lucas：任意小模数}
 把 $m$ 分解为两两互质的素数幂 $m=\prod_i q_i$，$q_i=p_i^{\alpha_i}$。先分别求模 $q_i$ 的组合数，再用中国剩余定理合并。因为阶乘可能含有 $p_i$，必须把“$p_i$ 的指数”和“去掉这些因子后可逆的部分”分开。
 
 固定 $q=p^\alpha$，令 $e(n)=v_p(n!)$、$F(n)=n!/p^{e(n)}\bmod q$，则
@@ -47,7 +47,7 @@ long long ans=lc.C(1000000000000LL,12345);
 \]
 其中 $s$ 为不同素因子数；不能把这份实现写成每层常数时间。模数虽可为合数，仍需足够小以存储各素数幂的表，建议 $m\leq2\times10^6$，并结合内存限制调整。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 先复制快速幂、扩欧、逆元及第~\ref{algo:excrt}~节的 \InlineCode{ExCRT}。\InlineCode{ExLucas::init(m)} 对正模数预处理一次；\InlineCode{C(n,k)} 可反复查询，$k$ 非法或 $m=1$ 时返回 $0$。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 ExLucas ex;
@@ -56,5 +56,5 @@ long long ans=ex.C(1000000,123);
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/number-theory/exlucas.cpp}

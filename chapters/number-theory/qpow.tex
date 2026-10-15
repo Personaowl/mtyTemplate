@@ -1,13 +1,13 @@
 % Source: ACM_Templates.pdf, PDF pp. 13, 17.
 % Corrections and validation: docs/validation.md.
-\section{模运算与快速幂}
+\subsection{模运算与快速幂}
 \label{algo:qpow}
 \AlgorithmInfo
     {计算非负整数次幂 $a^b\bmod m$，是求逆元、降幂和组合数的基础。}
     {时间 $O(\log(b+1))$，额外空间 $O(1)$。}
     {$b\geq0$，$1\leq m\leq2\times10^9$；参数与返回值使用 64 位整数。}
 
-\subsection*{原理}
+\subsubsection*{原理}
 同余关系在加、减、乘法下保持：先取模再运算，与最后取模等价。但模意义下的除法需要乘逆元，不能直接做整数除法。
 
 将指数写成二进制 $b=\sum_i b_i2^i$，有
@@ -16,15 +16,15 @@
 \]
 循环中依次维护 $a,a^2,a^4,\ldots$，当前指数最低位为 $1$ 时乘入答案，再平方底数、右移指数。每轮指数减半，因此只需对数次乘法。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 \InlineCode{qpow(a,b,m)} 直接调用，无需初始化，返回 $[0,m-1]$ 内的余数，支持负底数。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 long long ans=qpow(3,13,1000000007);
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/number-theory/qpow.cpp}
 
-\subsection*{需要注意}
+\subsubsection*{需要注意}
 指数为 $0$ 时按 $a^0=1$ 处理，包括模板约定的 $0^0$；结果仍需对 $m$ 取模，所以 $m=1$ 时返回 $0$。乘法使用 64 位，当前模数范围保证乘积不溢出；更大模数应改用 \InlineCode{__int128} 模乘，不能只扩大模数参数。

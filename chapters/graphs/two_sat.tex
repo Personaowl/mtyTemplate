@@ -1,13 +1,13 @@
 % Source: Supplement: implication graph and SCC; https://cp-algorithms.com/graph/2SAT.html
 % Review and validation: docs/validation.md.
-\section{2-SAT：二元布尔约束}
+\subsection{2-SAT：二元布尔约束}
 \label{algo:two-sat}
 \AlgorithmInfo
     {判断若干个二文字析取子句能否同时满足，并构造一组布尔赋值。}
     {有 $n$ 个变量、$m$ 个子句，时间、空间 $O(n+m)$。}
     {变量从 1 开始；必须使用本章 SCC 的逆拓扑编号约定。}
 
-\subsection*{原理}
+\subsubsection*{原理}
 每个变量拆成两个文字 $(x_i=0)$、$(x_i=1)$。子句 $A\lor B$ 等价于两条蕴含 $\neg A\Rightarrow B$、$\neg B\Rightarrow A$，据此建立有向图。
 
 若某变量的两个文字在同一个 SCC，选择其中任意一个都会推出另一个，必然矛盾。反之，当所有变量都不满足这一冲突条件时，可以按缩点图的拓扑关系构造解。由于本章 Tarjan 的 SCC 编号为逆拓扑序，取
@@ -17,10 +17,10 @@
 \]
 若更换成顺拓扑编号的 SCC 实现，比较方向也必须随之调整。
 
-\subsection*{常用建模}
+\subsubsection*{常用建模}
 强制 $A$ 为真可加入 $A\lor A$；$A\Rightarrow B$ 对应 $\neg A\lor B$，需要同时加入其逆否命题的边。$A=B$ 加入 $A\Rightarrow B$ 与 $B\Rightarrow A$；$A\ne B$ 加入 $A\lor B$ 和 $\neg A\lor\neg B$。三个文字任意组成的析取不能直接当作普通 2-SAT 子句。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 先复制 SCC 模板。\InlineCode{either(x,a,y,b)} 表示 $(x_x=a)\lor(x_y=b)$；\InlineCode{imply(x,a,y,b)} 表示前者成立则后者必须成立，内部会补齐逆否边；\InlineCode{force(x,a)} 强制值。\InlineCode{solve()} 返回真后读 \InlineCode{ans[i]}，为假则无解。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 TwoSAT sat;
@@ -33,5 +33,5 @@ if(ok){int x=sat.ans[3];}
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/graphs/two_sat.cpp}

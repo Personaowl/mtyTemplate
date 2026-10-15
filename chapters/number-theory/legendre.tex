@@ -1,13 +1,13 @@
 % Source: ACM_Templates.pdf, PDF pp. 17-18.
 % Corrections and validation: docs/validation.md.
-\section{Legendre 公式：阶乘中的质因子}
+\subsection{Legendre 公式：阶乘中的质因子}
 \label{algo:legendre}
 \AlgorithmInfo
     {求素数 $p$ 在 $n!$ 的质因数分解中的指数。}
     {时间 $O(\log_p(n+1))$，额外空间 $O(1)$。}
     {$n\geq0$、$p$ 为素数；使用有符号 64 位非负整数。}
 
-\subsection*{原理}
+\subsubsection*{原理}
 $1,2,\ldots,n$ 中每个 $p$ 的倍数至少贡献一个 $p$，每个 $p^2$ 的倍数再额外贡献一个，以此类推。因此
 \[
     v_p(n!)=\sum_{j\geq1}\left\lfloor\frac n{p^j}\right\rfloor.
@@ -18,12 +18,12 @@ $1,2,\ldots,n$ 中每个 $p$ 的倍数至少贡献一个 $p$，每个 $p^2$ 的�
 \]
 若要求最大 $t$ 使合数 $m^t\mid n!$，先分解 $m=\prod p_i^{\alpha_i}$，再取 $\min_i\lfloor v_{p_i}(n!)/\alpha_i\rfloor$；不能把合数直接当作 $p$ 代入。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 \InlineCode{vp_fact(n,p)} 直接返回指数，无需预处理。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 long long e=vp_fact(100,2);
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/number-theory/legendre.cpp}

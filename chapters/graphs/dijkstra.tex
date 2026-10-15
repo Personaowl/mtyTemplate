@@ -1,18 +1,18 @@
 % Source: ACM_Templates.pdf, PDF pp. 66-67.
 % Review and validation: docs/validation.md.
-\section{Dijkstra：非负权最短路}
+\subsection{Dijkstra：非负权最短路}
 \label{algo:dijkstra}
 \AlgorithmInfo
     {求单源最短路，支持有向图、无向图、重边和自环。}
     {懒删除堆实现时间 $O((n+m)\log(m+2))$，空间 $O(n+m)$。}
     {点从 1 开始；所有边权非负；有限距离严格小于 $4\times10^{18}$。}
 
-\subsection*{原理}
+\subsubsection*{原理}
 维护源点到各点的当前最短距离，每次从堆中取出距离最小的候选。由于边权非负，尚未处理的路径不可能再绕过一个更远的点来改善它，因此可以沿其出边松弛。松弛即比较 $dis_v$ 与 $dis_u+w(u,v)$。
 
 同一顶点可多次入堆；取出的距离不等于当前 $dis$ 时，该候选已经过期，直接丢弃。每条边最多产生一次成功松弛对应的堆插入，保守按堆大小 $O(m)$ 给出复杂度；简单图中常写作 $O((n+m)\log n)$。含负边时该贪心依据失效，改用下一节的算法。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 \InlineCode{init(n)} 清空图，\InlineCode{add(u,v,w)} 加一条有向边，无向边需加两次。\InlineCode{run(s)} 后读取 \InlineCode{dis[t]}，等于 \InlineCode{INF} 表示不可达。换源点可重新运行，无需重新加边。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Dijkstra g;
@@ -23,10 +23,10 @@ long long ans=g.dis[3];
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/graphs/dijkstra.cpp}
 
-\subsection*{堆的另一种写法：重载结构体比较运算符}
+\subsubsection*{堆的另一种写法：重载结构体比较运算符}
 上面的模板用 \InlineCode{pair} 配合 \InlineCode{greater} 实现小根堆。也可以把 \InlineCode{run} 中的堆声明替换为下面的 \InlineCode{Node} 和 \InlineCode{priority_queue<Node>}，其余入堆、结构化绑定和过期判断保持一致：
 \begin{lstlisting}[style=mtycpp,numbers=none]
 struct Node{

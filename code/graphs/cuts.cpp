@@ -13,41 +13,28 @@ struct Cuts{
 	void build(){
 		dfn.assign(n+1,0);low.assign(n+1,0);cut.assign(n+1,false);
 		bridge.assign(edges.size(),false);
-		vector<int> fa(n+1,0),pe(n+1,-1),it(n+1,0),son(n+1,0),st;
 		int tim=0;
-		for(int s=1;s<=n;s++){
-			if(dfn[s]) continue;
-			dfn[s]=low[s]=++tim;st.push_back(s);
-			while(!st.empty()){
-				int u=st.back();
-				if(it[u]<(int)e[u].size()){
-					auto [v,id]=e[u][it[u]++];
-					if(id==pe[u]) continue;
-					if(!dfn[v]){
-						fa[v]=u;pe[v]=id;son[u]++;
-						dfn[v]=low[v]=++tim;st.push_back(v);
-					}
-					else low[u]=min(low[u],dfn[v]);
-					continue;
+		auto dfs=[&](auto &&self,int u,int pe)->void{
+			dfn[u]=low[u]=++tim;int son=0;
+			for(auto [v,id]:e[u]){
+				if(id==pe) continue;
+				if(!dfn[v]){
+					son++;self(self,v,id);low[u]=min(low[u],low[v]);
+					if(low[v]>dfn[u]) bridge[id]=true;
+					if(pe!=-1&&low[v]>=dfn[u]) cut[u]=true;
 				}
-				st.pop_back();
-				int p=fa[u];
-				if(!p){cut[u]=son[u]>=2;continue;}
-				low[p]=min(low[p],low[u]);
-				if(low[u]>dfn[p]) bridge[pe[u]]=true;
-				if(fa[p]&&low[u]>=dfn[p]) cut[p]=true;
+				else low[u]=min(low[u],dfn[v]);
 			}
-		}
+			if(pe==-1) cut[u]=son>=2;
+		};
+		for(int u=1;u<=n;u++) if(!dfn[u]) dfs(dfs,u,-1);
 		bel.assign(n+1,0);cnt=0;
-		for(int s=1;s<=n;s++){
-			if(bel[s]) continue;
-			bel[s]=++cnt;st.push_back(s);
-			while(!st.empty()){
-				int u=st.back();st.pop_back();
-				for(auto [v,id]:e[u]) if(!bridge[id]&&!bel[v]){
-					bel[v]=cnt;st.push_back(v);
-				}
+		auto paint=[&](auto &&self,int u)->void{
+			bel[u]=cnt;
+			for(auto [v,id]:e[u]) if(!bridge[id]&&!bel[v]){
+				self(self,v);
 			}
-		}
+		};
+		for(int u=1;u<=n;u++) if(!bel[u]){cnt++;paint(paint,u);}
 	}
 };

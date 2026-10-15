@@ -1,0 +1,32 @@
+% Reference model: two-coloring and odd-cycle characterization.
+% Validation: docs/validation.md.
+\subsection{二分图判定与染色}
+\label{algo:bipartite}
+\AlgorithmInfo
+    {判断无向图是否为二分图，并给出左右两侧划分。}
+    {时间 $O(n+m)$，空间 $O(n+m)$；递归深度最坏 $O(n)$。}
+    {顶点从 1 开始；无向边只加入一次；支持不连通图、重边和孤立点，自环会使判定失败。}
+
+\subsubsection*{原理}
+二分图可以将顶点分为两侧，使每条边的两个端点分属不同侧。从任意未染色点开始递归 DFS，给当前点染为 1 或 2，要求相邻点染成另一种颜色；若遇到同色相邻点，划分失败。每个连通块都要启动一次搜索。
+
+无向图是二分图当且仅当没有奇环：沿边交替染色，奇环会要求起点与自身异色；若所有边均满足异色条件，任何环长度都只能为偶数。孤立点放在哪一侧均可，不同连通块的颜色可以独立翻转。
+
+\subsubsection*{使用教程}
+\InlineCode{init(n)} 后用 \InlineCode{add(u,v)} 加无向边，\InlineCode{build()} 返回能否二分。成功时 \InlineCode{col[u]} 为 1 或 2；失败时清空颜色数组，不能继续读取划分。重新加边后可再次构建。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Bipartite g;
+g.init(5);
+g.add(1,2),g.add(2,3),g.add(3,4),g.add(4,1);
+if(g.build()){
+	vector<int> left,right;
+	for(int u=1;u<=5;u++){
+		if(g.col[u]==1) left.push_back(u);
+		else right.push_back(u);
+	}
+}
+\end{lstlisting}
+
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/graphs/bipartite.cpp}

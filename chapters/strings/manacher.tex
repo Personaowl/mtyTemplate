@@ -1,18 +1,18 @@
 % Source: ACM_Templates.pdf, PDF pp. 8-9, Manacher.
 % Validation and changes: docs/validation.md; scripts/check_strings.py.
-\section{Manacher：回文半径}
+\subsection{Manacher：回文半径}
 \label{algo:manacher}
 \AlgorithmInfo
     {求最长回文子串、统计回文子串数量，并快速判断指定子串是否为回文。}
     {预处理时间、空间 $O(n)$；区间判断 $O(1)$，统计所有回文子串 $O(n)$。}
     {最长串起点和查询区间从 1 开始；内部变换串及半径数组从 0 开始。}
 
-\subsection*{原理}
+\subsubsection*{原理}
 在原字符之间和两端插入分隔符，把奇、偶长度回文统一为同一种中心扩展。维护最右回文区间 $[l,r]$，当前中心在区间内时，先利用对称中心的半径，再检查超出已知范围的部分，整体只需线性次扩展。
 
 \InlineCode{p[i]} 是含中心的半径，因此原串对应的回文长度为 $p_i-1$；以该中心产生的非空回文数为 $\lfloor p_i/2\rfloor$。原串区间 $[l,r]$ 对应变换串中心 $l+r-1$，比较半径与 $r-l+2$ 即可判断是否回文。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 调用 \InlineCode{init(s)} 后，读取 \InlineCode{len} 和 \InlineCode{pos} 得到最长回文长度及起点。\InlineCode{check(l,r)} 判断区间是否为回文，\InlineCode{count()} 统计非空回文子串的出现次数。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 string s="cabbad";
@@ -24,8 +24,8 @@ long long cnt=ma.count();
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/strings/manacher.cpp}
 
-\subsection*{需要注意}
+\subsubsection*{需要注意}
 分隔符使用整数 $0$，原字符按无符号字节值加一编码，因此输入包含井号等字符也不冲突。\InlineCode{count()} 包含不同位置的重复回文，结果使用 64 位整数；空串的最长长度为 $0$，起点保留为 $1$。

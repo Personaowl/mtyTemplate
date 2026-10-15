@@ -1,8 +1,8 @@
 % Source: ACM_Templates.pdf, PDF pp. 21-27.
 % Corrections and validation: docs/validation.md.
-\section{矩阵快速幂与广义矩阵乘法}
+\subsection{矩阵快速幂与广义矩阵乘法}
 \label{algo:matrix}
-\subsection*{矩阵怎样表示状态转移}
+\subsubsection*{矩阵怎样表示状态转移}
 本节统一使用\textbf{行向量}：$v_{t+1}=v_tM$。矩阵的行表示旧状态、列表示新状态，所以
 \[
     (vM)_j=\sum_i v_iM_{ij},\qquad
@@ -17,7 +17,7 @@
 \]
 构造时逐列写出新状态依赖哪些旧状态，能减少行、列向量约定混用的错误。常数项可通过附加一个恒为 $1$ 的状态处理。
 
-\subsection*{普通模矩阵的使用教程}
+\subsubsection*{普通模矩阵的使用教程}
 \InlineCode{Mat(n,mod)} 创建从 $1$ 开始的 $n$ 阶零矩阵，第三个参数为真时创建单位矩阵。通过 \InlineCode{a[i][j]} 赋值，\InlineCode{pow(k)} 返回非负整数次幂，不修改原对象。参与相乘的维数和模数必须相同，元素预先归一化到 $[0,mod-1]$，且 $1\leq mod\leq2\times10^9$。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Mat m(2,1000000007);
@@ -26,10 +26,10 @@ auto r=m.pow(10);
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/number-theory/matrix.cpp}
 
-\subsection*{广义乘法：用最优值替代方案数}
+\subsubsection*{广义乘法：用最优值替代方案数}
 只要运算满足需要的结合律、分配律和单位元，就能将矩阵中的求和与相乘替换为其他运算。常见模型为
 \begin{center}
 \small
@@ -46,7 +46,7 @@ auto r=m.pow(10);
 \end{center}
 在 max-plus 模型中，$M_{ij}$ 是一步从 $i$ 到 $j$ 的最大收益，不可达为 $-\infty$。$M^k$ 表示\textbf{恰好}走 $k$ 步的最大收益；若要求至多 $k$ 步，必须另行建模。单位矩阵对角线为 $0$，其余为 $-\infty$。
 
-\subsection*{max-plus 模板的使用教程}
+\subsubsection*{max-plus 模板的使用教程}
 \InlineCode{MaxMat(n)} 创建所有转移都不可达的矩阵，第二个参数为真时创建单位矩阵。普通赋值、乘法、幂接口与上面的 \InlineCode{Mat} 一致。\InlineCode{INF=-4e18} 是不可达哨兵，代码在相加前跳过它；所有真实路径收益需严格位于 $(-4\times10^{18},4\times10^{18})$，避免与哨兵冲突并保证中间加法安全。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 MaxMat m(2);
@@ -55,10 +55,10 @@ auto r=m.pow(3);
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/number-theory/max_matrix.cpp}
 
-\subsection*{应用：最大子段和的转移矩阵}
+\subsubsection*{应用：最大子段和的转移矩阵}
 使用三种状态：尚未开始、正在选择子段、已经结束。对当前值 $x$，行向量转移为
 \[
     T(x)=\begin{pmatrix}

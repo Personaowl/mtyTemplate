@@ -1,8 +1,8 @@
 % Source: Supplement: lower-bound circulation reduction and source/sink flow.
 % Review and validation: docs/validation.md.
-\section{上下界流：可行循环流与源汇流}
+\subsection{上下界流：可行循环流与源汇流}
 \label{math:bounded-flow}
-\subsection*{有下界时怎样恢复守恒}
+\subsubsection*{有下界时怎样恢复守恒}
 每条边要求 $l_e\leq f_e\leq r_e$，先固定下界流量，再把剩余容量设为 $r_e-l_e$。对每点维护
 \[
     b_v=\sum_{e\text{ 入 }v}l_e-\sum_{e\text{ 出 }v}l_e.
@@ -11,7 +11,7 @@ $b_v>0$ 表示下界已带来过多流入，剩余流应从该点流出。添加
 
 原图存在可行循环流，当且仅当 $SS\to TT$ 最大流等于 $\sum_{b_v>0}b_v$，也即超级源的出边全部饱和。方向可通过检查守恒推导，不能把入下界与出下界的符号混用。原边最终流量为下界加上剩余网络在该边上的净流量。
 
-\subsection*{使用教程：可行循环流示例}
+\subsubsection*{使用教程：可行循环流示例}
 先复制 Dinic。以下边表依次为起点、终点、下界、上界；所有下界非负且不超过上界，平衡量及所需总流量须在 64 位范围和 Dinic 上限内。保存原边编号，以便恢复具体流量。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 int n=3,ss=n+1,tt=n+2;
@@ -38,7 +38,7 @@ if(ok){
 }
 \end{lstlisting}
 
-\subsection*{有源汇上下界流}
+\subsubsection*{有源汇上下界流}
 先额外加入 $t\to s$ 的大容量边，把源汇流闭合成循环流，再做上述可行性检查。成功时，该附加边上的流量记为 $F_0$。保存所有辅助边的编号，随后将\textbf{附加边与全部超级源汇边的两个残量方向都置零}，保留原图已有流量的残量状态。
 
 在此基础上，从 $s$ 向 $t$ 继续增广得到最大可行流 $F_0+\Delta$；若要求非负的最小可行流，从 $t$ 向 $s$ 最多撤销 $F_0$，得到 $F_0-\Delta$。该构造以存在非负源汇流为前提；若题目允许负流值，需要重新处理辅助边与目标定义。

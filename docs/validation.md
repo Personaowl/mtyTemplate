@@ -12,6 +12,49 @@
 
 上一轮整理将原先前三章暂时移出 PDF，保留源码；删除 Trie 与 AC 自动机中的 `assert`，输入范围与建图顺序仍由条目说明约定，合法输入下的核心算法逻辑未改动。使用教程只保留接口说明与简单数据调用，不列预期输出。当轮仅重新检查编译、链接和文档构建，没有重跑对拍。当前第二章已经重新整理并启用，数论本轮验证与修正另见下节。
 
+## 三章统一按主题归纳
+
+第一章分为字典结构与多模式匹配（Trie、AC 自动机）、字符串比较与单模式匹配（双哈希、KMP、Z / 扩展 KMP）、回文（Manacher）三组。第二章分为模运算与同余方程（快速幂、扩欧、逆元、CRT）、素数 / 数论函数与求和（筛法、欧拉函数、Legendre、整除分块）、组合计数（组合数、Lucas、十二重计数、容斥、康托）、矩阵与线性代数（矩阵、高斯消元、线性基）、博弈论五组。CRT 放到同余方程组后，也先于扩展 Lucas 的依赖讲解；Trie 与 AC 自动机相邻。
+
+沿用图论的 `AlgorithmGroups`，三章统一为“章 → 主题 → 算法”，原理、公式、教程等使用不编号的内部小标题。前两章本轮仅调整标题层级与条目顺序，正文、公式、源码引用和调用示例完整保留：转换时逐文件还原标题并与转换前内容比较，另核对字符串全部 6 个条目、数论全部 17 个条目在各章清单中恰好出现一次，无删除与重复。更新默认条目样板、README 和 AGENTS，后续按相同结构维护。
+
+字符串编译脚本原先按固定 `subsection*` 使用教程标题提取示例；现改为兼容 `subsection*` / `subsubsection*` 两级标题，避免分组后漏编调用。实际执行 `python scripts/check_code.py`：三章共 44 份算法与 1 份并查集依赖、48 组调用，在普通 `int` 与整数宏下全部完成 C++17 编译、链接。没有修改算法逻辑，沿用下节刚完成的图论 80 项固定检查与 10,675 项独立模型记录，本轮不重复运行行为回归。
+
+实际执行 `latexmk main.tex`：单一 PDF 为 **72 页**，第二章从正文第 10 页、第三章从第 37 页开始；最终日志无缺字、字体替代、未定义引用或 Overfull / Underfull 警告。按用户要求不生成页面预览。
+
+本次按用户要求，连同下节二分图、EK、递归实现和图论分组一起提交推送。远程结果以对应提交的 Actions 运行记录为准，既有运行通过不代替新提交的检查。
+
+## 图论分组、二分图匹配与递归统一
+
+### 内容与组织
+
+图论按六组组织：最短路与约束、最小生成树、拓扑排序与 DAG、连通性与 2-SAT、二分图与匹配、网络流。`index.tex` 维护主题 `section` 与条目顺序，算法使用 `subsection`，内部说明使用不编号的 `subsubsection`；`config/style.tex` 中的 `AlgorithmGroups` 环境管理分组样式，目录和 PDF 书签保留到算法层。字符串、数论原有条目结构不改。旧记录中的平铺节号仅表示当时版本，当前编号以目录为准。
+
+补充二分图递归染色、DFS 增广匈牙利、Dinic 匹配封装，以及 EK 最大流。匹配部分写明左右编号独立、重边、增广重分配、时间戳访问范围、重建和匹配恢复；网络流版本同时给出最小点覆盖及最大独立集大小。网络流公共定义与最大流最小割拆为独立条目，EK、Dinic 共用概念说明，保留独立源码。
+
+核对参考：
+
+- [CP-Algorithms：Kuhn matching](https://cp-algorithms.com/graph/kuhn_maximum_bipartite_matching.html)：增广路与最大匹配条件、DFS 重分配。本文采用独立的 1 下标、双侧匹配数组和右侧时间戳；区分这里竞赛习惯所称匈牙利与带权匹配。
+- [CP-Algorithms：Edmonds--Karp](https://cp-algorithms.com/graph/edmonds_karp.html)：BFS 最短增广路、复杂度和残量网络；实现采用边对编号，支持重边、自环与反向原始边。
+- [CP-Algorithms：Dinic](https://cp-algorithms.com/graph/dinic.html)：分层、当前弧与递归推流，成功增广时不提前跳过当前弧。
+- [CP-Algorithms：Bridges](https://cp-algorithms.com/graph/bridge-searching.html)：递归 low-link 和父边判断；本实现按边编号处理重边。
+
+### 递归风格与不变量
+
+按用户偏好，SCC、割点 / 桥的 DFS、边双染色和 Dinic 推流改为递归，接口与输出含义保持一致；Tarjan 维护尚未归属 SCC 顶点的点栈保留，不再用显式调用栈模拟遍历。已扫描现有收录源码，其他 DFS 本身使用递归或没有模拟调用栈；BFS、Kahn 拓扑序和逆拓扑 SG 仍保留其算法所需队列或顺序扫描。后续偏好已写入 AGENTS、README 与码风约定。
+
+SCC 递归返回时回代 `low`，只用仍在分量栈内的顶点作回边，继续保持逆拓扑分量编号，因此 2-SAT 的赋值比较方向不变。割点桥仍按父边编号跳过，分别保留桥的严格不等式、非根割点的不严格不等式与根儿子数条件。Dinic 递归只走下一层，成功后更新边对并保留当前弧位置，失败后才推进。
+
+### 实际执行
+
+- `python scripts/check_code.py`：44 份算法模板与 1 份并查集依赖、48 组文档示例，两种整数模式全部通过 C++17 编译、链接；图论部分为 20 份算法加 1 份依赖、24 组示例。
+- 因新增实现及递归逻辑改写，本轮显式运行 `python scripts/check_graphs.py --audit`。普通 `int` 与整数宏两种模式各通过 **80 项固定检查** 和 **10,675 项极小规模独立模型检查**；日常默认检查仍仅编译。
+- 固定检查新增偶环 / 奇环 / 自环、孤立点、多连通块、增广重分配、重复边、左右空侧、匹配重建与追加边、点覆盖、EK 反向改流、残量重复增广、最小割和 64 位容量。递归版以 **1,000 点链**检查 SCC、割点桥和 Dinic；此前 100,000 点显式栈记录作为历史保留，不沿用为递归版测试结果。
+- 独立模型包括 4 点全部 4,096 张有向简单图，用可达关系核对 SCC，并用枚举源汇割同时核对 EK 与递归 Dinic；4 点全部 64 张无向简单图，删除点 / 边核对割点桥，枚举染色核对二分图判定，枚举顶点排列核对最小环；全部 512 张 `3x3` 二分图，枚举配对求最大值，核对匈牙利与流匹配及返回匹配合法性、最小点覆盖大小和覆盖所有边。既有 2-SAT 的 1,024 组赋值模型与费用流的 243 组枚举模型同轮通过。
+- `latexmk main.tex`：单一 PDF 为 **73 页**；最终日志无缺字、字体替代、未定义引用或 Overfull / Underfull 警告，按用户要求未生成页面预览。
+
+本轮未重跑字符串、数论的行为回归，未标记在线评测 AC。远程 Actions 的已通过记录来自下文上次提交，不表示本轮尚未推送的修改已由云端检查。
+
 ## 拓扑排序、DAG DP 与 INF 简写
 
 新增第 3.7 节 `拓扑排序与 DAG 上 DP` 与唯一源码 `code/graphs/dag_dp.cpp`。拓扑序定义和无环条件参考 [CP-Algorithms：Topological Sorting](https://cp-algorithms.com/graph/topological-sort.html)，实现采用 Kahn 入度队列；分别提供固定起点的最短 / 最长路和按边区分的路径计数。文字补充逆拓扑依赖、任意起点点权 DP、多起点初始化以及 SCC 缩点的适用条件。核对每个状态在全部前驱汇总后才转移，复制入度支持重建，有环时清空部分拓扑序；负无穷与零值不混用，计数加法先转 128 位。
@@ -31,7 +74,7 @@
 
 读取 [运行 38683413510](https://github.com/Personaowl/mtyTemplate/actions/runs/38683413510) 的失败日志：提交 `17657b9` 在 `Compile handbook` 步骤报 `Package fontspec Error: The font "TeX Gyre Pagella" cannot be found.`，XeLaTeX 返回 1，latexmk 汇总后返回 12。后续 C++ 编译与 PDF 上传均被跳过；截图中的 Ubuntu runner 迁移提示是通知，不是此次失败原因。
 
-云端采用 Ubuntu 的精简 apt 安装，本地为 TeX Live 2026 完整环境。按 [Ubuntu fonts-texgyre 文件列表](https://packages.ubuntu.com/noble/all/fonts-texgyre/filelist) 核对该包提供 Pagella、Heros、Cursor 的 OpenType 字体，工作流显式添加 `fonts-texgyre` 与 `fontconfig`，随后刷新字体缓存；未修改文档字体或版式。完成工作流 YAML 与变更检查，本机没有重现 Ubuntu 运行环境，修正后的远程构建结果仍待提交推送后验证，不能将本地成功写作 Actions 已通过。
+云端采用 Ubuntu 的精简 apt 安装，本地为 TeX Live 2026 完整环境。按 [Ubuntu fonts-texgyre 文件列表](https://packages.ubuntu.com/noble/all/fonts-texgyre/filelist) 核对该包提供 Pagella、Heros、Cursor 的 OpenType 字体，工作流显式添加 `fonts-texgyre` 与 `fontconfig`，随后刷新字体缓存；未修改文档字体或版式。完成工作流 YAML 与变更检查后，已随 `2710e88` 提交推送；[运行 38684668195](https://github.com/Personaowl/mtyTemplate/actions/runs/38684668195) 实际完成，PDF 编译、两种整数模式的 C++ 编译、PDF 上传全部成功，确认该提交上的字体问题修复生效。
 
 ## Dijkstra 结构体堆写法与同余最短路补充
 
@@ -177,9 +220,9 @@ latexmk main.tex
 
 按用户最新要求恢复原有墨蓝与青绿色排版，只保留 `main.tex` 和一份 `build/main.pdf`。使用与维护说明已合并到 README，PDF 仅包含封面、目录与算法条目。已移除预览器兼容处理及相关依赖，使用标准 XeLaTeX / xdvipdfmx 构建。
 
-本次仅检查构建结果与日志，不生成页面预览，由用户在本地查看。已通过标准 XeLaTeX / xdvipdfmx 构建，生成 66 页 `build/main.pdf`，字符串为第一章，数论为第二章，图论为第三章；第二章从正文第 10 页、第三章从正文第 38 页开始，同余最短路为第 3.6 节，从正文第 45 页开始，拓扑排序与 DAG DP 为第 3.7 节，从正文第 47 页开始。最终日志没有缺字、字体替代、未定义引用或 Overfull / Underfull 警告。
+本次仅检查构建结果与日志，不生成页面预览，由用户在本地查看。已通过标准 XeLaTeX / xdvipdfmx 构建，生成 72 页 `build/main.pdf`，字符串为第一章，数论为第二章，图论为第三章；第二章从正文第 10 页、第三章从正文第 37 页开始。三章统一采用主题与算法两级目录；图论二分图为 3.5 组，从正文第 57 页开始，网络流为 3.6 组，从正文第 61 页开始。最终日志没有缺字、字体替代、未定义引用或 Overfull / Underfull 警告。
 
-`python scripts/check_code.py` 默认模式实际执行通过：三章源码（40 份算法模板及 1 份并查集依赖）与 44 组调用示例在普通 `int` 与 `#define int long long` 下均完成 C++17 编译、链接，未报告警告。示例中有意保留但未使用的返回值不参与未使用变量告警；本次额外执行图论和数论固定检查，未重跑字符串行为测试或完整对拍，其此前记录保留。
+`python scripts/check_code.py` 默认模式实际执行通过：三章源码（44 份算法模板及 1 份并查集依赖）与 48 组调用示例在普通 `int` 与 `#define int long long` 下均完成 C++17 编译、链接，未报告警告。示例中有意保留但未使用的返回值不参与未使用变量告警；上一轮递归改写执行过图论固定检查和极小规模独立模型，本轮标题层级归纳不重复运行，其此前记录保留。
 
 原有条目保留此前校验记录；数论新增条目与关键修正按记录范围做固定用例检查。GitHub Actions 的实际状态以远程运行记录为准。
 

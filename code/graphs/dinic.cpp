@@ -23,27 +23,15 @@ struct Dinic{
 		}
 		return dep[t]!=-1;
 	}
-	long long send(int s,int t,long long lim){
-		vector<int> st(1,s),path;
-		while(!st.empty()){
-			int u=st.back();
-			if(u==t){
-				long long f=lim;
-				for(auto id:path) f=min(f,e[id].cap);
-				for(auto id:path){e[id].cap-=f;e[id^1].cap+=f;}
-				return f;
-			}
-			auto &i=cur[u];
-			while(i<(int)g[u].size()){
-				int id=g[u][i],v=e[id].to;
-				if(e[id].cap&&dep[v]==dep[u]+1) break;
-				i++;
-			}
-			if(i==(int)g[u].size()){
-				dep[u]=-1;st.pop_back();
-				if(!path.empty()){path.pop_back();cur[st.back()]++;}
-			}
-			else{int id=g[u][i];path.push_back(id);st.push_back(e[id].to);}
+	long long send(int u,int t,long long lim){
+		if(u==t) return lim;
+		for(int &i=cur[u];i<(int)g[u].size();i++){
+			int id=g[u][i],v=e[id].to;
+			if(!e[id].cap||dep[v]!=dep[u]+1) continue;
+			long long f=send(v,t,min(lim,e[id].cap));
+			if(!f) continue;
+			e[id].cap-=f;e[id^1].cap+=f;
+			return f;
 		}
 		return 0;
 	}

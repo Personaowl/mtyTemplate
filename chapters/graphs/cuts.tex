@@ -1,13 +1,13 @@
 % Source: Supplement: undirected low-link; https://cp-algorithms.com/graph/bridge-searching.html
 % Review and validation: docs/validation.md.
-\section{Tarjan 割点、割边与边双连通分量}
+\subsection{Tarjan 割点、割边与边双连通分量}
 \label{algo:cuts}
 \AlgorithmInfo
     {寻找无向图的割点、桥，并按去掉全部桥后的连通块划分边双分量。}
-    {时间、空间 $O(n+m)$；采用显式栈，无递归调用。}
+    {时间、空间 $O(n+m)$；递归 DFS，最坏深度 $O(n)$。}
     {无向边只添加一次，返回从 0 开始的边编号；允许重边、自环和孤立点。}
 
-\subsection*{原理与判定条件}
+\subsubsection*{原理与判定条件}
 割点是删除后使图的连通块数增加的顶点，桥是删除后使连通块数增加的边。对 DFS 树边 $u\to v$，$low_v$ 表示子树能通过回边到达的最早祖先：
 \begin{itemize}
     \item 若 $low_v>dfn_u$，子树不能绕回 $u$ 或更早祖先，边 $(u,v)$ 是桥。
@@ -16,12 +16,12 @@
 \end{itemize}
 桥使用严格大于，割点使用大于等于，因为子树能回到 $u$ 本身仍不能在删除 $u$ 后脱离它连通。
 
-\subsection*{重边与分量}
+\subsubsection*{重边与分量}
 遍历无向边时，只跳过当前搜索树父边的\textbf{边编号}，不能跳过所有通向父顶点的边。两条平行边中，另一条可以作为回边，保证这两条边都不会被误判为桥；自环也不产生桥。
 
 标记所有桥后，忽略桥重新遍历，得到模板采用的边双分量：任意一条非桥边的两个端点在同一分量。把每个分量缩成点，桥形成森林。割点可同时属于多个点双分量，本接口的 \InlineCode{bel} 不是点双归属，不能混用。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 \InlineCode{add(u,v)} 内部添加双向邻接项，返回边编号。\InlineCode{build()} 后，\InlineCode{cut[u]} 判断割点、\InlineCode{bridge[id]} 判断桥，\InlineCode{bel[u]} 为去桥后的分量，\InlineCode{cnt} 为分量数，均覆盖所有连通块。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Cuts g;
@@ -34,5 +34,5 @@ int component=g.bel[1];
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/graphs/cuts.cpp}

@@ -1,18 +1,18 @@
 % Source: ACM_Templates.pdf, PDF pp. 74-77.
 % Review and validation: docs/validation.md.
-\section{分层图：带使用次数的最短路}
+\subsection{分层图：带使用次数的最短路}
 \label{algo:layered-path}
 \AlgorithmInfo
     {将“当前点 + 已用特殊操作次数”作为状态，处理最多 $k$ 次折扣等限制。}
     {状态数 $n(k+1)$，转移数 $O(m(k+1))$；堆最短路时间按展开后的规模计算。}
     {本实现每次折扣令非负整数边权变为 $\lfloor w/2\rfloor$，有限距离小于 $4\times10^{18}$。}
 
-\subsection*{原理}
+\subsubsection*{原理}
 状态 $(u,h)$ 表示位于 $u$ 且恰好用过 $h$ 次折扣。对原边 $u\to v$，保留同层转移 $(u,h)\to(v,h)$、代价 $w$；若 $h<k$，再加入 $(u,h)\to(v,h+1)$、代价 $\lfloor w/2\rfloor$。因为全部转移非负，可以直接做 Dijkstra。
 
 物理建图可把 $(u,h)$ 编成 $u+hn$，建立所有转移；逻辑建图则在弹出状态时按规则生成后继。本模板采用后者，不保存重复的跨层边。堆中的过期判断同时检查顶点与层数，不能只给每个原顶点设一个访问标记。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 \InlineCode{init(n,k)} 设置点数和允许使用次数。加的是有向边，无向图需加两次；\InlineCode{run(s)} 后，\InlineCode{dis[t][h]} 表示恰好使用 $h$ 次的答案，\InlineCode{query(t)} 取所有层的最小值，表示至多 $k$ 次。若答案为 \InlineCode{INF} 则不可达。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 DiscountPath g;
@@ -23,5 +23,5 @@ long long ans=g.query(3);
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/graphs/layered_path.cpp}

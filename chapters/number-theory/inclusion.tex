@@ -1,8 +1,8 @@
 % Source: ACM_Templates.pdf, PDF pp. 31-34.
 % Corrections and validation: docs/validation.md.
-\section{容斥原理与 DP 容斥}
+\subsection{容斥原理与 DP 容斥}
 \label{math:inclusion}
-\subsection*{集合的并与补集}
+\subsubsection*{集合的并与补集}
 设 $S_1,\ldots,S_k$ 为有限集合，则
 \[
     \left|\bigcup_{i=1}^kS_i\right|
@@ -19,7 +19,7 @@
 \]
 其中空集项为 $|U|$。由德摩根律，$|\bigcap_i S_i|=|U|-|\bigcup_i(U\setminus S_i)|$，右侧必须是各集合的补集。
 
-\subsection*{应用一：固定币值、多次询问数量上限}
+\subsubsection*{应用一：固定币值、多次询问数量上限}
 有 $k$ 种币值 $c_i$，每种最多使用 $d_i$ 枚，求 $\sum_i c_ix_i=s$ 的非负整数解个数。先只按固定币值做完全背包，得到无限使用时凑出金额 $t$ 的方案数 $f(t)$，并规定 $f(t)=0$（$t<0$）。
 
 把坏事件设为 $x_i\geq d_i+1$。选定坏事件集合 $T$ 时，先减去每种必用的 $d_i+1$ 枚硬币，其余仍为无限使用模型，因此答案为
@@ -29,7 +29,7 @@
 \]
 背包先枚举币种，再从小到大枚举金额，避免把不同支付顺序重复计数。预处理到最大金额 $M$ 需要 $O(kM)$ 时间、$O(M)$ 空间；直接枚举子集每次询问 $O(k2^k)$，$k=4$ 时只需枚举少量子集。注意金额乘积和方案数的整数范围。
 
-\subsection*{应用二：稀疏障碍的网格路径}
+\subsubsection*{应用二：稀疏障碍的网格路径}
 从 $(1,1)$ 走到 $(H,W)$，每步只能向右或向下。先将障碍点去重，若起点或终点是障碍则答案为 $0$；其余障碍按行、列字典序排序，再把终点加入末尾。
 
 点 $P=(r_1,c_1)$ 到 $Q=(r_2,c_2)$ 的无限制路径数为

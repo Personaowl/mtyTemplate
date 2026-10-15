@@ -1,13 +1,13 @@
 % Reference model: https://oi-wiki.org/graph/mod-shortest-path/
 % Independent implementation and validation: docs/validation.md.
-\section{同余最短路}
+\subsection{同余最短路}
 \label{algo:mod-shortest-path}
 \AlgorithmInfo
     {求正整数的非负整数组合能表示哪些数，并统计区间内不同可表示整数的个数。}
     {设步长数为 $k$、最小步长为 $p$；预处理 $O(kp\log(kp+2))$，空间 $O(kp+k)$；判定 $O(1)$，计数 $O(p)$。}
     {步长非空且均为正整数，小于 $4\times10^{18}$；$p<2^{31}$ 且状态规模可承受；余数从 0 开始，查询上界小于 $4\times10^{18}$。}
 
-\subsection*{原理}
+\subsubsection*{原理}
 给定步长 $a_1,\ldots,a_k$，每种可以使用任意次，考虑
 \[
     x=\sum_{i=1}^k c_i a_i,\qquad c_i\in\mathbb Z_{\ge0}.
@@ -33,7 +33,7 @@
 \]
 区间 $[L,R]$ 的答案为 $C(R)-C(L-1)$。这里统计的是不同整数，而非组合方案数；0 对应所有步长均使用 0 次，也计入可表示整数。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 \InlineCode{build(a)} 传入普通的步长列表，一次完成初始化和最短路计算；再次调用会重建。\InlineCode{dis[r]} 保存余数 $r$ 的最小可表示值，\InlineCode{can(x)} 判断 $x$ 能否表示，\InlineCode{count(x)} 统计 $[0,x]$，\InlineCode{count(l,r)} 统计闭区间 $[l,r]$。查询必须在构建后进行，负数不计入答案。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 ModShortestPath g;
@@ -43,7 +43,7 @@ long long cnt=g.count(1,100);
 long long low=g.dis[5];
 \end{lstlisting}
 
-\subsection*{需要注意}
+\subsubsection*{需要注意}
 若初始值为 $b$，后续只能增加这些步长，统计 $[L,R]$ 时查询 \InlineCode{count(L-b,R-b)}；平移需保证整数类型不溢出。初始值只平移答案，不改变步长建图。
 
 若所有步长的最大公约数 $g>1$，部分余数不可达，也存在无限多个不可表示的正整数；不必强行假设所有余数都有最短路。若 $g=1$、$p>1$ 且全部距离均未被截断，最大不可表示整数为 $\max_r dis_r-p$；$p=1$ 时所有非负整数都可表示。
@@ -51,5 +51,5 @@ long long low=g.dis[5];
 模板将距离不小于 \InlineCode{INF} 的状态截断；在约定查询范围内，这些状态不会贡献答案。\InlineCode{dis[r]==INF} 表示不可达或最小值超出该范围。\InlineCode{count(0,x)} 包含 0，只统计正整数时从 1 开始。
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/graphs/mod_shortest_path.cpp}

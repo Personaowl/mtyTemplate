@@ -12,6 +12,7 @@
 - 常用函数：`init,dfs,lca,find,merge,modify,query,qpow`。
 - 数据结构常封装成 `struct DSU/BIT/SegTree`；线段树用 `Node,tr,ls,rs,pushup,pushdown`。
 - 局部辅助函数使用 `[&]` lambda，递归常使用 `auto &&self`；遍历可使用 `auto` 和结构化绑定。
+- 图／树的 DFS、Tarjan 和 Dinic 推流用递归；不写显式调用栈来模拟 DFS。Tarjan 用于归属 SCC 的点栈仍保留；BFS、Kahn 拓扑排序使用队列。该约定适用于后续新增内容。
 - 中文说明主要放入 `.tex`，包括参数、返回值、范围、初始化、多测和特殊边界。源码中的必要短注释可以保留。
 
 代码排版使用 `listings`，每次直接读取 `.cpp`；不在 LaTeX 内维护第二份实现。UTF-8 中文注释建议写成独立注释行，添加后检查实际 PDF 的字距与断行。

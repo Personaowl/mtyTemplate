@@ -1,0 +1,34 @@
+% Reference: https://cp-algorithms.com/graph/kuhn_maximum_bipartite_matching.html
+% Validation: docs/validation.md.
+\subsection{匈牙利：DFS 增广求最大匹配}
+\label{algo:hungarian}
+\AlgorithmInfo
+    {求二分图的最大匹配数，并恢复每个点的匹配对象。}
+    {设左右点数为 $n_L,n_R$、边数为 $m$；时间 $O(n_Lm+n_L+n_R)$，空间 $O(n_L+n_R+m)$。}
+    {左右两侧分别从 1 开始编号，0 表示未匹配；只加左侧到右侧的边，支持重边和空侧。}
+
+\subsubsection*{原理}
+匹配要求选中的边两两不共用端点。增广路从未匹配的左点出发，沿未选边与已选边交替前进，到未匹配的右点结束；翻转整条路径的选边状态，匹配数就增加 1。没有增广路时，当前匹配达到最大。
+
+依次尝试为每个左点 $u$ 找位置：枚举相邻右点 $v$，若 $v$ 空闲则直接匹配；否则递归尝试把 $v$ 原来的左点换到其他右点。递归成功后再让 $u$ 占据 $v$，因此先前的选择可以被调整，不是只选择当前空闲邻点的贪心。
+
+\InlineCode{vis[v]} 只限制\textbf{本次增广}中右点不重复访问，不能跨起点永久保留。模板使用时间戳，每次更换起点递增一次，无需反复清空整张访问数组。这里的“匈牙利”指竞赛中常用的无权 DFS 增广写法，也称 Kuhn 算法；带权匹配可按第~\ref{math:flow-models}~节转为费用流。
+
+\subsubsection*{使用教程}
+\InlineCode{init(nL,nR)} 分别设置两侧点数，\InlineCode{add(u,v)} 只加入左点 $u$ 与右点 $v$ 的合法配对。\InlineCode{solve()} 每次从空匹配开始，返回最大匹配数。\InlineCode{ml[u]} 是左点的右侧对象，\InlineCode{mr[v]} 是右点的左侧对象，0 表示未匹配。左右相同数字表示不同顶点，不是自环。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+Hungarian g;
+g.init(3,3);
+g.add(1,1),g.add(1,2),g.add(2,1),g.add(3,2),g.add(3,3);
+int ans=g.solve();
+int partner=g.ml[1];
+vector<pair<int,int>> matching;
+for(int u=1;u<=3;u++) if(g.ml[u]){
+	matching.push_back({u,g.ml[u]});
+}
+\end{lstlisting}
+若原图未给出左右划分，先染色，再对两侧分别编号；每条无向边只从左侧向右侧加入一次。两侧规模差距很大时，尽量从点数较少的一侧发起增广。
+
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/graphs/hungarian.cpp}

@@ -1,20 +1,20 @@
 % Source: ACM_Templates.pdf, PDF pp. 68-69.
 % Review and validation: docs/validation.md.
-\section{Floyd：全源最短路}
+\subsection{Floyd：全源最短路}
 \label{algo:floyd}
 \AlgorithmInfo
     {在较小的稠密图上求任意两点最短距离，并检测负环。}
     {时间 $O(n^3)$，空间 $O(n^2)$。}
     {允许负边；无负环时有限距离绝对值小于 $4\times10^{18}$。}
 
-\subsection*{原理}
+\subsubsection*{原理}
 令 $d^{(k)}_{ij}$ 为只允许前 $k$ 个点作内部中转点的最短路。路径不经过 $k$，或分成 $i\to k$ 和 $k\to j$ 两段，所以
 \[
     d^{(k)}_{ij}=\min(d^{(k-1)}_{ij},d^{(k-1)}_{ik}+d^{(k-1)}_{kj}).
 \]
 原地更新时，中转点 $k$ 必须在最外层。初始对角线为 $0$，重边取最小；两个子路径都可达时才相加，避免无穷与负权相加产生假路径。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 \InlineCode{add(u,v,w)} 加有向边，无向图加反向边。全部输入后运行 \InlineCode{run()}；返回真才将 \InlineCode{dis[u][v]} 作为有限最短路使用，\InlineCode{INF} 表示不可达。返回假说明某个 $dis_{ii}<0$，图中存在负环。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 Floyd g;
@@ -25,7 +25,7 @@ if(ok){long long ans=g.dis[1][3];}
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/graphs/floyd.cpp}
 
 负环会让经过它的部分点对没有有限最短路，不能把所有数值继续当作答案。模板将过小的中间值截到负的 \InlineCode{INF}，只用于防止检测过程溢出；无负环且符合距离范围时，该截断不会影响结果。建新图时重新 \InlineCode{init}。

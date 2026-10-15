@@ -1,13 +1,13 @@
 % Source: ACM_Templates.pdf, PDF pp. 11-13, AC automaton/swk.
 % Validation and changes: docs/validation.md; scripts/check_strings.py.
-\section{AC 自动机：多模式串计数}
+\subsection{AC 自动机：多模式串计数}
 \label{algo:ac-automaton}
 \AlgorithmInfo
     {一次扫描文本，统计每个模式串的出现次数，允许重叠和重复模式串。}
     {设总模式长度为 $L$、节点数 $S$、模式个数 $k$。插入 $O(L)$，建图 $O(26S)$；查询 $O(n+S+k)$，空间 $O(26S+k)$。}
     {文本与模式串只含小写英文字母；模式编号从 1 开始。}
 
-\subsection*{原理}
+\subsubsection*{原理}
 先把所有模式串插入 Trie。节点的 \InlineCode{fail} 指向当前路径的最长可用后缀；BFS 构建这些指针，同时补齐缺失转移，使文本每个字符都能通过一次跳转完成匹配。
 
 扫描文本时，只给当前到达的节点加一。某个节点被访问，也意味着其 \InlineCode{fail} 链上的后缀模式被匹配。按 BFS 的逆序执行
@@ -16,7 +16,7 @@
 \]
 即可把访问次数向后缀汇总。每个模式串读取终止节点的计数，重复模式串也能分别得到相同结果，无需递归建立 fail 树。
 
-\subsection*{使用教程}
+\subsubsection*{使用教程}
 按“插入全部模式串、\InlineCode{build()}、\InlineCode{query(s)}”的顺序调用。\InlineCode{insert} 返回该次插入的模式编号，\InlineCode{query} 返回各模式的出现次数，使用该编号读取答案；第 0 项不用。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 AC ac;
@@ -29,8 +29,8 @@ long long cnt=ans[a];
 同一对象可查询多个文本，每次单独计数；\InlineCode{init()} 可以清空模式串和转移，开始下一组数据。
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/strings/ac_automaton.cpp}
 
-\subsection*{需要注意}
+\subsubsection*{需要注意}
 \InlineCode{build()} 会把缺失边补成自动机转移，之后不能继续插入模式串，需要重新 \InlineCode{init()}。重复调用 \InlineCode{build()} 不会重复建图。子节点与 fail 索引使用 \InlineCode{int32_t}，计数使用 \InlineCode{long long}；空模式串的出现次数约定为 $n+1$。

@@ -1,8 +1,8 @@
 % Source: ACM_Templates.pdf, PDF pp. 35-37.
 % Corrections and validation: docs/validation.md.
-\section{高斯消元：实数与异或方程组}
+\subsection{高斯消元：实数与异或方程组}
 \label{algo:gauss}
-\subsection*{原理：主元与自由变量}
+\subsubsection*{原理：主元与自由变量}
 对增广矩阵 $[A\mid b]$ 做交换两行、某行乘非零常数、某行加另一行倍数等初等行变换，解集保持不变。依次按列寻找主元，将该列其他行消成零，即可得到便于读解的形式。
 
 \textbf{行指针和列指针必须分开。}某列在剩余行中找不到主元时，该列对应自由变量，跳过该列但不能消耗一行。消元结束后，设系数矩阵有 $m$ 列、秩为 $r$：
@@ -13,7 +13,7 @@
 \end{itemize}
 把所有自由变量设为 $0$，再读取主元行，可得到一组特解。若要全部解，将每个自由变量依次设为 $1$、其他设为 $0$，对齐次系统求相应方向向量，再与特解作线性组合。
 
-\subsection*{实数消元的使用教程}
+\subsubsection*{实数消元的使用教程}
 \InlineCode{gauss(a,ans,eps)} 接收从 $0$ 开始的 $n\times(m+1)$ 增广矩阵，要求 $n\geq1$，末列为常数；矩阵按值传入，原数据保留。返回 $0$ 表示无解，$1$ 表示唯一解，$2$ 表示多解；有解时 \InlineCode{ans} 存一组特解，按未知数顺序从 $0$ 开始。
 
 每次选取剩余行中绝对值最大的主元，以减轻数值误差；绝对值不超过 \InlineCode{eps} 时视为零。
@@ -26,15 +26,15 @@ int status=gauss(a,ans);
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/number-theory/gauss.cpp}
 
-\subsection*{异或方程组}
+\subsubsection*{异或方程组}
 每个变量为 $0$ 或 $1$，加法在 $\mathbb F_2$ 上进行，行加减都变成异或，不再使用浮点数。寻找值为 $1$ 的主元，随后把其他行该列的 $1$ 异或消去。
 
 判定方式与上面相同，但有自由变量时解的数量是\textbf{有限的} $2^{m-r}$，不是无穷多。秩应按实际选中的主元计数，不能简单依赖消元后对角线上的 $1$。
 
-\subsection*{异或模板的使用教程}
+\subsubsection*{异或模板的使用教程}
 \InlineCode{xor_gauss(a,ans,rank)} 的矩阵与返回状态约定同上，元素必须为 $0$ 或 $1$；通过引用返回秩。若只需方案数，有解时根据自由变量数 $m-\InlineCode{rank}$ 计算 $2^{m-r}$，按题意决定取模或大整数。
 \begin{lstlisting}[style=mtycpp,numbers=none]
 vector<vector<int>> a={{1,1,0},{0,1,1}};
@@ -44,5 +44,5 @@ int status=xor_gauss(a,ans,rank);
 \end{lstlisting}
 
 \needspace{7\baselineskip}
-\subsection*{模板代码}
+\subsubsection*{模板代码}
 \CodeFile{code/number-theory/xor_gauss.cpp}

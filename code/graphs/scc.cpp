@@ -7,34 +7,24 @@ struct SCC{
 	int build(){
 		dfn.assign(n+1,0);low.assign(n+1,0);bel.assign(n+1,0);
 		sz.assign(1,0);cnt=0;
-		vector<int> fa(n+1,0),it(n+1,0),stk,call;
+		vector<int> stk;
 		int tim=0;
-		for(int s=1;s<=n;s++){
-			if(dfn[s]) continue;
-			dfn[s]=low[s]=++tim;stk.push_back(s);call.push_back(s);
-			while(!call.empty()){
-				int u=call.back();
-				if(it[u]<(int)e[u].size()){
-					int v=e[u][it[u]++];
-					if(!dfn[v]){
-						fa[v]=u;dfn[v]=low[v]=++tim;
-						stk.push_back(v);call.push_back(v);
-					}
-					else if(!bel[v]) low[u]=min(low[u],dfn[v]);
-					continue;
-				}
-				call.pop_back();
-				if(fa[u]) low[fa[u]]=min(low[fa[u]],low[u]);
-				if(low[u]==dfn[u]){
-					cnt++;sz.push_back(0);
-					while(true){
-						int v=stk.back();stk.pop_back();
-						bel[v]=cnt;sz[cnt]++;
-						if(v==u) break;
-					}
+		auto dfs=[&](auto &&self,int u)->void{
+			dfn[u]=low[u]=++tim;stk.push_back(u);
+			for(auto v:e[u]){
+				if(!dfn[v]){self(self,v);low[u]=min(low[u],low[v]);}
+				else if(!bel[v]) low[u]=min(low[u],dfn[v]);
+			}
+			if(low[u]==dfn[u]){
+				cnt++;sz.push_back(0);
+				while(true){
+					int v=stk.back();stk.pop_back();
+					bel[v]=cnt;sz[cnt]++;
+					if(v==u) break;
 				}
 			}
-		}
+		};
+		for(int u=1;u<=n;u++) if(!dfn[u]) dfs(dfs,u);
 		return cnt;
 	}
 	vector<vector<int>> dag() const{
