@@ -1,0 +1,49 @@
+% Source: user supplied time-segment + rollback DSU dynamic bipartite code.
+% Corrected the build domain from vertex count n to time count k; reuses rollback_dsu.cpp.
+\subsection{线段树分治：时间轴与动态二分图}
+\label{ds:time-segment}
+\AlgorithmInfo
+    {离线处理区间内生效的操作；本模板逐时刻判断无向图是否为二分图。}
+    {$O(n+k+m\log(k+1)\log(n+1))$ 时间，$O(n+k+m\log(k+1))$ 空间。}
+    {点号 $1\ldots n$，时间 $1\ldots k$，$n,k\ge1$；m 为边的生效区间数；依赖可撤销并查集。}
+\subsubsection*{原理：把删除变成回滚}
+对每个操作先求出其生效时间区间 $[L,R]$，再将这段拆成时间线段树上的 $O(\log k)$ 个完整覆盖节点，操作存入节点的 E。它对该节点整段时间都有效，无需逐时刻加入。
+
+递归进入节点前保存数据结构的历史版本，加入当前节点的全部操作，再访问左右儿子；离开时撤销到保存的版本。到达时刻 t 的叶子时，根到叶路径上的操作恰好是 t 时刻生效的操作。回滚使左子树的临时修改不会影响右子树，也就用离线分治处理了原本需要删除的情况。
+
+通用要求是\textbf{操作可撤销，查询结果只依赖当前生效的操作集合，不依赖加入顺序}。例如动态连通性可用普通合并并在叶子回答连通查询；本节具体实现选择动态二分图，不把不同查询类型套进额外泛型框架。
+
+\subsubsection*{二分图判定与剪枝}
+扩展域并查集用 x 和 x+n 表示相反类别。无向边 $(x,y)$ 要求两端异类，加入时合并 x 与 y+n、x+n 与 y；若加入前 x、y 已同类，则出现奇环或自环，产生矛盾。复用第~\ref{ds:rollback-dsu}~节，按大小合并且\textbf{不做路径压缩}。
+
+若某节点的已有约束就矛盾，它的子区间只会继续增加约束，整段都不可能变成二分图，可直接把答案置零而不再递归。无论正常结束还是发现矛盾，退出节点时都要 rollback，包括发现矛盾前已完成的合并。
+
+每段边至多存入 $O(\log k)$ 个节点，每次查找／合并为 $O(\log n)$。剪枝时写零的区间互不重叠，总计至多覆盖 k 个时刻；当前 DSU 的成功合并历史至多 $2n-1$ 条，递归返回后立即释放该分支历史。
+
+\subsubsection*{使用教程}
+先复制可撤销并查集，再复制本节代码。\InlineCode{TimeSegTree(k,n)} 的\textbf{第一个参数是时间数量 k，第二个是原图点数 n}；创建后调用 \InlineCode{build(1,1,k)}。树维护时间轴，不按图的点数 n 建树，也不使用前面静态线段树的 w 初值约定。
+
+\InlineCode{modify(1,L,R,{u,v})} 将一条无向边加入闭时间区间 $[L,R]$，非空时须满足 $1\le L\le R\le k$；L>R 时忽略。准备一个 \InlineCode{init(2*n)} 后尚无约束的 RollbackDSU，全部区间加入后调用 \InlineCode{dfs(1,dsu)}，答案在 \InlineCode{ans[1..k]}：1 为二分图，0 为不是二分图。重边允许，未出现边的时刻也是二分图。
+\begin{lstlisting}[style=mtycpp,numbers=none]
+int n=4,k=6;
+RollbackDSU dsu;
+dsu.init(2*n);
+TimeSegTree seg(k,n);
+seg.build(1,1,k);
+seg.modify(1,1,4,{1,2});
+seg.modify(1,3,6,{2,3});
+seg.modify(1,4,5,{3,1});
+seg.dfs(1,dsu);
+for(int t=1;t<=k;t++){
+	bool ok=seg.ans[t];
+}
+\end{lstlisting}
+
+若输入一条边在 $(l,r]$ 内存在，整数时刻对应 $[l+1,r]$，l=r 时为空。源码末尾 \InlineCode{solve_time_bipartite()} 按此格式读入 n、m、k，再读 m 行 u、v、l、r，要求 $0\le l\le r\le k$；逐时刻输出 Yes／No，可从自己的 main 调用。
+
+如果输入是逐次加边／删边，且查询表示该次操作\textbf{完成后}的状态，则时刻 a 加入、b 删除的边应登记 $[a,b-1]$，仍未删除的边登记到 k；重边按边编号或出现次数配对生效区间。先约定时间语义，再转换成 modify 的闭区间。
+
+dfs 完成后 DSU 回到调用前的状态，ans 会重新覆盖；同一对象保留已加入的区间，可重复 dfs 或补加区间后再计算。再次 build 会清空节点中的边表，随后须重新登记区间并运行 dfs；切换 n 或 k 时重新创建对象。
+\needspace{7\baselineskip}
+\subsubsection*{模板代码}
+\CodeFile{code/data-structures/time_segment.cpp}

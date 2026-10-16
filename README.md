@@ -2,7 +2,7 @@
 
 猫头鹰的 ACM / ICPC 算法模板手册。源码与讲解分开维护，使用 C++17、XeLaTeX；阅读和打印共用一份 PDF。
 
-当前版本 **v0.12.4**，共 **九章、175 个条目**。PDF 只含封面、目录与算法，使用和维护说明集中在本 README。
+当前版本 **v0.12.5**，共 **九章、176 个条目**。PDF 只含封面、目录与算法，使用和维护说明集中在本 README。
 
 ## 构建与下载
 
@@ -30,7 +30,7 @@ Windows 也可运行 `.\scripts\build.ps1`。唯一产物为 `build/main.pdf`；
 | 3 图论 | 最短路、生成树、DAG DP、Tarjan、欧拉路径、2-SAT、二分图、网络流 | 25 |
 | 4 树 | 性质、直径／中心／重心、LCA／差分、重链／长链、虚树、重构树、DSU on tree | 16 |
 | 5 STL | 容器、迭代器、比较器／运算符重载、排序查找、位集、GNU 扩展 | 18 |
-| 6 数据结构 | 并查集、单调结构／对顶堆、01 Trie、ST／BIT、线段树、可持久化、分块／ODT／莫队 | 26 |
+| 6 数据结构 | 并查集、单调结构／对顶堆、01 Trie、ST／BIT、线段树／时间分治、可持久化、分块／ODT／莫队 | 27 |
 | 7 动态规划 | 背包、区间、状压、数位、树形、概率／期望、单调结构／凸包／分治优化 | 26 |
 | 8 计算几何 | 精度、直线／线段、多边形／凸包、圆、半平面交、三维基础 | 23 |
 | 9 其他 | 起手模板、二分／三分、折半搜索、多维前缀／差分、生成器与比赛脚本 | 11 |
@@ -309,6 +309,7 @@ python scripts/check_code.py --full
 | 图论／树的极小模型 | check_graphs.py、check_trees.py 加 `--audit`，完整入口不默认附加这两项 |
 | 01 Trie／0-1 BFS／欧拉／点双／反演 | `python scripts/check_basic_additions.py`，也含在完整回归中 |
 | 哈希 | `python scripts/check_hash.py`，也含在字符串完整回归中 |
+| 线段树分治／动态二分图 | `python scripts/check_data_structures.py --time-segment`，也含在数据结构 `--smoke` 与全书 `--full` 中 |
 | 闭合子图／面积／插值卷积判素 | 分别用 check_graphs.py 的 `--closure`、check_geometry.py 的 `--area`、check_number_theory.py 的 `--additions` |
 | 比赛脚本 | `python scripts/check_contest.py`；只查简版 run.sh 加 `--run-only`，Windows 需 Git Bash |
 
